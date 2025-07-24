@@ -34,9 +34,54 @@
             </div>
         </div>
         
+        <!-- System Monitor Split Panes -->
+        <div class="monitor-interface" id="monitorInterface" style="display: none;">
+            <div class="monitor-header">
+                <div class="monitor-title">ADRIAN.SYS - System Monitor v2.1</div>
+                <div class="monitor-controls">
+                    <span class="monitor-time" id="monitorTime"></span>
+                    <span class="monitor-exit">Press 'q' to quit</span>
+                </div>
+            </div>
+            
+            <div class="monitor-content">
+                <div class="monitor-pane left-pane">
+                    <div class="pane-header">
+                        <span class="pane-title">🏗️ CI/CD PIPELINE STATUS</span>
+                        <span class="pane-refresh" id="ciRefresh">●</span>
+                    </div>
+                    <div class="pane-content" id="ciContent">
+                        <!-- CI/CD data will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="monitor-divider">│</div>
+                
+                <div class="monitor-pane right-pane">
+                    <div class="pane-header">
+                        <span class="pane-title">🏡 HOMESTEAD TELEMETRY</span>
+                        <span class="pane-refresh" id="homesteadRefresh">●</span>
+                    </div>
+                    <div class="pane-content" id="homesteadContent">
+                        <!-- Homestead data will be populated here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="monitor-footer">
+                <div class="footer-stats">
+                    <span>Load: <span id="systemLoad">0.42</span></span>
+                    <span>Mem: <span id="memUsage">1.2GB/16GB</span></span>
+                    <span>Net: <span id="netActivity">▼2.1MB ▲0.8MB</span></span>
+                    <span>Status: <span class="status-online">OPERATIONAL</span></span>
+                </div>
+            </div>
+        </div>
+        
     </div>
     
     <script src="assets/music-player.js"></script>
+    <script src="assets/system-monitor.js"></script>
     <script src="assets/terminal.js"></script>
 </body>
 </html>

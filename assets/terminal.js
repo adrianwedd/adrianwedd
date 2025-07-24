@@ -6,6 +6,7 @@ class Terminal {
         this.musicPlayer = new RetroMusicPlayer();
         this.inChatMode = false;
         this.chatSessionId = null;
+        this.systemMonitor = new SystemMonitor();
         this.init();
     }
 
@@ -119,6 +120,11 @@ class Terminal {
             case 'neofetch':
                 this.showNeofetch();
                 break;
+            case 'monitor':
+            case 'htop':
+            case 'btop':
+                this.enterMonitorMode();
+                break;
             case 'music':
             case 'play':
                 this.handleMusicCommand(args);
@@ -172,6 +178,7 @@ class Terminal {
             '  matrix    → 🎨 Toggle matrix rain background effect',
             '  music     → 🎵 Play retro synth music (cyberpunk/ambient/synthwave/matrix)',
             '  neofetch  → 📊 System information display',
+            '  monitor   → 📈 Real-time system monitor (htop/btop style)',
             '',
             'System Commands:',
             '  ls        → List directory contents',
@@ -684,6 +691,14 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
         this.musicPlayer.setVolume(volume);
         this.addOutput(`🔊 Volume set to ${Math.round(volume * 100)}%`, 'success');
+    }
+
+    // System Monitor Methods
+    async enterMonitorMode() {
+        this.addOutput('', 'info');
+        this.addOutput('🖥️  Entering system monitor mode...', 'success');
+        this.addOutput('Press \'q\' to return to terminal', 'info');
+        await this.systemMonitor.enterMonitorMode();
     }
 
     // Inline Chat Methods
