@@ -127,7 +127,8 @@ test.describe('Music System Functionality', () => {
     await expect(musicPlayerStatus).toContainText('Music stopped');
 
     await terminalInput.fill('play ambient');
-    await terminalInput.press('Enter');
+    await terminalInput.press('Enter
+');
     await expect(musicPlayerStatus).toContainText('Now playing: Ambient');
 
     await terminalInput.fill('stop music');

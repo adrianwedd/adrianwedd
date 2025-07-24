@@ -17,6 +17,7 @@
     "lint:css": "stylelint \"**/*.css\"",
     "test:unit": "playwright test tests/unit",
     "test:accessibility": "playwright test tests/e2e/accessibility.spec.js",
+    "test:mobile": "playwright test tests/e2e/mobile-responsiveness.spec.js",
     "prepare": "husky install",
     "lhci": "lhci autorun --config=.lighthouserc.js"
   },
