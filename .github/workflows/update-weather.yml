@@ -1,0 +1,297 @@
+name: 🌤️ Tasmania Weather Update
+on:
+  schedule:
+    - cron: '0 */3 * * *' # Every 3 hours
+  workflow_dispatch: # Manual trigger
+    inputs:
+      location:
+        description: 'Weather location (grove/cygnet)'
+        required: false
+        default: 'grove'
+        type: choice
+        options:
+        - grove
+        - cygnet
+
+jobs:
+  update-weather:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - name: 🚀 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🌍 Determine Location
+      id: location
+      run: |
+        LOCATION="${{ github.event.inputs.location || 'grove' }}"
+        
+        if [ "$LOCATION" = "grove" ]; then
+          # Grove/Cygnet area - closest BOM station
+          BOM_URL="http://reg.bom.gov.au/fwo/IDT60801/IDT60801.95977.json"
+          STATION_NAME="Grove (Cygnet Area)"
+          COORDINATES="-43.1647,147.0584"
+        else
+          # Default to same station for now - could add more locations
+          BOM_URL="http://reg.bom.gov.au/fwo/IDT60801/IDT60801.95977.json"
+          STATION_NAME="Grove (Cygnet Area)"
+          COORDINATES="-43.1647,147.0584"
+        fi
+        
+        echo "bom_url=$BOM_URL" >> $GITHUB_OUTPUT
+        echo "station_name=$STATION_NAME" >> $GITHUB_OUTPUT
+        echo "coordinates=$COORDINATES" >> $GITHUB_OUTPUT
+        echo "location=$LOCATION" >> $GITHUB_OUTPUT
+
+    - name: 🌦️ Fetch BOM Weather Data
+      id: weather
+      run: |
+        echo "🌤️ Fetching weather data from BOM..."
+        
+        # Fetch the JSON data with user agent (BOM requires this)
+        WEATHER_JSON=$(curl -s -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" \
+          "${{ steps.location.outputs.bom_url }}")
+        
+        if [ -z "$WEATHER_JSON" ] || [ "$WEATHER_JSON" = "null" ]; then
+          echo "❌ Failed to fetch weather data"
+          exit 1
+        fi
+        
+        # Parse the complex BOM JSON structure
+        # BOM data has observations -> data array with latest first
+        LATEST_OBS=$(echo "$WEATHER_JSON" | jq -r '.observations.data[0]')
+        
+        if [ "$LATEST_OBS" = "null" ]; then
+          echo "❌ No weather observations found"
+          exit 1
+        fi
+        
+        # Extract key weather data
+        TEMP=$(echo "$LATEST_OBS" | jq -r '.air_temp // "N/A"')
+        APPARENT_TEMP=$(echo "$LATEST_OBS" | jq -r '.apparent_t // "N/A"')
+        HUMIDITY=$(echo "$LATEST_OBS" | jq -r '.rel_hum // "N/A"')
+        WIND_DIR=$(echo "$LATEST_OBS" | jq -r '.wind_dir // "N/A"')
+        WIND_SPEED_KMH=$(echo "$LATEST_OBS" | jq -r '.wind_spd_kmh // "0"')
+        WIND_GUST_KMH=$(echo "$LATEST_OBS" | jq -r '.gust_kmh // "0"')
+        PRESSURE=$(echo "$LATEST_OBS" | jq -r '.press_msl // "N/A"')
+        RAINFALL=$(echo "$LATEST_OBS" | jq -r '.rain_trace // "0"')
+        WEATHER_DESC=$(echo "$LATEST_OBS" | jq -r '.weather // "Fine"')
+        OBSERVATION_TIME=$(echo "$LATEST_OBS" | jq -r '.aifstime_utc')
+        
+        # Convert observation time to readable format
+        if [ "$OBSERVATION_TIME" != "null" ] && [ "$OBSERVATION_TIME" != "N/A" ]; then
+          FORMATTED_TIME=$(date -d "$OBSERVATION_TIME" "+%Y-%m-%d %H:%M UTC" 2>/dev/null || echo "$OBSERVATION_TIME")
+        else
+          FORMATTED_TIME="Unknown"
+        fi
+        
+        # Generate weather emoji based on conditions
+        WEATHER_EMOJI="☀️"
+        case "$WEATHER_DESC" in
+          *"Rain"*|*"Shower"*) WEATHER_EMOJI="🌧️" ;;
+          *"Cloud"*|*"Overcast"*) WEATHER_EMOJI="☁️" ;;
+          *"Clear"*|*"Fine"*) WEATHER_EMOJI="☀️" ;;
+          *"Storm"*|*"Thunder"*) WEATHER_EMOJI="⛈️" ;;
+          *"Fog"*|*"Mist"*) WEATHER_EMOJI="🌫️" ;;
+          *"Wind"*) WEATHER_EMOJI="💨" ;;
+        esac
+        
+        # Determine comfort level
+        COMFORT="Perfect"
+        if [ "$TEMP" != "N/A" ] && [ "$TEMP" != "null" ]; then
+          if (( $(echo "$TEMP < 10" | bc -l) )); then
+            COMFORT="Cold ❄️"
+          elif (( $(echo "$TEMP > 25" | bc -l) )); then
+            COMFORT="Warm 🔥"
+          elif (( $(echo "$TEMP > 30" | bc -l) )); then
+            COMFORT="Hot ☀️"
+          else
+            COMFORT="Perfect 😌"
+          fi
+        fi
+        
+        # Create outputs for next step
+        echo "temp=$TEMP" >> $GITHUB_OUTPUT
+        echo "apparent_temp=$APPARENT_TEMP" >> $GITHUB_OUTPUT
+        echo "humidity=$HUMIDITY" >> $GITHUB_OUTPUT
+        echo "wind_dir=$WIND_DIR" >> $GITHUB_OUTPUT
+        echo "wind_speed=$WIND_SPEED_KMH" >> $GITHUB_OUTPUT
+        echo "wind_gust=$WIND_GUST_KMH" >> $GITHUB_OUTPUT
+        echo "pressure=$PRESSURE" >> $GITHUB_OUTPUT
+        echo "rainfall=$RAINFALL" >> $GITHUB_OUTPUT
+        echo "weather_desc=$WEATHER_DESC" >> $GITHUB_OUTPUT
+        echo "observation_time=$FORMATTED_TIME" >> $GITHUB_OUTPUT
+        echo "weather_emoji=$WEATHER_EMOJI" >> $GITHUB_OUTPUT
+        echo "comfort=$COMFORT" >> $GITHUB_OUTPUT
+        
+        # Debug output
+        echo "🌡️ Temperature: $TEMP°C (feels like $APPARENT_TEMP°C)"
+        echo "💧 Humidity: $HUMIDITY%"
+        echo "💨 Wind: $WIND_DIR $WIND_SPEED_KMH km/h (gusts $WIND_GUST_KMH km/h)"
+        echo "🌤️ Conditions: $WEATHER_DESC $WEATHER_EMOJI"
+
+    - name: 🎨 Generate Weather Visualization
+      id: visualization
+      run: |
+        # Create ASCII art weather visualization
+        TEMP="${{ steps.weather.outputs.temp }}"
+        HUMIDITY="${{ steps.weather.outputs.humidity }}"
+        WIND_SPEED="${{ steps.weather.outputs.wind_speed }}"
+        
+        # Temperature bar (0-40°C scale)
+        if [ "$TEMP" != "N/A" ] && [ "$TEMP" != "null" ]; then
+          TEMP_PERCENT=$(echo "scale=0; ($TEMP * 100) / 40" | bc -l 2>/dev/null || echo "50")
+          TEMP_BARS=$(echo "scale=0; $TEMP_PERCENT / 10" | bc -l 2>/dev/null || echo "5")
+        else
+          TEMP_BARS=5
+        fi
+        
+        # Humidity bar (0-100% scale)
+        if [ "$HUMIDITY" != "N/A" ] && [ "$HUMIDITY" != "null" ]; then
+          HUMIDITY_BARS=$(echo "scale=0; $HUMIDITY / 10" | bc -l 2>/dev/null || echo "5")
+        else
+          HUMIDITY_BARS=5
+        fi
+        
+        # Wind bar (0-50 km/h scale)
+        if [ "$WIND_SPEED" != "N/A" ] && [ "$WIND_SPEED" != "null" ]; then
+          WIND_BARS=$(echo "scale=0; ($WIND_SPEED * 10) / 50" | bc -l 2>/dev/null || echo "2")
+        else
+          WIND_BARS=2
+        fi
+        
+        # Ensure bars are within range
+        TEMP_BARS=$(( TEMP_BARS > 10 ? 10 : TEMP_BARS ))
+        TEMP_BARS=$(( TEMP_BARS < 0 ? 0 : TEMP_BARS ))
+        HUMIDITY_BARS=$(( HUMIDITY_BARS > 10 ? 10 : HUMIDITY_BARS ))
+        HUMIDITY_BARS=$(( HUMIDITY_BARS < 0 ? 0 : HUMIDITY_BARS ))
+        WIND_BARS=$(( WIND_BARS > 10 ? 10 : WIND_BARS ))
+        WIND_BARS=$(( WIND_BARS < 0 ? 0 : WIND_BARS ))
+        
+        # Generate bar charts
+        TEMP_BAR=$(printf "█%.0s" $(seq 1 $TEMP_BARS))$(printf "░%.0s" $(seq $(($TEMP_BARS + 1)) 10))
+        HUMIDITY_BAR=$(printf "█%.0s" $(seq 1 $HUMIDITY_BARS))$(printf "░%.0s" $(seq $(($HUMIDITY_BARS + 1)) 10))
+        WIND_BAR=$(printf "█%.0s" $(seq 1 $WIND_BARS))$(printf "░%.0s" $(seq $(($WIND_BARS + 1)) 10))
+        
+        echo "temp_bar=$TEMP_BAR" >> $GITHUB_OUTPUT
+        echo "humidity_bar=$HUMIDITY_BAR" >> $GITHUB_OUTPUT
+        echo "wind_bar=$WIND_BAR" >> $GITHUB_OUTPUT
+
+    - name: 📊 Create Weather Data Files
+      run: |
+        # Create current weather JSON for terminal
+        cat > "assets/current-weather.json" << EOF
+        {
+          "station": "${{ steps.location.outputs.station_name }}",
+          "coordinates": "${{ steps.location.outputs.coordinates }}",
+          "temperature": "${{ steps.weather.outputs.temp }}",
+          "apparent_temperature": "${{ steps.weather.outputs.apparent_temp }}",
+          "humidity": "${{ steps.weather.outputs.humidity }}",
+          "wind_direction": "${{ steps.weather.outputs.wind_dir }}",
+          "wind_speed_kmh": "${{ steps.weather.outputs.wind_speed }}",
+          "wind_gust_kmh": "${{ steps.weather.outputs.wind_gust }}",
+          "pressure_hpa": "${{ steps.weather.outputs.pressure }}",
+          "rainfall_mm": "${{ steps.weather.outputs.rainfall }}",
+          "conditions": "${{ steps.weather.outputs.weather_desc }}",
+          "weather_emoji": "${{ steps.weather.outputs.weather_emoji }}",
+          "comfort_level": "${{ steps.weather.outputs.comfort }}",
+          "observation_time": "${{ steps.weather.outputs.observation_time }}",
+          "updated_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+          "visualizations": {
+            "temperature_bar": "${{ steps.visualization.outputs.temp_bar }}",
+            "humidity_bar": "${{ steps.visualization.outputs.humidity_bar }}",
+            "wind_bar": "${{ steps.visualization.outputs.wind_bar }}"
+          }
+        }
+        EOF
+
+    - name: 📝 Create Weather Markdown Page
+      run: |
+        mkdir -p weather/daily
+        DATE=$(date +%Y%m%d)
+        
+        cat > "weather/daily/$DATE.md" << EOF
+        # 🌤️ Tasmania Weather - $(date +"%Y-%m-%d")
+        
+        **Station:** ${{ steps.location.outputs.station_name }}  
+        **Coordinates:** ${{ steps.location.outputs.coordinates }}  
+        **Last Updated:** ${{ steps.weather.outputs.observation_time }}
+        
+        ## 🌡️ Current Conditions
+        
+        **Weather:** ${{ steps.weather.outputs.weather_desc }} ${{ steps.weather.outputs.weather_emoji }}  
+        **Temperature:** ${{ steps.weather.outputs.temp }}°C (feels like ${{ steps.weather.outputs.apparent_temp }}°C)  
+        **Comfort Level:** ${{ steps.weather.outputs.comfort }}
+        
+        ## 📊 Detailed Measurements
+        
+        | Metric | Value | Visualization |
+        |--------|-------|---------------|
+        | 🌡️ Temperature | ${{ steps.weather.outputs.temp }}°C | [${{ steps.visualization.outputs.temp_bar }}] |
+        | 💧 Humidity | ${{ steps.weather.outputs.humidity }}% | [${{ steps.visualization.outputs.humidity_bar }}] |
+        | 💨 Wind Speed | ${{ steps.weather.outputs.wind_speed }} km/h | [${{ steps.visualization.outputs.wind_bar }}] |
+        | 🧭 Wind Direction | ${{ steps.weather.outputs.wind_dir }} | |
+        | 🌪️ Wind Gusts | ${{ steps.weather.outputs.wind_gust }} km/h | |
+        | 🔽 Pressure | ${{ steps.weather.outputs.pressure }} hPa | |
+        | 🌧️ Rainfall | ${{ steps.weather.outputs.rainfall }} mm | |
+        
+        ## 🌱 Environmental Impact
+        
+        **Solar Conditions:** $([ "${{ steps.weather.outputs.weather_desc }}" = *"Clear"* ] && echo "Optimal ☀️" || echo "Reduced ☁️")  
+        **Precipitation:** $([ "${{ steps.weather.outputs.rainfall }}" = "0" ] && echo "Dry conditions 🌵" || echo "Natural irrigation 🌧️")  
+        **Energy Usage:** $([ "${{ steps.weather.outputs.temp }}" -lt "10" ] && echo "Heating required 🔥" || echo "Comfortable 😌")
+        
+        ---
+        *Data sourced from Australian Bureau of Meteorology*  
+        *Updated automatically via GitHub Actions*
+        EOF
+
+    - name: 🎯 Update Weather Summary
+      run: |
+        # Create a summary file for quick access
+        cat > "weather/latest.md" << EOF
+        # 🌤️ Current Weather - ${{ steps.location.outputs.station_name }}
+        
+        ${{ steps.weather.outputs.weather_emoji }} **${{ steps.weather.outputs.weather_desc }}**  
+        🌡️ ${{ steps.weather.outputs.temp }}°C (feels like ${{ steps.weather.outputs.apparent_temp }}°C)  
+        💧 ${{ steps.weather.outputs.humidity }}% humidity  
+        💨 ${{ steps.weather.outputs.wind_dir }} ${{ steps.weather.outputs.wind_speed }} km/h  
+        
+        **Comfort:** ${{ steps.weather.outputs.comfort }}  
+        **Updated:** ${{ steps.weather.outputs.observation_time }}
+        EOF
+
+    - name: 🚀 Commit Weather Updates
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "Weather Bot"
+        
+        git add weather/ assets/current-weather.json
+        
+        git commit -m "🌤️ Weather Update $(date +%Y%m%d-%H%M)
+
+        📍 ${{ steps.location.outputs.station_name }}
+        ${{ steps.weather.outputs.weather_emoji }} ${{ steps.weather.outputs.weather_desc }}
+        🌡️ ${{ steps.weather.outputs.temp }}°C (feels like ${{ steps.weather.outputs.apparent_temp }}°C)
+        💧 ${{ steps.weather.outputs.humidity }}% humidity
+        💨 ${{ steps.weather.outputs.wind_dir }} ${{ steps.weather.outputs.wind_speed }} km/h
+        
+        Updated: ${{ steps.weather.outputs.observation_time }}"
+
+    - name: 📤 Push Weather Data
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: main
+
+    - name: 📊 Output Weather Summary
+      run: |
+        echo "🌤️ Weather Update Complete!"
+        echo "📍 Location: ${{ steps.location.outputs.station_name }}"
+        echo "${{ steps.weather.outputs.weather_emoji }} Conditions: ${{ steps.weather.outputs.weather_desc }}"
+        echo "🌡️ Temperature: ${{ steps.weather.outputs.temp }}°C"
+        echo "💧 Humidity: ${{ steps.weather.outputs.humidity }}%"
+        echo "💨 Wind: ${{ steps.weather.outputs.wind_dir }} ${{ steps.weather.outputs.wind_speed }} km/h"
+        echo "⏰ Updated: ${{ steps.weather.outputs.observation_time }}"

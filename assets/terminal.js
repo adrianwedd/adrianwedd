@@ -19,6 +19,28 @@ class Terminal {
         this.voiceInterface = null;
         this.voiceEnabled = false;
         
+        // Initialize markdown loader for content
+        this.markdownLoader = new MarkdownLoader();
+        
+        // Initialize GitHub task manager
+        this.githubTaskManager = new GitHubTaskManager();
+        
+        // Initialize GitHub Actions manager
+        this.githubActionsManager = new GitHubActionsManager();
+        
+        // Matrix rain state
+        this.matrixInterval = null;
+        
+        // Command completion state
+        this.availableCommands = [
+            'about', 'actions', 'cache', 'chat', 'clear', 'gh-create', 'gh-list', 'gh-sync', 'help', 'homestead', 'ls', 'magic', 'matrix',
+            'monitor', 'music', 'neofetch', 'projects', 'ps', 'pwd', 'research', 'runs',
+            'skills', 'speak', 'stop', 'tokens', 'trigger', 'uptime', 'veritas', 'voice',
+            'volume', 'weather', 'whoami'
+        ];
+        this.completionIndex = -1;
+        this.lastInput = '';
+        
         this.init();
     }
 
@@ -41,6 +63,9 @@ class Terminal {
         
         // Initialize voice interface
         this.initVoiceInterface();
+        
+        // Set up terminal-style input focus
+        this.setupTerminalFocus();
     }
 
     handleKeydown(event) {
@@ -55,7 +80,10 @@ class Terminal {
             }
         }
         
-        if (event.key === 'Enter') {
+        if (event.key === 'Tab') {
+            event.preventDefault();
+            this.handleTabCompletion(input);
+        } else if (event.key === 'Enter') {
             const command = input.value.trim();
             if (command) {
                 if (this.inChatMode) {
@@ -67,6 +95,7 @@ class Terminal {
                 }
             }
             input.value = '';
+            this.resetCompletion();
         } else if (event.key === 'ArrowUp') {
             event.preventDefault();
             if (this.historyIndex > 0) {
@@ -82,6 +111,9 @@ class Terminal {
                 this.historyIndex = this.commandHistory.length;
                 input.value = '';
             }
+        } else {
+            // Reset completion on any other key
+            this.resetCompletion();
         }
     }
 
@@ -97,19 +129,19 @@ class Terminal {
                 this.showHelp();
                 break;
             case 'about':
-                this.showAbout();
+                this.showMarkdownContent('about');
                 break;
             case 'projects':
-                this.showProjects();
+                this.showMarkdownContent('projects');
                 break;
             case 'skills':
-                this.showSkills();
+                this.showMarkdownContent('skills');
                 break;
             case 'homestead':
-                this.showHomestead();
+                this.showMarkdownContent('homestead');
                 break;
             case 'veritas':
-                this.showVeritas();
+                this.showMarkdownContent('veritas');
                 break;
             case 'chat':
                 this.openChat();
@@ -131,6 +163,21 @@ class Terminal {
                 break;
             case 'uptime':
                 this.showUptime();
+                break;
+            case 'magic':
+                this.showDailyMagic();
+                break;
+            case 'weather':
+                this.showWeather();
+                break;
+            case 'actions':
+                this.handleActionsCommand(parts.slice(1));
+                break;
+            case 'trigger':
+                this.handleTriggerCommand(parts.slice(1));
+                break;
+            case 'runs':
+                this.handleRunsCommand(parts.slice(1));
                 break;
             case 'ps':
                 this.showProcesses();
@@ -164,6 +211,9 @@ class Terminal {
                 break;
             case 'speak':
                 this.handleSpeakCommand(args);
+                break;
+            case 'research':
+                this.handleResearchCommand(args);
                 break;
             case 'sudo':
                 this.addOutput('adrian is not in the sudoers file. This incident will be reported.', 'error');
@@ -236,11 +286,13 @@ class Terminal {
             '',
             'COMMANDS',
             '    about        show personal information',
+            '    actions      list GitHub Actions workflows',
             '    cache        manage prompt cache [clear|stats]',
             '    chat         enter interactive chat mode',
             '    clear        clear terminal screen',
             '    help         display this help message',
             '    ls           list directory contents',
+            '    magic        display daily Claude creativity',
             '    matrix       toggle matrix rain effect',
             '    monitor      system monitor (htop style)',
             '    music        play background music [track]',
@@ -248,13 +300,17 @@ class Terminal {
             '    projects     show technical projects',
             '    ps           show running processes',
             '    pwd          print working directory',
+            '    research     stream research papers [personal|global]',
+            '    runs         show recent workflow runs',
             '    skills       display technical skills',
             '    speak        text-to-speech [text]',
             '    stop         stop currently playing music',
             '    tokens       show AI token statistics',
+            '    trigger      trigger GitHub Actions workflow',
             '    uptime       show system uptime',
             '    voice        voice controls [on|off|status]',
             '    volume       set music volume [0.0-1.0]',
+            '    weather      show Tasmania weather data',
             '    whoami       show current user',
             '',
             'MUSIC TRACKS',
@@ -429,6 +485,263 @@ Current focus: Deep work mode - VERITAS research
         this.addOutput(uptime, 'info');
     }
 
+    async showDailyMagic() {
+        try {
+            // Try to load today's magic from the daily magic file
+            const response = await fetch('./assets/daily-magic.json');
+            if (response.ok) {
+                const magic = await response.json();
+                const date = new Date(magic.timestamp);
+                const isToday = date.toDateString() === new Date().toDateString();
+                
+                this.addOutput('', 'info');
+                this.addOutput('✨ DAILY CLAUDE MAGIC', 'success');
+                this.addOutput('', 'info');
+                
+                if (isToday) {
+                    this.addOutput('🌅 Today\'s Magic:', 'feature-highlight');
+                } else {
+                    this.addOutput(`🕰️  Last Magic (${date.toLocaleDateString()}):`, 'info');
+                }
+                
+                this.addOutput('', 'info');
+                this.addOutput(`🎯 Challenge: ${magic.prompt}`, 'info');
+                this.addOutput('', 'info');
+                this.addOutput('🤖 Claude\'s Response:', 'ai-highlight');
+                this.addOutput(`   ${magic.response}`, 'success');
+                this.addOutput('', 'info');
+                
+                // Token efficiency visualization
+                const efficiency = Math.round((magic.tokens / 50) * 100);
+                const bars = Math.floor(magic.tokens / 5);
+                const tokenBar = '█'.repeat(bars) + '░'.repeat(10 - bars);
+                
+                this.addOutput(`📊 Efficiency: [${tokenBar}] ${magic.tokens}/50 tokens (${efficiency}%)`, 'info');
+                this.addOutput(`🎲 Seed: ${magic.seed}`, 'info');
+                
+                // Show stats if available
+                try {
+                    const statsResponse = await fetch('./magic/stats.json');
+                    if (statsResponse.ok) {
+                        const stats = await statsResponse.json();
+                        this.addOutput('', 'info');
+                        this.addOutput('📈 Total Magic Stats:', 'feature-highlight');
+                        this.addOutput(`   Days of Magic: ${stats.total_days}`, 'info');
+                        this.addOutput(`   Average Tokens: ${stats.average_tokens}`, 'info');
+                        this.addOutput(`   Token Range: ${stats.min_tokens}-${stats.max_tokens}`, 'info');
+                    }
+                } catch (e) {
+                    // Stats not available yet
+                }
+                
+            } else {
+                // No magic file exists yet
+                this.addOutput('', 'info');
+                this.addOutput('✨ DAILY CLAUDE MAGIC', 'success');
+                this.addOutput('', 'info');
+                this.addOutput('🎭 No magic has been generated yet!', 'info');
+                this.addOutput('', 'info');
+                this.addOutput('The Daily Claude Magic CI workflow runs every day at 9pm', 'info');
+                this.addOutput('Tasmania time, creating something incredible with just 50 tokens.', 'info');
+                this.addOutput('', 'info');
+                this.addOutput('💡 Each day brings a unique prompt generated from date entropy:', 'feature-highlight');
+                this.addOutput('   • Philosophical haikus about systems and nature', 'info');
+                this.addOutput('   • Code comments with unexpected depth', 'info');
+                this.addOutput('   • Imaginary Unix commands that should exist', 'info');
+                this.addOutput('   • Recursive wordplay with constrained vocabulary', 'info');
+                this.addOutput('   • Git messages for impossible merges', 'info');
+                this.addOutput('   • ASCII art with mathematical beauty', 'info');
+                this.addOutput('', 'info');
+                this.addOutput('🎯 Philosophy: "True creativity emerges from constraints, not abundance."', 'philosophy');
+            }
+        } catch (error) {
+            this.addOutput('❌ Could not load daily magic data', 'error');
+            this.addOutput('The Daily Claude Magic system may not be initialized yet.', 'info');
+        }
+    }
+
+    async handleActionsCommand(args) {
+        try {
+            await this.githubActionsManager.init();
+            const commands = this.githubActionsManager.getTerminalCommands();
+            const result = await commands.actions.handler(args);
+            
+            this.addOutput('', 'info');
+            result.split('\n').forEach(line => {
+                if (line.startsWith('🚀') || line.startsWith('📊')) {
+                    this.addOutput(line, 'success');
+                } else if (line.includes('✅')) {
+                    this.addOutput(line, 'success');
+                } else if (line.includes('❌')) {
+                    this.addOutput(line, 'error');
+                } else if (line.includes('💡')) {
+                    this.addOutput(line, 'feature-highlight');
+                } else {
+                    this.addOutput(line, 'info');
+                }
+            });
+        } catch (error) {
+            this.addOutput('❌ GitHub Actions integration not available', 'error');
+            this.addOutput('Make sure you are authenticated with GitHub CLI (gh auth login)', 'info');
+        }
+    }
+
+    async handleTriggerCommand(args) {
+        try {
+            await this.githubActionsManager.init();
+            const commands = this.githubActionsManager.getTerminalCommands();
+            const result = await commands.trigger.handler(args);
+            
+            this.addOutput('', 'info');
+            result.split('\n').forEach(line => {
+                if (line.startsWith('🚀')) {
+                    this.addOutput(line, 'success');
+                } else if (line.includes('Command to execute:')) {
+                    this.addOutput(line, 'feature-highlight');
+                } else if (line.startsWith('gh ')) {
+                    this.addOutput(line, 'command');
+                } else if (line.includes('✨')) {
+                    this.addOutput(line, 'ai-highlight');
+                } else {
+                    this.addOutput(line, 'info');
+                }
+            });
+            
+            // Show helpful tip
+            this.addOutput('', 'info');
+            this.addOutput('💡 Copy and run the command above in your terminal to trigger the workflow!', 'philosophy');
+        } catch (error) {
+            this.addOutput('❌ Could not trigger workflow', 'error');
+            this.addOutput('Make sure you are authenticated with GitHub CLI', 'info');
+        }
+    }
+
+    async handleRunsCommand(args) {
+        try {
+            await this.githubActionsManager.init();
+            const commands = this.githubActionsManager.getTerminalCommands();
+            const result = await commands.runs.handler(args);
+            
+            this.addOutput('', 'info');
+            result.split('\n').forEach(line => {
+                if (line.startsWith('📊')) {
+                    this.addOutput(line, 'success');
+                } else if (line.includes('✅')) {
+                    this.addOutput(line, 'success');
+                } else if (line.includes('❌')) {
+                    this.addOutput(line, 'error');
+                } else if (line.includes('🔄')) {
+                    this.addOutput(line, 'info');
+                } else {
+                    this.addOutput(line, 'info');
+                }
+            });
+        } catch (error) {
+            this.addOutput('❌ Could not fetch workflow runs', 'error');
+            this.addOutput('GitHub Actions integration may not be available', 'info');
+        }
+    }
+
+    async showWeather() {
+        try {
+            // Try to load current weather data
+            const response = await fetch('./assets/current-weather.json');
+            if (response.ok) {
+                const weather = await response.json();
+                const updateTime = new Date(weather.updated_at);
+                const isRecent = (Date.now() - updateTime.getTime()) < 4 * 60 * 60 * 1000; // 4 hours
+                
+                this.addOutput('', 'info');
+                this.addOutput('🌤️ TASMANIA WEATHER', 'success');
+                this.addOutput('', 'info');
+                
+                if (isRecent) {
+                    this.addOutput(`📍 ${weather.station}`, 'feature-highlight');
+                } else {
+                    this.addOutput(`📍 ${weather.station} (Data may be outdated)`, 'info');
+                }
+                
+                this.addOutput('', 'info');
+                
+                // Current conditions with emoji
+                this.addOutput(`${weather.weather_emoji} Current: ${weather.conditions}`, 'ai-highlight');
+                this.addOutput(`🌡️  Temperature: ${weather.temperature}°C (feels like ${weather.apparent_temperature}°C)`, 'info');
+                this.addOutput(`😌 Comfort Level: ${weather.comfort_level}`, 'success');
+                this.addOutput('', 'info');
+                
+                // Visual bars
+                this.addOutput('📊 Conditions Overview:', 'feature-highlight');
+                this.addOutput(`   Temperature [${weather.visualizations.temperature_bar}] ${weather.temperature}°C`, 'info');
+                this.addOutput(`   Humidity    [${weather.visualizations.humidity_bar}] ${weather.humidity}%`, 'info');
+                this.addOutput(`   Wind Speed  [${weather.visualizations.wind_bar}] ${weather.wind_speed_kmh} km/h`, 'info');
+                this.addOutput('', 'info');
+                
+                // Detailed measurements
+                this.addOutput('🔍 Detailed Measurements:', 'feature-highlight');
+                this.addOutput(`   💧 Humidity: ${weather.humidity}%`, 'info');
+                this.addOutput(`   💨 Wind: ${weather.wind_direction} ${weather.wind_speed_kmh} km/h`, 'info');
+                this.addOutput(`   🌪️  Gusts: ${weather.wind_gust_kmh} km/h`, 'info');
+                this.addOutput(`   🔽 Pressure: ${weather.pressure_hpa} hPa`, 'info');
+                this.addOutput(`   🌧️  Rainfall: ${weather.rainfall_mm} mm`, 'info');
+                this.addOutput('', 'info');
+                
+                // Environmental impact assessment
+                this.addOutput('🌱 Environmental Impact:', 'feature-highlight');
+                
+                // Solar conditions assessment
+                const solarCondition = weather.conditions.toLowerCase().includes('clear') || 
+                                     weather.conditions.toLowerCase().includes('fine') ? 
+                                     'Optimal ☀️' : 'Reduced ☁️';
+                this.addOutput(`   ☀️ Solar Conditions: ${solarCondition}`, 'info');
+                
+                // Precipitation assessment  
+                const precipitationStatus = parseFloat(weather.rainfall_mm) > 5 ? 'Natural irrigation 🌧️' : 'Dry conditions 🌵';
+                this.addOutput(`   🌧️ Precipitation: ${precipitationStatus}`, 'info');
+                
+                // Energy/comfort assessment
+                const temp = parseFloat(weather.temperature);
+                let energyNeeds = 'Comfortable 😌';
+                if (temp < 10) {
+                    energyNeeds = 'Heating required 🔥';
+                } else if (temp > 30) {
+                    energyNeeds = 'Cooling beneficial ❄️';
+                }
+                this.addOutput(`   🔋 Energy Needs: ${energyNeeds}`, 'info');
+                
+                this.addOutput('', 'info');
+                this.addOutput(`⏰ Last Updated: ${weather.observation_time}`, 'info');
+                this.addOutput(`🔄 Auto-refreshed: ${updateTime.toLocaleString()}`, 'info');
+                
+            } else {
+                // No weather data available yet
+                this.addOutput('', 'info');
+                this.addOutput('🌤️ TASMANIA WEATHER', 'success');
+                this.addOutput('', 'info');
+                this.addOutput('📡 No weather data available yet!', 'info');
+                this.addOutput('', 'info');
+                this.addOutput('The Weather Update CI workflow fetches live data from the', 'info');
+                this.addOutput('Australian Bureau of Meteorology every 3 hours.', 'info');
+                this.addOutput('', 'info');
+                this.addOutput('🎯 Weather Station: Grove (Cygnet Area)', 'feature-highlight');
+                this.addOutput('📍 Coordinates: -43.1647, 147.0584', 'info');
+                this.addOutput('📊 Data Source: reg.bom.gov.au', 'info');
+                this.addOutput('', 'info');
+                this.addOutput('💡 Features:', 'feature-highlight');
+                this.addOutput('   • Real-time temperature and conditions', 'info');
+                this.addOutput('   • Wind speed and direction', 'info');
+                this.addOutput('   • Humidity and pressure readings', 'info');
+                this.addOutput('   • Rainfall measurements', 'info');
+                this.addOutput('   • Homestead impact assessment', 'info');
+                this.addOutput('   • ASCII visualizations', 'info');
+                this.addOutput('', 'info');
+                this.addOutput('🔄 Trigger a manual update using GitHub Actions!', 'philosophy');
+            }
+        } catch (error) {
+            this.addOutput('❌ Could not load weather data', 'error');
+            this.addOutput('The weather system may not be initialized yet.', 'info');
+        }
+    }
+
     showProcesses() {
         const processes = `
   PID  COMMAND                    CPU  MEM
@@ -490,6 +803,11 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     toggleMatrixRain() {
         const rain = document.querySelector('.matrix-rain');
         if (rain) {
+            // Clear the interval and remove canvas
+            if (this.matrixInterval) {
+                clearInterval(this.matrixInterval);
+                this.matrixInterval = null;
+            }
             rain.remove();
             this.addOutput('Matrix rain disabled.', 'success');
         } else {
@@ -530,8 +848,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             }
         }
         
-        const interval = setInterval(draw, 35);
-        canvas.dataset.interval = interval;
+        this.matrixInterval = setInterval(draw, 35);
     }
 
     clearTerminal() {
@@ -1203,6 +1520,180 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         this.addOutput('Wake Words: "Adrian", "Computer", "Terminal", "Hey Adrian"', 'info');
         this.addOutput('Commands: voice [on|off|status], speak <text>', 'info');
         this.addOutput('', 'info');
+    }
+
+    // Markdown Content Loading
+    async showMarkdownContent(key) {
+        this.addOutput('', 'info');
+        this.addOutput('📄 Loading content...', 'info');
+        
+        try {
+            await this.markdownLoader.renderContentToTerminal(key, this);
+        } catch (error) {
+            this.addOutput(`❌ Failed to load ${key}: ${error.message}`, 'error');
+            // Fallback to original content methods
+            this.showFallbackContent(key);
+        }
+    }
+
+    showFallbackContent(key) {
+        switch (key) {
+            case 'about':
+                this.showAbout();
+                break;
+            case 'projects':
+                this.showProjects();
+                break;
+            case 'skills':
+                this.showSkills();
+                break;
+            case 'homestead':
+                this.showHomestead();
+                break;
+            case 'veritas':
+                this.showVeritas();
+                break;
+        }
+    }
+
+    // Terminal-style focus management
+    setupTerminalFocus() {
+        const input = document.getElementById('commandInput');
+        
+        // Focus input when clicking anywhere on the page (except links/buttons)
+        document.addEventListener('click', (e) => {
+            // Don't interfere with interactive elements
+            if (e.target.tagName === 'A' || 
+                e.target.tagName === 'BUTTON' || 
+                e.target.type === 'text' ||
+                e.target.classList.contains('voice-toggle') ||
+                e.target.classList.contains('paper-link') ||
+                e.target.closest('.voice-controls')) {
+                return;
+            }
+            
+            // Focus the command input
+            input.focus();
+        });
+        
+        // Keep focus on input unless explicitly focusing elsewhere
+        document.addEventListener('focusin', (e) => {
+            // Allow focus on interactive elements, but return to input afterward
+            if (e.target !== input && 
+                e.target.tagName !== 'A' && 
+                e.target.tagName !== 'BUTTON' &&
+                !e.target.classList.contains('voice-toggle')) {
+                setTimeout(() => input.focus(), 100);
+            }
+        });
+        
+        // Ensure input stays focused when terminal gains focus
+        window.addEventListener('focus', () => {
+            setTimeout(() => input.focus(), 100);
+        });
+        
+        // Re-focus input after commands execute
+        const originalAddOutput = this.addOutput.bind(this);
+        this.addOutput = function(text, className) {
+            originalAddOutput(text, className);
+            // Re-focus after a brief delay to allow command processing
+            setTimeout(() => {
+                if (!this.inChatMode && document.activeElement !== input) {
+                    input.focus();
+                }
+            }, 50);
+        };
+        
+        // Handle escape key to always return focus to input
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                input.focus();
+                e.preventDefault();
+            }
+        });
+        
+        // Initial focus
+        setTimeout(() => input.focus(), 100);
+    }
+
+    // Research command handler
+    handleResearchCommand(args) {
+        if (args.length === 0) {
+            this.addOutput('Usage: research [personal|global]', 'error');
+            this.addOutput('  personal - Load local markdown research papers', 'info');
+            this.addOutput('  global   - Fetch from arXiv and academic sources', 'info');
+            return;
+        }
+
+        const mode = args[0].toLowerCase();
+        
+        switch (mode) {
+            case 'personal':
+                this.addOutput('📚 Loading personal research papers...', 'info');
+                this.addOutput('This would load papers from /research/ directory', 'info');
+                this.addOutput('Feature coming soon - local markdown research streaming', 'success');
+                break;
+                
+            case 'global':
+                this.addOutput('🌍 Global research streaming not yet implemented', 'info');
+                this.addOutput('Would fetch from arXiv, Semantic Scholar, and other sources', 'info');
+                this.addOutput('Use research-streamer-remote.js for this functionality', 'success');
+                break;
+                
+            default:
+                this.addOutput(`Unknown research mode: ${mode}`, 'error');
+                this.addOutput('Available modes: personal, global', 'info');
+        }
+    }
+
+    // Tab completion methods
+    handleTabCompletion(input) {
+        const currentValue = input.value;
+        const words = currentValue.split(' ');
+        const lastWord = words[words.length - 1];
+        
+        // Only complete the first word (command)
+        if (words.length === 1) {
+            const matches = this.availableCommands.filter(cmd => 
+                cmd.startsWith(lastWord.toLowerCase())
+            );
+            
+            if (matches.length === 0) return;
+            
+            if (matches.length === 1) {
+                // Single match - complete it
+                input.value = matches[0];
+                this.resetCompletion();
+            } else {
+                // Multiple matches - cycle through them
+                if (currentValue !== this.lastInput) {
+                    // New completion - start from beginning
+                    this.completionIndex = 0;
+                    this.lastInput = currentValue;
+                } else {
+                    // Cycle to next completion
+                    this.completionIndex = (this.completionIndex + 1) % matches.length;
+                }
+                
+                input.value = matches[this.completionIndex];
+                
+                // Show available completions
+                if (this.completionIndex === 0) {
+                    this.showCompletions(matches);
+                }
+            }
+        }
+    }
+
+    resetCompletion() {
+        this.completionIndex = -1;
+        this.lastInput = '';
+    }
+
+    showCompletions(matches) {
+        if (matches.length > 1) {
+            this.addOutput(`Tab completions: ${matches.join(', ')}`, 'info');
+        }
     }
 }
 

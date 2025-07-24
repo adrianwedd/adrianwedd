@@ -1,5 +1,5 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Voice Interface Functionality', () => {
   test.beforeEach(async ({ page }) => {
@@ -76,8 +76,7 @@ test.describe('Voice Interface Functionality', () => {
 
     await expect(terminalOutput).toContainText('You said: Hello voice command');
     await expect(terminalInput).toHaveValue('Hello voice command');
-    await expect(terminalOutput).toContainText('adrian@retro-terminal:~
-);
+    await expect(terminalOutput).toContainText('adrian@retro-terminal:~$');
   });
 
   test('Text-to-speech output verification', async ({ page }) => {
@@ -184,7 +183,6 @@ test.describe('Voice Interface Functionality', () => {
 
     // Expect the clear command to be executed and output cleared
     await expect(terminalOutput).not.toContainText('This will be cleared by voice');
-    await expect(terminalOutput).toContainText('adrian@retro-terminal:~
-);
+    await expect(terminalOutput).toContainText('adrian@retro-terminal:~$');
   });
 });

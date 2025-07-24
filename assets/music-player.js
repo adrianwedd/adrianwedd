@@ -131,66 +131,184 @@ class RetroMusicPlayer {
     createCyberpunkTrack() {
         const startTime = this.audioContext.currentTime;
         
-        // Bass line
-        const bassFreqs = [65.41, 73.42, 82.41, 87.31]; // C2, D2, E2, F2
+        // Dark bass line with distortion
+        const bassFreqs = [65.41, 61.74, 73.42, 82.41]; // C2, B♭1, D2, E2
         bassFreqs.forEach((freq, i) => {
             setTimeout(() => {
                 if (this.isPlaying) {
-                    const { oscillator } = this.createOscillator(freq, 'sawtooth', 0.8);
+                    const { oscillator, gainNode } = this.createOscillator(freq, 'sawtooth', 1.2);
+                    
+                    // Add distortion effect
+                    const waveshaper = this.audioContext.createWaveShaper();
+                    const samples = 44100;
+                    const curve = new Float32Array(samples);
+                    const deg = Math.PI / 180;
+                    
+                    for (let i = 0; i < samples; i++) {
+                        const x = (i * 2) / samples - 1;
+                        curve[i] = ((3 + 20) * x * 20 * deg) / (Math.PI + 20 * Math.abs(x));
+                    }
+                    waveshaper.curve = curve;
+                    waveshaper.oversample = '4x';
+                    
+                    oscillator.disconnect();
+                    oscillator.connect(waveshaper);
+                    waveshaper.connect(gainNode);
                     oscillator.start();
                 }
-            }, i * 1000);
+            }, i * 800);
         });
 
-        // Atmospheric pad
+        // Aggressive lead synth
         setTimeout(() => {
             if (this.isPlaying) {
-                const { oscillator, gainNode } = this.createOscillator(220, 'sine');
-                gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
-                oscillator.start();
+                this.createCyberpunkLead();
+            }
+        }, 1600);
+
+        // Atmospheric pad with modulation
+        setTimeout(() => {
+            if (this.isPlaying) {
+                const { oscillator, gainNode } = this.createOscillator(440, 'triangle');
+                gainNode.gain.setValueAtTime(0.08, this.audioContext.currentTime);
                 
-                // Slow filter sweep
+                // Complex filter sweep with resonance
                 const filter = this.audioContext.createBiquadFilter();
                 filter.type = 'lowpass';
-                filter.frequency.setValueAtTime(800, this.audioContext.currentTime);
-                filter.frequency.linearRampToValueAtTime(1200, this.audioContext.currentTime + 4);
+                filter.frequency.setValueAtTime(600, this.audioContext.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(1800, this.audioContext.currentTime + 3);
+                filter.Q.setValueAtTime(8, this.audioContext.currentTime);
                 
-                oscillator.disconnect();
+                // Add tremolo
+                const tremolo = this.audioContext.createOscillator();
+                const tremoloGain = this.audioContext.createGain();
+                tremolo.frequency.setValueAtTime(4, this.audioContext.currentTime);
+                tremoloGain.gain.setValueAtTime(0.3, this.audioContext.currentTime);
+                
                 oscillator.connect(filter);
                 filter.connect(gainNode);
+                tremolo.connect(tremoloGain);
+                tremoloGain.connect(gainNode.gain);
+                
+                oscillator.start();
+                tremolo.start();
+                tremolo.stop(this.audioContext.currentTime + 4);
             }
-        }, 500);
+        }, 400);
+
+        // Add industrial percussion
+        setTimeout(() => {
+            if (this.isPlaying) {
+                this.createIndustrialHit();
+            }
+        }, 2000);
 
         // Schedule next loop
         setTimeout(() => {
             if (this.isPlaying && this.currentTrack === 'cyberpunk') {
                 this.createCyberpunkTrack();
             }
-        }, 4000);
+        }, 5000);
+    }
+
+    createCyberpunkLead() {
+        const leadFreqs = [523.25, 587.33, 659.25, 783.99]; // C5, D5, E5, G5
+        const freq = leadFreqs[Math.floor(Math.random() * leadFreqs.length)];
+        
+        const { oscillator, gainNode } = this.createOscillator(freq, 'square', 0.3);
+        gainNode.gain.setValueAtTime(0.15, this.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.3);
+        
+        // Add aggressive filter sweep
+        const filter = this.audioContext.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.setValueAtTime(2000, this.audioContext.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(200, this.audioContext.currentTime + 0.3);
+        
+        oscillator.connect(filter);
+        filter.connect(gainNode);
+        oscillator.start();
+    }
+
+    createIndustrialHit() {
+        // Create metallic industrial percussion
+        const hitFreqs = [150, 200, 300, 800, 1200];
+        
+        hitFreqs.forEach((freq, i) => {
+            const { oscillator, gainNode } = this.createOscillator(freq, 'square', 0.1);
+            gainNode.gain.setValueAtTime(0.2 / (i + 1), this.audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.1);
+            oscillator.start();
+        });
     }
 
     createAmbientTrack() {
-        // Soft ambient drones
-        const freqs = [110, 165, 220, 330]; // A2, E3, A3, E4
+        // Soft ambient drones with evolving harmonics
+        const baseFreqs = [110, 165, 220, 330]; // A2, E3, A3, E4
+        const harmonicRatios = [1, 1.5, 2, 2.5, 3]; // Natural harmonics
         
-        freqs.forEach((freq, i) => {
-            setTimeout(() => {
-                if (this.isPlaying) {
-                    const { oscillator, gainNode } = this.createOscillator(freq, 'sine');
-                    gainNode.gain.setValueAtTime(0.05, this.audioContext.currentTime);
-                    gainNode.gain.linearRampToValueAtTime(0.15, this.audioContext.currentTime + 2);
-                    gainNode.gain.linearRampToValueAtTime(0.05, this.audioContext.currentTime + 6);
-                    oscillator.start();
-                }
-            }, i * 1500);
+        baseFreqs.forEach((baseFreq, i) => {
+            // Create multiple harmonic layers for richness
+            harmonicRatios.forEach((ratio, j) => {
+                setTimeout(() => {
+                    if (this.isPlaying) {
+                        const freq = baseFreq * ratio;
+                        const { oscillator, gainNode } = this.createOscillator(freq, 'sine');
+                        
+                        // Vary volume based on harmonic position
+                        const maxGain = 0.1 / (ratio * 2); // Higher harmonics quieter
+                        gainNode.gain.setValueAtTime(0.01, this.audioContext.currentTime);
+                        gainNode.gain.linearRampToValueAtTime(maxGain, this.audioContext.currentTime + 3);
+                        gainNode.gain.linearRampToValueAtTime(0.01, this.audioContext.currentTime + 10);
+                        
+                        // Add subtle LFO for organic movement
+                        const lfo = this.audioContext.createOscillator();
+                        const lfoGain = this.audioContext.createGain();
+                        lfo.frequency.setValueAtTime(0.1 + Math.random() * 0.2, this.audioContext.currentTime);
+                        lfoGain.gain.setValueAtTime(freq * 0.01, this.audioContext.currentTime);
+                        
+                        lfo.connect(lfoGain);
+                        lfoGain.connect(oscillator.frequency);
+                        lfo.start();
+                        lfo.stop(this.audioContext.currentTime + 12);
+                        
+                        oscillator.start();
+                        oscillator.stop(this.audioContext.currentTime + 12);
+                    }
+                }, (i * 2000) + (j * 400)); // Stagger harmonic entries
+            });
         });
+
+        // Add occasional bell-like tones
+        setTimeout(() => {
+            if (this.isPlaying) {
+                this.createAmbientBell();
+            }
+        }, 4000);
 
         // Schedule next loop
         setTimeout(() => {
             if (this.isPlaying && this.currentTrack === 'ambient') {
                 this.createAmbientTrack();
             }
-        }, 8000);
+        }, 12000);
+    }
+
+    createAmbientBell() {
+        const bellFreqs = [440, 523.25, 659.25, 783.99]; // A4, C5, E5, G5
+        const freq = bellFreqs[Math.floor(Math.random() * bellFreqs.length)];
+        
+        // Create bell-like sound with multiple oscillators
+        [1, 2.1, 3.2, 4.8].forEach((ratio, i) => {
+            const { oscillator, gainNode } = this.createOscillator(freq * ratio, 'sine');
+            const initialGain = 0.3 / (ratio * ratio); // Exponential decay for harmonics
+            
+            gainNode.gain.setValueAtTime(initialGain, this.audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 6);
+            
+            oscillator.start();
+            oscillator.stop(this.audioContext.currentTime + 6);
+        });
     }
 
     createSynthwaveTrack() {

@@ -82,7 +82,7 @@ class AudioVisualizer {
                     float glow = smoothstep(0.0, 0.1, audio) * (1.0 - abs(uv.y - audio));
                     color += glow * vec3(1.0, 0.5, 0.0);
                     
-                    fragColor = vec4(color * bar, bar * 0.8);
+                    gl_FragColor = vec4(color * bar, bar * 0.8);
                 }
             `,
             waveform: `
@@ -111,7 +111,7 @@ class AudioVisualizer {
                     grid += step(0.98, fract(uv.y * 10.0));
                     color += grid * vec3(0.0, 0.3, 0.0);
                     
-                    fragColor = vec4(color, wave + grid * 0.3);
+                    gl_FragColor = vec4(color, wave + grid * 0.3);
                 }
             `,
             cyberpunk: `
@@ -148,7 +148,7 @@ class AudioVisualizer {
                     float scanline = sin(uv.y * 800.0 + iTime * 10.0) * 0.1;
                     color += scanline;
                     
-                    fragColor = vec4(color, bar * 0.9 + fall * 0.3);
+                    gl_FragColor = vec4(color, bar * 0.9 + fall * 0.3);
                 }
             `,
             minimal: `
@@ -179,7 +179,7 @@ class AudioVisualizer {
                     float pulse = sin(iTime * 5.0 + audio * 10.0) * 0.1 + 0.9;
                     color *= pulse;
                     
-                    fragColor = vec4(color, circle * 0.7);
+                    gl_FragColor = vec4(color, circle * 0.7);
                 }
             `
         };

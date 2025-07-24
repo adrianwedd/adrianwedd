@@ -1,6 +1,7 @@
 {
   "name": "adrian-wedd-terminal",
   "version": "1.0.0",
+  "type": "module",
   "description": "Interactive terminal interface for Adrian Wedd's digital ecosystem",
   "scripts": {
     "test": "playwright test",
@@ -11,14 +12,16 @@
     "screenshots": "playwright test --update-snapshots",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write "**/*.js"",
-    "format-check": "prettier --check "**/*.js"",
-    "lint:css": "stylelint "**/*.css"",
+    "format": "prettier --write \"**/*.js\"",
+    "format-check": "prettier --check \"**/*.js\"",
+    "lint:css": "stylelint \"**/*.css\"",
     "test:unit": "playwright test tests/unit",
-    "prepare": "husky"
+    "prepare": "husky install",
+    "lhci": "lhci autorun --config=.lighthouserc.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.54.1",
     "eslint": "^9.31.0",
     "eslint-config-prettier": "^10.1.8",
@@ -39,7 +42,7 @@
   ],
   "author": "Adrian Wedd",
   "license": "MIT",
-  "main": "playwright.config.js",
+  "main": "playwright.config.cjs",
   "directories": {
     "test": "tests"
   },
@@ -50,8 +53,7 @@
   "bugs": {
     "url": "https://github.com/adrianwedd/adrianwedd/issues"
   },
-  "homepage": "https://github.com/adrianwedd/adrianwedd#readme"
-  },
+  "homepage": "https://github.com/adrianwedd/adrianwedd#readme",
   "lint-staged": {
     "*.js": [
       "eslint --fix",

@@ -1,5 +1,5 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('AI Chat Integration', () => {
   test.beforeEach(async ({ page }) => {
@@ -112,8 +112,7 @@ test.describe('AI Chat Integration', () => {
     await terminalInput.press('Enter');
 
     await expect(terminalOutput).toContainText('Error: Could not connect to AI service. Falling back to offline mode.');
-    await expect(terminalOutput).toContainText('adrian@retro-terminal:/offline-chat
-); // Assuming prompt changes for offline mode
+    await expect(terminalOutput).toContainText('adrian@retro-terminal:/offline-chat$'); // Assuming prompt changes for offline mode
 
     // Test that commands still work in offline mode (e.g., 'help')
     await terminalInput.fill('help');

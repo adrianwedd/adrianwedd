@@ -252,10 +252,12 @@ class VoiceInterface {
         try {
             // Use AI service for chat response
             if (window.terminal && window.terminal.aiService) {
+                const contextPrompt = `Voice conversation with Adrian.AI. You are Adrian Wedd's AI persona - a recursive systems architect and off-grid Tasmanian homesteader. Respond naturally and conversationally. Keep responses concise for speech synthesis (under 100 words). Be direct, technical when appropriate, but conversational.`;
+                
                 const result = await window.terminal.aiService.sendChatRequest(
                     transcript, 
                     'voice-session',
-                    'Voice conversation with Adrian.AI. Respond naturally and conversationally. Keep responses concise for speech synthesis.'
+                    contextPrompt
                 );
                 
                 // Display response in terminal
@@ -267,16 +269,58 @@ class VoiceInterface {
                     window.terminal.addOutput(`🗣️ Adrian.AI: ${result.response}`, 'success');
                 }
                 
-                // Speak the response
-                this.speak(result.response);
+                // Clean response for TTS (remove markdown, etc.)
+                const cleanResponse = this.cleanResponseForTTS(result.response);
+                this.speak(cleanResponse);
                 
             } else {
-                this.speak('Chat system not available');
+                console.warn('AI service not available, using fallback');
+                const fallbackResponse = this.generateFallbackResponse(transcript);
+                window.terminal.addOutput(`🎤 Voice: ${transcript}`, 'info');
+                window.terminal.addOutput(`🗣️ Adrian.AI: ${fallbackResponse}`, 'success');
+                this.speak(fallbackResponse);
             }
         } catch (error) {
             console.error('Voice chat error:', error);
-            this.speak('Sorry, I encountered an error processing your request');
+            const errorMessage = 'Sorry, I encountered an error processing your request. Please try again.';
+            window.terminal.addOutput(`❌ Voice Error: ${error.message}`, 'error');
+            this.speak(errorMessage);
         }
+    }
+
+    // Clean response text for better TTS
+    cleanResponseForTTS(text) {
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
+            .replace(/\*(.*?)\*/g, '$1')     // Remove italic markdown  
+            .replace(/`([^`]+)`/g, '$1')     // Remove inline code
+            .replace(/```[\s\S]*?```/g, '')  // Remove code blocks
+            .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Extract link text
+            .replace(/#{1,6}\s+/g, '')       // Remove headers
+            .replace(/\n{2,}/g, '. ')        // Replace double newlines with periods
+            .replace(/\n/g, ' ')             // Replace single newlines with spaces
+            .trim();
+    }
+
+    // Fallback responses when AI service unavailable
+    generateFallbackResponse(transcript) {
+        const responses = {
+            'hello': 'Hello! I\'m Adrian\'s AI. How can I help you today?',
+            'projects': 'I\'m currently working on TicketSmith, this terminal interface, and VERITAS AI safety research.',
+            'skills': 'My expertise includes AI systems, recursive architecture, and sustainable computing on my off-grid homestead.',
+            'homestead': 'I operate from a 170-acre off-grid homestead in Tasmania with solar power and satellite internet.',
+            'music': 'I can control the music system. Try saying start music or stop music.',
+            'help': 'You can ask me about my projects, skills, homestead, or give me commands like show help or start music.'
+        };
+        
+        const lowerTranscript = transcript.toLowerCase();
+        for (const [keyword, response] of Object.entries(responses)) {
+            if (lowerTranscript.includes(keyword)) {
+                return response;
+            }
+        }
+        
+        return 'That\'s an interesting question. You can ask me about my projects, technical skills, or homestead setup.';
     }
 
     speak(text, options = {}) {
