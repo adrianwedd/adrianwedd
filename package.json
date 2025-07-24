@@ -62,5 +62,9 @@
   "lint-staged": {
     "*.js": "eslint --fix && prettier --write",
     "*.css": "stylelint --fix"
+  },
+  "dependencies": {
+    "@sentry/browser": "^9.41.0",
+    "@sentry/tracing": "^7.120.3"
   }
 }
