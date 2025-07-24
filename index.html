@@ -16,6 +16,11 @@
                 <span class="control maximize"></span>
             </div>
             <div class="title">adrian@homestead:~$ </div>
+            <div class="voice-controls">
+                <div class="voice-indicator" id="voiceIndicator">🎤</div>
+                <div class="voice-status" id="voiceStatus">Voice ready</div>
+                <button class="voice-toggle" id="voiceToggle" onclick="terminal.toggleVoice()">Enable Voice</button>
+            </div>
         </div>
         
         <div class="terminal" id="terminal">
@@ -70,6 +75,18 @@
                 
                 <div class="monitor-divider">│</div>
                 
+                <div class="monitor-pane middle-pane">
+                    <div class="pane-header">
+                        <span class="pane-title">🧠 AI TOKEN ANALYTICS</span>
+                        <span class="pane-refresh" id="aiRefresh">●</span>
+                    </div>
+                    <div class="pane-content" id="aiContent">
+                        <!-- AI token data will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="monitor-divider">│</div>
+                
                 <div class="monitor-pane right-pane">
                     <div class="pane-header">
                         <span class="pane-title">🏡 HOMESTEAD TELEMETRY</span>
@@ -96,6 +113,8 @@
     <script src="assets/music-player.js"></script>
     <script src="assets/audio-visualizer.js"></script>
     <script src="assets/text-streamer.js"></script>
+    <script src="assets/ai-service.js"></script>
+    <script src="assets/voice-interface.js"></script>
     <script src="assets/system-monitor.js"></script>
     <script src="assets/terminal.js"></script>
 </body>

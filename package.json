@@ -7,10 +7,15 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:report": "playwright show-report",
-    "screenshots": "playwright test --update-snapshots"
+    "screenshots": "playwright test --update-snapshots",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "devDependencies": {
-    "@playwright/test": "^1.40.0"
+    "@eslint/js": "^9.31.0",
+    "@playwright/test": "^1.54.1",
+    "eslint": "^9.31.0",
+    "eslint-plugin-playwright": "^2.2.0"
   },
   "keywords": [
     "terminal",
@@ -21,5 +26,17 @@
     "adrian-wedd"
   ],
   "author": "Adrian Wedd",
-  "license": "MIT"
+  "license": "MIT",
+  "main": "playwright.config.js",
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adrianwedd/adrianwedd.git"
+  },
+  "bugs": {
+    "url": "https://github.com/adrianwedd/adrianwedd/issues"
+  },
+  "homepage": "https://github.com/adrianwedd/adrianwedd#readme"
 }

@@ -9,6 +9,9 @@ class SystemMonitor {
             memory: { used: 1.2, total: 16 },
             network: { down: 2.1, up: 0.8 }
         };
+        
+        // Initialize AI service for token tracking
+        this.aiService = new AIService();
     }
 
     async enterMonitorMode() {
@@ -86,11 +89,13 @@ class SystemMonitor {
         // Update refresh indicators
         this.pulseRefreshIndicator('ciRefresh');
         this.pulseRefreshIndicator('homesteadRefresh');
+        this.pulseRefreshIndicator('aiRefresh');
 
         try {
             await Promise.all([
                 this.updateCIData(),
-                this.updateHomesteadData()
+                this.updateHomesteadData(),
+                this.updateAIData()
             ]);
         } catch (error) {
             console.warn('Monitor data update failed:', error);
@@ -292,6 +297,131 @@ class SystemMonitor {
         `;
         
         container.innerHTML = html;
+    }
+
+    async updateAIData() {
+        // Get current token statistics from AI service
+        const stats = this.aiService.getTokenStats();
+        this.renderAIData(stats);
+    }
+
+    renderAIData(stats) {
+        const container = document.getElementById('aiContent');
+        
+        // Calculate efficiency metrics
+        const tokenSavings = stats.cachedTokens > 0 ? 
+            ((stats.cachedTokens / (stats.totalTokens + stats.cachedTokens)) * 100).toFixed(1) : '0.0';
+        
+        const avgLatency = stats.totalRequests > 0 ? 
+            (85 + Math.random() * 30).toFixed(0) : '0'; // Mock latency
+        
+        const sessionTime = this.formatDuration(stats.sessionDuration);
+        
+        const html = `
+            <div class="metric-section">
+                <div class="ai-metric">
+                    <span class="metric-name">Total Requests</span>
+                    <span class="metric-value">${stats.totalRequests}</span>
+                </div>
+                
+                <div class="ai-metric">
+                    <span class="metric-name">Cache Efficiency</span>
+                    <span class="metric-value ${parseFloat(stats.cacheEfficiency) > 20 ? 'metric-success' : 'metric-warning'}">${stats.cacheEfficiency}%</span>
+                </div>
+                
+                <div class="ai-metric">
+                    <span class="metric-name">Cache Hits/Misses</span>
+                    <span class="metric-value">${stats.cacheHits}/${stats.cacheMisses}</span>
+                </div>
+            </div>
+            
+            <div class="metric-section" style="margin-top: 16px;">
+                <div class="ai-metric">
+                    <span class="metric-name">Input Tokens</span>
+                    <span class="metric-value">${stats.inputTokens.toLocaleString()}</span>
+                </div>
+                
+                <div class="ai-metric">
+                    <span class="metric-name">Output Tokens</span>
+                    <span class="metric-value">${stats.outputTokens.toLocaleString()}</span>
+                </div>
+                
+                <div class="ai-metric">
+                    <span class="metric-name">Cached Tokens</span>
+                    <span class="metric-value metric-success">${stats.cachedTokens.toLocaleString()}</span>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${Math.min(tokenSavings, 100)}%" title="Token savings from caching"></div>
+                </div>
+            </div>
+            
+            <div class="metric-section" style="margin-top: 16px;">
+                <div class="ai-metric">
+                    <span class="metric-name">Total Tokens</span>
+                    <span class="metric-value">${stats.totalTokens.toLocaleString()}</span>
+                </div>
+                
+                <div class="ai-metric">
+                    <span class="metric-name">Avg per Request</span>
+                    <span class="metric-value">${stats.tokensPerRequest}</span>
+                </div>
+                
+                <div class="ai-metric">
+                    <span class="metric-name">Cache Size</span>
+                    <span class="metric-value">${stats.cacheSize}/50</span>
+                </div>
+                
+                <div class="ai-metric">
+                    <span class="metric-name">Avg Latency</span>
+                    <span class="metric-value ${parseFloat(avgLatency) > 150 ? 'metric-warning' : ''}">${avgLatency}ms</span>
+                </div>
+                
+                <div class="ai-metric">
+                    <span class="metric-name">Session Time</span>
+                    <span class="metric-value">${sessionTime}</span>
+                </div>
+            </div>
+            
+            <div class="metric-section" style="margin-top: 16px; padding-top: 8px; border-top: 1px solid #333;">
+                <div class="cache-status">
+                    <div class="cache-indicator ${stats.cacheSize > 40 ? 'cache-full' : stats.cacheSize > 20 ? 'cache-medium' : 'cache-low'}">
+                        ● Prompt Cache: ${stats.cacheSize > 40 ? 'FULL' : stats.cacheSize > 20 ? 'ACTIVE' : 'BUILDING'}
+                    </div>
+                    <div class="optimization-tip">
+                        ${this.getOptimizationTip(stats)}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+    }
+
+    formatDuration(ms) {
+        const seconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        
+        if (hours > 0) {
+            return `${hours}h ${minutes % 60}m`;
+        } else if (minutes > 0) {
+            return `${minutes}m ${seconds % 60}s`;
+        } else {
+            return `${seconds}s`;
+        }
+    }
+
+    getOptimizationTip(stats) {
+        if (stats.cacheEfficiency < 10 && stats.totalRequests > 5) {
+            return "💡 Consider using more system context for better caching";
+        } else if (stats.totalTokens > 10000) {
+            return "🚀 Excellent token optimization with prompt caching!";
+        } else if (stats.cacheHits > stats.cacheMisses) {
+            return "✨ Cache performing well - reducing API costs";
+        } else {
+            return "📊 Building cache patterns for efficiency";
+        }
     }
 
     updateSystemStats() {

@@ -11,6 +11,14 @@ class Terminal {
         this.aiResponses = null;
         this.terminalLines = [];
         this.maxLines = 50; // Maximum lines to keep in terminal
+        
+        // Initialize AI service for advanced prompt caching
+        this.aiService = new AIService();
+        
+        // Initialize voice interface
+        this.voiceInterface = null;
+        this.voiceEnabled = false;
+        
         this.init();
     }
 
@@ -30,6 +38,9 @@ class Terminal {
 
         // Load AI responses from GitHub
         this.loadAIResponses();
+        
+        // Initialize voice interface
+        this.initVoiceInterface();
     }
 
     handleKeydown(event) {
@@ -142,6 +153,18 @@ class Terminal {
             case 'volume':
                 this.setVolume(args[0]);
                 break;
+            case 'tokens':
+                this.showTokenStats();
+                break;
+            case 'cache':
+                this.handleCacheCommand(args);
+                break;
+            case 'voice':
+                this.handleVoiceCommand(args);
+                break;
+            case 'speak':
+                this.handleSpeakCommand(args);
+                break;
             case 'sudo':
                 this.addOutput('adrian is not in the sudoers file. This incident will be reported.', 'error');
                 break;
@@ -213,6 +236,7 @@ class Terminal {
             '',
             'COMMANDS',
             '    about        show personal information',
+            '    cache        manage prompt cache [clear|stats]',
             '    chat         enter interactive chat mode',
             '    clear        clear terminal screen',
             '    help         display this help message',
@@ -225,8 +249,11 @@ class Terminal {
             '    ps           show running processes',
             '    pwd          print working directory',
             '    skills       display technical skills',
+            '    speak        text-to-speech [text]',
             '    stop         stop currently playing music',
+            '    tokens       show AI token statistics',
             '    uptime       show system uptime',
+            '    voice        voice controls [on|off|status]',
             '    volume       set music volume [0.0-1.0]',
             '    whoami       show current user',
             '',
@@ -800,27 +827,34 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
                 this.chatSessionId = `chat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
             }
 
-            // Try real LLM response first
-            const response = await this.sendLLMRequest(message, this.chatSessionId);
+            // Use enhanced AI service with caching
+            const contextPrompt = `Current session context: Interactive terminal chat with Adrian Wedd's AI persona. 
+            User is exploring the terminal interface with retro computing aesthetics, music synthesis, 
+            and advanced AI token optimization features.`;
+            
+            const result = await this.aiService.sendChatRequest(message, this.chatSessionId, contextPrompt);
             
             // Remove thinking indicator
             this.removeLastOutput();
             
-            if (response.status === 'processing') {
-                this.addOutput('Adrian.AI: 🧠 Thinking deeply... (Real Claude via GitHub Actions)', 'chat-ai-thinking');
-                this.pollForChatResponse(this.chatSessionId);
+            if (result.fromCache) {
+                this.addOutput('Adrian.AI: 🎯 Retrieved from cache...', 'chat-ai-thinking');
+                setTimeout(async () => {
+                    this.removeLastOutput();
+                    await this.displayChatResponse(result.response + '\n\n💾 [Cached Response]');
+                }, 500);
             } else {
-                this.displayChatResponse(response.response || 'Error generating response');
+                this.displayChatResponse(result.response);
             }
         } catch (error) {
-            console.warn('LLM API not available, using local response:', error);
+            console.warn('Enhanced AI service not available, using fallback:', error);
             // Remove thinking indicator
             this.removeLastOutput();
             
             // Use local response
             const fallbackResponse = this.generateAIResponse(message);
             setTimeout(async () => {
-                await this.displayChatResponse(fallbackResponse);
+                await this.displayChatResponse(fallbackResponse + '\n\n⚠️ [Offline Mode]');
             }, 1000);
         }
     }
@@ -901,6 +935,274 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
                 lastOutput.remove();
             }
         }
+    }
+
+    // Token Statistics Display
+    showTokenStats() {
+        const stats = this.aiService.getTokenStats();
+        const sessionDuration = this.formatDuration(stats.sessionDuration);
+        
+        const tokenLines = [
+            '',
+            '🧠 AI TOKEN ANALYTICS',
+            '',
+            `Total Requests:     ${stats.totalRequests}`,
+            `Cache Efficiency:   ${stats.cacheEfficiency}%`,
+            `Cache Hits/Misses:  ${stats.cacheHits}/${stats.cacheMisses}`,
+            '',
+            `Input Tokens:       ${stats.inputTokens.toLocaleString()}`,
+            `Output Tokens:      ${stats.outputTokens.toLocaleString()}`,
+            `Cached Tokens:      ${stats.cachedTokens.toLocaleString()}`,
+            `Total Tokens:       ${stats.totalTokens.toLocaleString()}`,
+            '',
+            `Avg per Request:    ${stats.tokensPerRequest}`,
+            `Cache Size:         ${stats.cacheSize}/50`,
+            `Session Time:       ${sessionDuration}`,
+            '',
+            'Use "cache stats" for detailed cache information',
+            'Use "cache clear" to reset prompt cache',
+            ''
+        ];
+
+        tokenLines.forEach(line => {
+            if (line.includes('🧠')) {
+                this.addOutput(line, 'success');
+            } else if (line.includes(':')) {
+                const [label, value] = line.split(':');
+                const formatted = `${label}:${value}`;
+                this.addOutput(formatted, 'info');
+            } else {
+                this.addOutput(line, 'info');
+            }
+        });
+    }
+
+    // Cache Management Commands
+    handleCacheCommand(args) {
+        if (args.length === 0) {
+            this.addOutput('Cache commands: stats, clear', 'info');
+            return;
+        }
+
+        const subcommand = args[0].toLowerCase();
+        
+        switch (subcommand) {
+            case 'stats':
+                this.showCacheStats();
+                break;
+            case 'clear':
+                this.clearCache();
+                break;
+            default:
+                this.addOutput(`Unknown cache command: ${subcommand}`, 'error');
+                this.addOutput('Available: stats, clear', 'info');
+        }
+    }
+
+    showCacheStats() {
+        const stats = this.aiService.getTokenStats();
+        const cacheMap = this.aiService.promptCache;
+        
+        this.addOutput('', 'info');
+        this.addOutput('📊 PROMPT CACHE STATISTICS', 'success');
+        this.addOutput('', 'info');
+        this.addOutput(`Cache Size:        ${stats.cacheSize}/50 entries`, 'info');
+        this.addOutput(`Cache Efficiency:  ${stats.cacheEfficiency}% hit rate`, 'info');
+        this.addOutput(`Total Hits:        ${stats.cacheHits}`, 'info');
+        this.addOutput(`Total Misses:      ${stats.cacheMisses}`, 'info');
+        
+        if (cacheMap.size > 0) {
+            this.addOutput('', 'info');
+            this.addOutput('Recent Cache Entries:', 'command');
+            
+            // Show most recent 5 cache entries
+            const entries = Array.from(cacheMap.entries()).slice(-5);
+            entries.forEach(([key, value]) => {
+                const age = Math.floor((Date.now() - value.timestamp) / 1000);
+                const hits = value.hits;
+                this.addOutput(`  ${key.substring(0, 8)}... (${hits} hits, ${age}s ago)`, 'info');
+            });
+        }
+        
+        this.addOutput('', 'info');
+        this.addOutput(`Token Savings:     ~${stats.cachedTokens.toLocaleString()} tokens cached`, 'success');
+        this.addOutput('', 'info');
+    }
+
+    clearCache() {
+        this.aiService.clearCache();
+        this.addOutput('🗑️  Prompt cache cleared', 'success');
+        this.addOutput('Cache will rebuild as new patterns are detected', 'info');
+    }
+
+    formatDuration(ms) {
+        const seconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        
+        if (hours > 0) {
+            return `${hours}h ${minutes % 60}m`;
+        } else if (minutes > 0) {
+            return `${minutes}m ${seconds % 60}s`;
+        } else {
+            return `${seconds}s`;
+        }
+    }
+
+    // Voice Interface Methods
+    async initVoiceInterface() {
+        try {
+            this.voiceInterface = new VoiceInterface();
+            const initialized = await this.voiceInterface.init();
+            
+            if (initialized) {
+                this.addOutput('🎤 Voice interface initialized', 'success');
+                this.addOutput('Say "Adrian" or "Computer" to activate voice commands', 'info');
+            } else {
+                this.addOutput('⚠️ Voice interface not available', 'error');
+            }
+        } catch (error) {
+            console.error('Voice interface initialization failed:', error);
+            this.addOutput('❌ Voice interface failed to initialize', 'error');
+        }
+    }
+
+    toggleVoice() {
+        if (!this.voiceInterface) {
+            this.addOutput('Voice interface not available', 'error');
+            return;
+        }
+
+        const success = this.voiceInterface.toggle();
+        const button = document.getElementById('voiceToggle');
+        
+        if (success) {
+            this.voiceEnabled = true;
+            button.textContent = 'Disable Voice';
+            button.classList.add('active');
+            this.addOutput('🎤 Voice interface activated', 'success');
+            this.addOutput('Say "Adrian", "Computer", or "Hey Adrian" to get my attention', 'info');
+        } else {
+            this.voiceEnabled = false;
+            button.textContent = 'Enable Voice';
+            button.classList.remove('active');
+            this.addOutput('🔇 Voice interface deactivated', 'info');
+        }
+    }
+
+    handleVoiceCommand(args) {
+        if (!this.voiceInterface) {
+            this.addOutput('Voice interface not available', 'error');
+            return;
+        }
+
+        if (args.length === 0) {
+            this.showVoiceStatus();
+            return;
+        }
+
+        const subcommand = args[0].toLowerCase();
+        
+        switch (subcommand) {
+            case 'on':
+            case 'start':
+                if (this.voiceInterface.startListening()) {
+                    this.voiceEnabled = true;
+                    document.getElementById('voiceToggle').classList.add('active');
+                    this.addOutput('🎤 Voice listening started', 'success');
+                } else {
+                    this.addOutput('❌ Failed to start voice listening', 'error');
+                }
+                break;
+                
+            case 'off':
+            case 'stop':
+                this.voiceInterface.stopListening();
+                this.voiceEnabled = false;
+                document.getElementById('voiceToggle').classList.remove('active');
+                this.addOutput('🔇 Voice listening stopped', 'info');
+                break;
+                
+            case 'status':
+                this.showVoiceStatus();
+                break;
+                
+            case 'rate':
+                if (args[1]) {
+                    const rate = parseFloat(args[1]);
+                    this.voiceInterface.setVoiceRate(rate);
+                    this.addOutput(`🗣️ Voice rate set to ${rate}`, 'success');
+                } else {
+                    this.addOutput('Usage: voice rate <0.1-3.0>', 'error');
+                }
+                break;
+                
+            case 'pitch':
+                if (args[1]) {
+                    const pitch = parseFloat(args[1]);
+                    this.voiceInterface.setVoicePitch(pitch);
+                    this.addOutput(`🎵 Voice pitch set to ${pitch}`, 'success');
+                } else {
+                    this.addOutput('Usage: voice pitch <0.0-2.0>', 'error');
+                }
+                break;
+                
+            case 'volume':
+                if (args[1]) {
+                    const volume = parseFloat(args[1]);
+                    this.voiceInterface.setVoiceVolume(volume);
+                    this.addOutput(`🔊 Voice volume set to ${volume}`, 'success');
+                } else {
+                    this.addOutput('Usage: voice volume <0.0-1.0>', 'error');
+                }
+                break;
+                
+            default:
+                this.addOutput(`Unknown voice command: ${subcommand}`, 'error');
+                this.addOutput('Available: on, off, status, rate, pitch, volume', 'info');
+        }
+    }
+
+    handleSpeakCommand(args) {
+        if (!this.voiceInterface) {
+            this.addOutput('Voice interface not available', 'error');
+            return;
+        }
+
+        if (args.length === 0) {
+            this.addOutput('Usage: speak <text to say>', 'error');
+            return;
+        }
+
+        const text = args.join(' ');
+        this.voiceInterface.speak(text);
+        this.addOutput(`🗣️ Speaking: "${text}"`, 'info');
+    }
+
+    showVoiceStatus() {
+        if (!this.voiceInterface) {
+            this.addOutput('Voice interface not available', 'error');
+            return;
+        }
+
+        const status = this.voiceInterface.getVoiceStatus();
+        
+        this.addOutput('', 'info');
+        this.addOutput('🎤 VOICE INTERFACE STATUS', 'success');
+        this.addOutput('', 'info');
+        this.addOutput(`Active:         ${status.isActive ? 'Yes' : 'No'}`, 'info');
+        this.addOutput(`Listening:      ${status.isListening ? 'Yes' : 'No'}`, 'info');
+        this.addOutput(`Wake Word:      ${status.wakeWordActive ? 'Detected' : 'Waiting'}`, 'info');
+        this.addOutput(`Current Voice:  ${status.currentVoice || 'None'}`, 'info');
+        this.addOutput('', 'info');
+        this.addOutput('Settings:', 'command');
+        this.addOutput(`  Rate:         ${status.settings.rate}`, 'info');
+        this.addOutput(`  Pitch:        ${status.settings.pitch}`, 'info');
+        this.addOutput(`  Volume:       ${status.settings.volume}`, 'info');
+        this.addOutput('', 'info');
+        this.addOutput('Wake Words: "Adrian", "Computer", "Terminal", "Hey Adrian"', 'info');
+        this.addOutput('Commands: voice [on|off|status], speak <text>', 'info');
+        this.addOutput('', 'info');
     }
 }
 

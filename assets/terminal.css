@@ -26,6 +26,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
 }
 
 .window-controls {
@@ -545,6 +546,11 @@ body {
     border: 1px solid #333;
     margin: 4px;
     background: #0a0a0a;
+    min-width: 280px;
+}
+
+.monitor-pane.middle-pane {
+    max-width: 320px;
 }
 
 .monitor-divider {
@@ -698,6 +704,170 @@ body {
 
 .progress-fill.critical {
     background: linear-gradient(90deg, #ff4444, #cc0000);
+}
+
+/* AI Metrics Styling */
+.ai-metric {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 4px 6px;
+    background: rgba(0, 150, 255, 0.02);
+    border-left: 2px solid #0096ff;
+}
+
+.metric-success {
+    color: #00ff88 !important;
+}
+
+.cache-status {
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+.cache-indicator {
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.cache-indicator.cache-low {
+    color: #ffaa00;
+}
+
+.cache-indicator.cache-medium {
+    color: #00ccff;
+}
+
+.cache-indicator.cache-full {
+    color: #00ff88;
+}
+
+.optimization-tip {
+    color: #888;
+    font-style: italic;
+}
+
+/* Voice Interface Styling */
+.voice-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+}
+
+.voice-indicator {
+    font-size: 16px;
+    animation: none;
+}
+
+.voice-indicator.listening {
+    animation: voicePulse 2s infinite;
+    color: #00ff41;
+}
+
+.voice-indicator.processing {
+    animation: voiceSpin 1s linear infinite;
+    color: #ffaa00;
+}
+
+.voice-indicator.thinking {
+    animation: voiceThink 1.5s ease-in-out infinite alternate;
+    color: #00ccff;
+}
+
+.voice-indicator.speaking {
+    animation: voiceSpeak 0.5s ease-in-out infinite alternate;
+    color: #ff6600;
+}
+
+.voice-indicator.activated {
+    animation: voiceActivated 0.8s ease-in-out infinite alternate;
+    color: #ff44ff;
+}
+
+.voice-indicator.executing {
+    animation: voiceExecute 0.3s linear infinite;
+    color: #44ff44;
+}
+
+.voice-indicator.error {
+    color: #ff4444;
+    animation: voiceError 0.5s ease-in-out 3;
+}
+
+.voice-status {
+    color: #888;
+    min-width: 120px;
+    font-size: 11px;
+}
+
+.voice-toggle {
+    background: #003311;
+    border: 1px solid #00ff41;
+    color: #00ff41;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.voice-toggle:hover {
+    background: #004422;
+    box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
+}
+
+.voice-toggle.active {
+    background: #002200;
+    border-color: #44ff44;
+    color: #44ff44;
+    box-shadow: 0 0 10px rgba(68, 255, 68, 0.4);
+}
+
+.voice-toggle.error {
+    background: #330000;
+    border-color: #ff4444;
+    color: #ff4444;
+}
+
+/* Voice animations */
+@keyframes voicePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+@keyframes voiceSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes voiceThink {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+@keyframes voiceSpeak {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.2); }
+}
+
+@keyframes voiceActivated {
+    0% { text-shadow: 0 0 5px #ff44ff; }
+    100% { text-shadow: 0 0 15px #ff44ff, 0 0 25px #ff44ff; }
+}
+
+@keyframes voiceExecute {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+@keyframes voiceError {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
 }
 
 /* Animations */
