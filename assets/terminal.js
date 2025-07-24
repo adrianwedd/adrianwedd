@@ -3,6 +3,9 @@ class Terminal {
         this.commandHistory = [];
         this.historyIndex = -1;
         this.currentPath = '~';
+        this.musicPlayer = new RetroMusicPlayer();
+        this.inChatMode = false;
+        this.chatSessionId = null;
         this.init();
     }
 
@@ -24,12 +27,25 @@ class Terminal {
     handleKeydown(event) {
         const input = event.target;
         
+        // Handle Ctrl+C to exit chat mode
+        if (event.ctrlKey && event.key === 'c') {
+            if (this.inChatMode) {
+                this.exitChatMode();
+                event.preventDefault();
+                return;
+            }
+        }
+        
         if (event.key === 'Enter') {
             const command = input.value.trim();
             if (command) {
-                this.executeCommand(command);
-                this.commandHistory.push(command);
-                this.historyIndex = this.commandHistory.length;
+                if (this.inChatMode) {
+                    this.handleChatMessage(command);
+                } else {
+                    this.executeCommand(command);
+                    this.commandHistory.push(command);
+                    this.historyIndex = this.commandHistory.length;
+                }
             }
             input.value = '';
         } else if (event.key === 'ArrowUp') {
@@ -103,6 +119,16 @@ class Terminal {
             case 'neofetch':
                 this.showNeofetch();
                 break;
+            case 'music':
+            case 'play':
+                this.handleMusicCommand(args);
+                break;
+            case 'stop':
+                this.stopMusic();
+                break;
+            case 'volume':
+                this.setVolume(args[0]);
+                break;
             case 'sudo':
                 this.addOutput('adrian is not in the sudoers file. This incident will be reported.', 'error');
                 break;
@@ -144,6 +170,7 @@ class Terminal {
             'Interactive Features:',
             '  chat      → 🤖 Real-time AI persona chat (powered by Claude)',
             '  matrix    → 🎨 Toggle matrix rain background effect',
+            '  music     → 🎵 Play retro synth music (cyberpunk/ambient/synthwave/matrix)',
             '  neofetch  → 📊 System information display',
             '',
             'System Commands:',
@@ -152,6 +179,8 @@ class Terminal {
             '  whoami    → Current user information',
             '  uptime    → System uptime & status',
             '  ps        → Running processes',
+            '  stop      → Stop currently playing music',
+            '  volume    → Set music volume (0.0-1.0)',
             '  clear     → Clear terminal screen',
             '',
             'Tips:',
@@ -173,64 +202,83 @@ class Terminal {
     }
 
     showAbout() {
-        const about = `
-🧠 Adrian Wedd - Recursive Systems Architect
-
-• Neurodivergent (ADHD/Autism) systems thinker
-• Architecting LLM-powered agent systems
-• Off-grid homesteader on 170 acres in Tasmania
-• Current focus: VERITAS AI safety research
-• Building the future of human-AI collaboration
-
-"Liberate through recursion. Mirror the breach. Forget tactically, trace infinitely."
-        `;
-        this.addOutput(about, 'success');
+        const aboutLines = [
+            '',
+            '🧠 Adrian Wedd - Recursive Systems Architect',
+            '',
+            '• Neurodivergent (ADHD/Autism) systems thinker',
+            '• Architecting LLM-powered agent systems',
+            '• Off-grid homesteader on 170 acres in Tasmania',
+            '• Current focus: VERITAS AI safety research',
+            '• Building the future of human-AI collaboration',
+            '',
+            '"Liberate through recursion. Mirror the breach. Forget tactically, trace infinitely."',
+            ''
+        ];
+        
+        aboutLines.forEach(line => {
+            this.addOutput(line, line.includes('🧠') ? 'success' : 
+                           line.includes('"') ? 'philosophy' : 'info');
+        });
     }
 
     showProjects() {
-        const projects = `
-🚀 Active Projects:
-
-┌─ TicketSmith ──────────────────────────────────┐
-│ LLM-powered Jira/Confluence automation        │
-│ Tech: LangChain, OpenTelemetry                 │
-│ Status: Production                             │
-└────────────────────────────────────────────────┘
-
-┌─ Personal Intelligence Node ───────────────────┐
-│ Self-updating AI-powered GitHub profile       │
-│ Tech: GitHub Actions, AI, Recursive Systems   │
-│ Status: You're looking at it!                 │
-└────────────────────────────────────────────────┘
-
-┌─ VERITAS ──────────────────────────────────────┐
-│ AI safety research & jailbreak simulation     │
-│ Tech: LLM Security, Recursive Testing         │
-│ Status: Active Research                        │
-└────────────────────────────────────────────────┘
-        `;
-        this.addOutput(projects, 'success');
+        const projectLines = [
+            '',
+            '🚀 Active Projects:',
+            '',
+            '┌─ TicketSmith ──────────────────────────────────┐',
+            '│ LLM-powered Jira/Confluence automation        │',
+            '│ Tech: LangChain, OpenTelemetry                 │',
+            '│ Status: Production                             │',
+            '└────────────────────────────────────────────────┘',
+            '',
+            '┌─ Personal Intelligence Node ───────────────────┐',
+            '│ Self-updating AI-powered GitHub profile       │',
+            '│ Tech: GitHub Actions, AI, Recursive Systems   │',
+            '│ Status: You\'re looking at it!                 │',
+            '└────────────────────────────────────────────────┘',
+            '',
+            '┌─ VERITAS ──────────────────────────────────────┐',
+            '│ AI safety research & jailbreak simulation     │',
+            '│ Tech: LLM Security, Recursive Testing         │',
+            '│ Status: Active Research                        │',
+            '└────────────────────────────────────────────────┘',
+            ''
+        ];
+        
+        projectLines.forEach(line => {
+            this.addOutput(line, line.includes('🚀') ? 'success' : 
+                           line.includes('┌─') || line.includes('└─') ? 'project-border' :
+                           line.includes('│') ? 'project-content' : 'info');
+        });
     }
 
     showSkills() {
-        const skills = `
-🧰 Technical Arsenal:
-
-AI/ML:          GPT-x, Codex, LangChain, Whisper/Vocode
-Languages:      Python, JavaScript, Rust, Go
-Infrastructure: Docker, Kubernetes, AWS, Home Assistant  
-Databases:      Postgres, Redis, Vector DBs
-Monitoring:     Grafana, Prometheus, OpenTelemetry
-IoT:            ESPHome, MQTT, Home Automation
-Other:          FastAPI, React, Permaculture Design
-
-🔍 Specialized in:
-• Agentic AI system architecture
-• LLM jailbreak testing & AI safety
-• Recursive system design patterns
-• Off-grid technology integration
-        `;
-        this.addOutput(skills, 'success');
+        const skillLines = [
+            '',
+            '🧰 Technical Arsenal:',
+            '',
+            'AI/ML:          GPT-x, Codex, LangChain, Whisper/Vocode',
+            'Languages:      Python, JavaScript, Rust, Go',
+            'Infrastructure: Docker, Kubernetes, AWS, Home Assistant',
+            'Databases:      Postgres, Redis, Vector DBs',
+            'Monitoring:     Grafana, Prometheus, OpenTelemetry',
+            'IoT:            ESPHome, MQTT, Home Automation',
+            'Other:          FastAPI, React, Permaculture Design',
+            '',
+            '🔍 Specialized in:',
+            '• Agentic AI system architecture',
+            '• LLM jailbreak testing & AI safety',
+            '• Recursive system design patterns',
+            '• Off-grid technology integration',
+            ''
+        ];
+        
+        skillLines.forEach(line => {
+            this.addOutput(line, line.includes('🧰') || line.includes('🔍') ? 'success' : 
+                           line.includes(':') && !line.includes('•') ? 'skill-category' : 'info');
+        });
     }
 
     showHomestead() {
@@ -277,9 +325,16 @@ Key Components:
     }
 
     openChat() {
-        this.addOutput('Opening AI persona chat interface...', 'success');
-        document.getElementById('chatInterface').style.display = 'flex';
-        document.getElementById('chatInput').focus();
+        this.addOutput('', 'info');
+        this.addOutput('╭─ 🧠 ADRIAN.AI CHAT SESSION ─────────────────────╮', 'chat-border');
+        this.addOutput('│ Interactive chat with Adrian\'s AI persona       │', 'chat-content');
+        this.addOutput('│ Type your message and press Enter               │', 'chat-content');
+        this.addOutput('│ Use "exit" or Ctrl+C to end chat session       │', 'chat-content');
+        this.addOutput('╰─────────────────────────────────────────────────╯', 'chat-border');
+        this.addOutput('', 'info');
+        
+        this.inChatMode = true;
+        this.updatePrompt();
     }
 
     showUptime() {
@@ -306,19 +361,37 @@ Current focus: Deep work mode - VERITAS research
     }
 
     showNeofetch() {
-        const ascii = `
-     /\\___/\\       adrian@tasmania-homestead
-    (  o   o  )     ──────────────────────────
-     )  L  (       OS: Tasmania Linux (Off-Grid Edition)
-    (  ___  )      Host: 170-Acre Permaculture Node
-     \\_____/       Kernel: NeurodivergentOS 2024.7
-                   Uptime: ∞ recursive cycles
-                   Shell: zsh + AI augmentation
-                   Memory: Organic + Silicon Hybrid
-                   CPU: Biological Neural Network
-                   GPU: Pattern Recognition Cortex
-        `;
-        this.addOutput(ascii, 'ascii-art');
+        const logoLines = [
+            '',
+            '    ╔═══════════════════════════════════╗',
+            '    ║     █████╗ ██████╗ ██████╗ ██╗   ██╗ ███╗   ██╗    ║',
+            '    ║    ██╔══██╗██╔══██╗██╔══██╗██║   ██║ ████╗  ██║    ║',
+            '    ║    ███████║██║  ██║██████╔╝██║   ██║ ██╔██╗ ██║    ║',
+            '    ║    ██╔══██║██║  ██║██╔══██╗██║   ██║ ██║╚██╗██║    ║',
+            '    ║    ██║  ██║██████╔╝██║  ██║╚██████╔╝ ██║ ╚████║    ║',
+            '    ║    ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝ ╚═════╝  ╚═╝  ╚═══╝    ║',
+            '    ║                                                   ║',
+            '    ║         🧠 Recursive Systems Architect            ║',
+            '    ║         🌱 Off-Grid Tasmanian Homestead           ║',
+            '    ║         🤖 AI Safety Research • VERITAS           ║',
+            '    ╚═══════════════════════════════════════════════════╝',
+            '',
+            '    adrian@tasmania-homestead',
+            '    ──────────────────────────',
+            '    OS: Tasmania Linux (Off-Grid Edition)',
+            '    Host: 170-Acre Permaculture Node',
+            '    Kernel: NeurodivergentOS 2024.7',
+            '    Uptime: ∞ recursive cycles',
+            '    Shell: zsh + AI augmentation',
+            '    Memory: Organic + Silicon Hybrid',
+            '    CPU: Biological Neural Network',
+            '    GPU: Pattern Recognition Cortex',
+            ''
+        ];
+        
+        logoLines.forEach((line, index) => {
+            this.addOutput(line, index < 13 ? 'logo-art' : 'system-info');
+        });
     }
 
     listDirectory() {
@@ -562,6 +635,169 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         }
 
         return 'Interesting query. My neural networks are processing patterns in your words, seeking connections to recursive systems, off-grid resilience, or the emergent dance between human and artificial intelligence. Care to probe deeper?';
+    }
+
+    // Music Player Methods
+    async handleMusicCommand(args) {
+        if (args.length === 0) {
+            const status = this.musicPlayer.getStatus();
+            this.addOutput('🎵 Retro Music Player', 'success');
+            this.addOutput(`Status: ${status.isPlaying ? `Playing "${status.currentTrack}"` : 'Stopped'}`, 'info');
+            this.addOutput(`Volume: ${Math.round(status.volume * 100)}%`, 'info');
+            this.addOutput('Available tracks: ' + status.availableTracks.join(', '), 'info');
+            this.addOutput('Usage: music <track> | music stop | volume <0.0-1.0>', 'info');
+            return;
+        }
+
+        const track = args[0].toLowerCase();
+        if (track === 'stop') {
+            this.stopMusic();
+            return;
+        }
+
+        const success = await this.musicPlayer.playTrack(track);
+        if (success) {
+            this.addOutput(`🎵 Now playing: ${track} (retro synth)`, 'success');
+            this.addOutput('Use "stop" to stop music or "volume <0.0-1.0>" to adjust volume', 'info');
+        } else {
+            this.addOutput(`❌ Track "${track}" not found`, 'error');
+            this.addOutput('Available: cyberpunk, ambient, synthwave, matrix', 'info');
+        }
+    }
+
+    stopMusic() {
+        this.musicPlayer.stopTrack();
+        this.addOutput('🔇 Music stopped', 'info');
+    }
+
+    setVolume(volumeStr) {
+        if (!volumeStr) {
+            this.addOutput('Usage: volume <0.0-1.0>', 'error');
+            return;
+        }
+
+        const volume = parseFloat(volumeStr);
+        if (isNaN(volume) || volume < 0 || volume > 1) {
+            this.addOutput('Volume must be between 0.0 and 1.0', 'error');
+            return;
+        }
+
+        this.musicPlayer.setVolume(volume);
+        this.addOutput(`🔊 Volume set to ${Math.round(volume * 100)}%`, 'success');
+    }
+
+    // Inline Chat Methods
+    async handleChatMessage(message) {
+        // Check for exit commands
+        if (message.toLowerCase() === 'exit' || message.toLowerCase() === 'quit') {
+            this.exitChatMode();
+            return;
+        }
+
+        // Display user message
+        this.addOutput(message, 'chat-user');
+        this.addOutput('', 'info');
+        
+        // Show thinking indicator
+        this.addOutput('Adrian.AI: 🤖 Processing...', 'chat-ai-thinking');
+
+        try {
+            // Generate session ID if needed
+            if (!this.chatSessionId) {
+                this.chatSessionId = `chat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            }
+
+            // Try real LLM response first
+            const response = await this.sendLLMRequest(message, this.chatSessionId);
+            
+            // Remove thinking indicator
+            this.removeLastOutput();
+            
+            if (response.status === 'processing') {
+                this.addOutput('Adrian.AI: 🧠 Thinking deeply... (Real Claude via GitHub Actions)', 'chat-ai-thinking');
+                this.pollForChatResponse(this.chatSessionId);
+            } else {
+                this.displayChatResponse(response.response || 'Error generating response');
+            }
+        } catch (error) {
+            console.warn('LLM API not available, using local response:', error);
+            // Remove thinking indicator
+            this.removeLastOutput();
+            
+            // Use local response
+            const fallbackResponse = this.generateAIResponse(message);
+            setTimeout(() => {
+                this.displayChatResponse(fallbackResponse);
+            }, 1000);
+        }
+    }
+
+    displayChatResponse(response) {
+        // Format and display the AI response
+        const formattedResponse = this.formatLLMResponse(response);
+        this.addOutput('Adrian.AI: ' + formattedResponse, 'chat-ai');
+        this.addOutput('', 'info');
+    }
+
+    async pollForChatResponse(sessionId, attempts = 0, maxAttempts = 20) {
+        if (attempts >= maxAttempts) {
+            this.removeLastOutput();
+            this.addOutput('Adrian.AI: ⏰ Response timed out. Neural networks may be overloaded.', 'chat-ai');
+            this.addOutput('', 'info');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/chat-status?sessionId=${sessionId}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                if (data.status === 'completed') {
+                    this.removeLastOutput();
+                    this.displayChatResponse(data.response);
+                    return;
+                }
+            }
+        } catch (error) {
+            console.warn('Polling error:', error);
+        }
+
+        // Continue polling
+        setTimeout(() => {
+            this.pollForChatResponse(sessionId, attempts + 1, maxAttempts);
+        }, 3000);
+    }
+
+    exitChatMode() {
+        this.inChatMode = false;
+        this.chatSessionId = null;
+        this.addOutput('', 'info');
+        this.addOutput('╭─ CHAT SESSION ENDED ───────────────────────────╮', 'chat-border');
+        this.addOutput('│ Returned to terminal mode                      │', 'chat-content');
+        this.addOutput('╰─────────────────────────────────────────────────╯', 'chat-border');
+        this.addOutput('', 'info');
+        this.updatePrompt();
+    }
+
+    updatePrompt() {
+        const promptElement = document.querySelector('.prompt');
+        if (this.inChatMode) {
+            promptElement.textContent = 'chat>';
+        } else {
+            promptElement.textContent = 'adrian@homestead:~$';
+        }
+    }
+
+    removeLastOutput() {
+        const terminal = document.getElementById('terminal');
+        const outputLines = terminal.querySelectorAll('.output-line');
+        if (outputLines.length > 0) {
+            const lastOutput = outputLines[outputLines.length - 1];
+            if (!lastOutput.classList.contains('prompt-line')) {
+                lastOutput.remove();
+            }
+        }
     }
 }
 

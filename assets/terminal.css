@@ -123,7 +123,7 @@ body {
 }
 
 .info {
-    color: #4444ff;
+    color: #00cccc;
 }
 
 .command {
@@ -138,8 +138,64 @@ body {
 }
 
 .feature-highlight {
-    color: #ffaa00;
+    color: #ff6600;
     font-weight: bold;
+}
+
+.philosophy {
+    color: #cc99ff;
+    font-style: italic;
+    text-shadow: 0 0 5px #cc99ff;
+}
+
+.skill-category {
+    color: #ffcc00;
+    font-weight: bold;
+}
+
+.project-border {
+    color: #00ff88;
+    font-weight: bold;
+}
+
+.project-content {
+    color: #88ffcc;
+}
+
+.chat-border {
+    color: #00ffff;
+    font-weight: bold;
+}
+
+.chat-content {
+    color: #88ccff;
+}
+
+.chat-user {
+    color: #ffff88;
+    font-weight: bold;
+}
+
+.chat-ai {
+    color: #88ff88;
+}
+
+.chat-ai-thinking {
+    color: #ffaa55;
+    font-style: italic;
+}
+
+.logo-art {
+    color: #00ffaa;
+    font-weight: bold;
+    text-shadow: 0 0 10px #00ffaa;
+    white-space: pre;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.system-info {
+    color: #aaffcc;
+    white-space: pre;
 }
 
 .ascii-art {
