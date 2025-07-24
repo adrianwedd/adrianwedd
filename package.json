@@ -12,7 +12,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.js\"",
     "format-check": "prettier --check \"**/*.js\"",
-    "lint:css": "stylelint \"**/*.css\"",
+    "lint:css": "stylelint "**/*.css"",
+    "test:unit": "playwright test tests/unit",
     "prepare": "husky"
   },
   "devDependencies": {
