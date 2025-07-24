@@ -96,4 +96,46 @@ test.describe('Music System Functionality', () => {
     await terminalInput.press('Enter');
     await expect(musicPlayerStatus).toContainText('Now playing:'); // Should resume playing
   });
+
+  test('Volume control handles invalid inputs', async ({ page }) => {
+    const terminalInput = page.locator('#terminal-input');
+    const terminalOutput = page.locator('#terminal-output');
+
+    await terminalInput.fill('volume -10');
+    await terminalInput.press('Enter');
+    await expect(terminalOutput).toContainText('Volume must be between 0.0 and 1.0');
+
+    await terminalInput.fill('volume 1.5');
+    await terminalInput.press('Enter');
+    await expect(terminalOutput).toContainText('Volume must be between 0.0 and 1.0');
+
+    await terminalInput.fill('volume abc');
+    await terminalInput.press('Enter');
+    await expect(terminalOutput).toContainText('Volume must be between 0.0 and 1.0');
+  });
+
+  test('Rapid play/stop/switch actions', async ({ page }) => {
+    const terminalInput = page.locator('#terminal-input');
+    const musicPlayerStatus = page.locator('#music-player-status');
+
+    await terminalInput.fill('play cyberpunk');
+    await terminalInput.press('Enter');
+    await expect(musicPlayerStatus).toContainText('Now playing: Cyberpunk');
+
+    await terminalInput.fill('stop music');
+    await terminalInput.press('Enter');
+    await expect(musicPlayerStatus).toContainText('Music stopped');
+
+    await terminalInput.fill('play ambient');
+    await terminalInput.press('Enter');
+    await expect(musicPlayerStatus).toContainText('Now playing: Ambient');
+
+    await terminalInput.fill('stop music');
+    await terminalInput.press('Enter');
+    await expect(musicPlayerStatus).toContainText('Music stopped');
+
+    await terminalInput.fill('play mathematical');
+    await terminalInput.press('Enter');
+    await expect(musicPlayerStatus).toContainText('Now playing: Mathematical');
+  });
 });
