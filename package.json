@@ -11,8 +11,8 @@
     "screenshots": "playwright test --update-snapshots",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"**/*.js\"",
-    "format-check": "prettier --check \"**/*.js\"",
+    "format": "prettier --write "**/*.js"",
+    "format-check": "prettier --check "**/*.js"",
     "lint:css": "stylelint "**/*.css"",
     "test:unit": "playwright test tests/unit",
     "prepare": "husky"
@@ -51,13 +51,14 @@
     "url": "https://github.com/adrianwedd/adrianwedd/issues"
   },
   "homepage": "https://github.com/adrianwedd/adrianwedd#readme"
-},
-"lint-staged": {
-  "*.js": [
-    "eslint --fix",
-    "prettier --write"
-  ],
-  "*.css": [
-    "stylelint --fix"
-  ]
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.css": [
+      "stylelint --fix"
+    ]
+  }
 }

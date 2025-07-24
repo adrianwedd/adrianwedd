@@ -3,16 +3,59 @@ class ResearchStreamer {
         this.papers = [];
         this.currentStream = null;
         this.isStreaming = false;
+        
+        // Research sources configuration
+        this.sources = {
+            arxiv: {
+                baseUrl: 'https://export.arxiv.org/api/query',
+                categories: [
+                    'cs.AI',      // Artificial Intelligence
+                    'cs.CL',      // Computation and Language
+                    'cs.LG',      // Machine Learning
+                    'cs.NE',      // Neural and Evolutionary Computing
+                    'cs.RO',      // Robotics
+                    'cs.HC',      // Human-Computer Interaction
+                    'cs.SY'       // Systems and Control
+                ],
+                maxResults: 20
+            },
+            semanticScholar: {
+                baseUrl: 'https://api.semanticscholar.org/graph/v1',
+                fields: 'paperId,title,abstract,authors,venue,year,citationCount,url',
+                maxResults: 15
+            }
+        };
+        
+        // Adrian's research interests and keywords
+        this.researchKeywords = [
+            'recursive systems',
+            'ai safety',
+            'prompt engineering',
+            'llm security',
+            'agent architecture',
+            'human-ai collaboration',
+            'adversarial prompting',
+            'neural architecture search',
+            'federated learning',
+            'edge computing',
+            'sustainable ai',
+            'neuromorphic computing',
+            'quantum machine learning',
+            'explainable ai',
+            'multi-agent systems'
+        ];
+        
         // Cache for recent papers
         this.paperCache = new Map();
         this.cacheExpiry = 1000 * 60 * 60 * 6; // 6 hours
+        
         this.init();
     }
 
     init() {
         // Load cached papers from localStorage
         this.loadCachedPapers();
-
+        
         // Set up periodic refresh
         this.setupPeriodicRefresh();
     }
@@ -47,55 +90,141 @@ class ResearchStreamer {
     setupPeriodicRefresh() {
         // Refresh papers every 4 hours
         setInterval(() => {
-            this.loadLocalMarkdownPapers();
+            this.fetchLatestPapers();
         }, 1000 * 60 * 60 * 4);
+        
         // Initial fetch if cache is empty
         if (this.papers.length === 0) {
-            this.loadLocalMarkdownPapers();
+            this.fetchLatestPapers();
         }
     }
 
-    // Loads local markdown documents from /research/index.json
-    async loadLocalMarkdownPapers() {
-        console.log('Loading local markdown research papers...');
+    async fetchLatestPapers() {
+        console.log('Fetching latest research papers...');
+        
         try {
-            const response = await fetch('/research/index.json');
-            if (!response.ok) throw new Error('Could not load research/index.json');
-            const filenames = await response.json(); // Should be array of filenames
-            // Fetch all markdown files in parallel
-            const paperPromises = filenames.map(async (filename) => {
-                const fileResp = await fetch(`/research/${filename}`);
-                if (!fileResp.ok) throw new Error(`Could not load ${filename}`);
-                const content = await fileResp.text();
-                // Dummy values for metadata
-                const title = filename.replace(/\.md$/, '').replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-                return {
-                    id: filename,
-                    title: title,
-                    abstract: content,
-                    authors: ['Unknown Author'],
-                    venue: 'Local Markdown',
-                    year: '', // Optionally parse from filename if desired
-                    date: '',
-                    categories: [],
-                    citationCount: 0,
-                    url: `/research/${filename}`,
-                    source: 'local_markdown',
-                    relevanceScore: 0 // Default value
-                };
-            });
-            const papers = await Promise.all(paperPromises);
-            this.papers = this.deduplicateAndRank(papers);
+            const [arxivPapers, semanticPapers] = await Promise.allSettled([
+                this.fetchArxivPapers(),
+                this.fetchSemanticScholarPapers()
+            ]);
+
+            let newPapers = [];
+            
+            if (arxivPapers.status === 'fulfilled') {
+                newPapers = newPapers.concat(arxivPapers.value);
+            }
+            
+            if (semanticPapers.status === 'fulfilled') {
+                newPapers = newPapers.concat(semanticPapers.value);
+            }
+
+            // Deduplicate and sort by relevance/date
+            this.papers = this.deduplicateAndRank(newPapers);
             this.savePapersToCache();
-            console.log(`Loaded ${this.papers.length} local research markdown papers`);
+            
+            console.log(`Fetched ${this.papers.length} research papers`);
+            
         } catch (error) {
-            console.error('Failed to load local markdown papers:', error);
+            console.error('Failed to fetch research papers:', error);
         }
     }
 
-    // No-op for local markdown: assign default value
+    async fetchArxivPapers() {
+        const keywords = this.researchKeywords.slice(0, 8); // Use top keywords
+        const query = keywords.map(k => `all:"${k}"`).join(' OR ');
+        
+        const url = `${this.sources.arxiv.baseUrl}?search_query=${encodeURIComponent(query)}&start=0&max_results=${this.sources.arxiv.maxResults}&sortBy=submittedDate&sortOrder=descending`;
+        
+        try {
+            // Note: This will need a CORS proxy in production
+            const response = await fetch(url);
+            const xmlText = await response.text();
+            
+            return this.parseArxivXML(xmlText);
+        } catch (error) {
+            console.warn('ArXiv fetch failed, using mock data:', error);
+            return this.generateMockArxivPapers();
+        }
+    }
+
+    parseArxivXML(xmlText) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(xmlText, 'text/xml');
+        const entries = doc.querySelectorAll('entry');
+        
+        return Array.from(entries).map(entry => {
+            const id = entry.querySelector('id')?.textContent || '';
+            const title = entry.querySelector('title')?.textContent?.trim() || '';
+            const summary = entry.querySelector('summary')?.textContent?.trim() || '';
+            const published = entry.querySelector('published')?.textContent || '';
+            const authors = Array.from(entry.querySelectorAll('author name')).map(name => name.textContent);
+            const categories = Array.from(entry.querySelectorAll('category')).map(cat => cat.getAttribute('term'));
+            
+            return {
+                id: id.split('/').pop(),
+                title,
+                abstract: summary,
+                authors,
+                venue: 'arXiv',
+                year: new Date(published).getFullYear(),
+                date: published,
+                categories,
+                url: id,
+                source: 'arxiv',
+                relevanceScore: this.calculateRelevanceScore(title + ' ' + summary)
+            };
+        });
+    }
+
+    async fetchSemanticScholarPapers() {
+        const query = this.researchKeywords.slice(0, 5).join(' OR ');
+        const url = `${this.sources.semanticScholar.baseUrl}/paper/search?query=${encodeURIComponent(query)}&limit=${this.sources.semanticScholar.maxResults}&fields=${this.sources.semanticScholar.fields}`;
+        
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            return data.data.map(paper => ({
+                id: paper.paperId,
+                title: paper.title,
+                abstract: paper.abstract || '',
+                authors: paper.authors?.map(a => a.name) || [],
+                venue: paper.venue || 'Unknown',
+                year: paper.year,
+                citationCount: paper.citationCount || 0,
+                url: paper.url || `https://www.semanticscholar.org/paper/${paper.paperId}`,
+                source: 'semantic_scholar',
+                relevanceScore: this.calculateRelevanceScore(paper.title + ' ' + (paper.abstract || ''))
+            }));
+        } catch (error) {
+            console.warn('Semantic Scholar fetch failed, using mock data:', error);
+            return this.generateMockSemanticPapers();
+        }
+    }
+
     calculateRelevanceScore(text) {
-        return 0;
+        const lowerText = text.toLowerCase();
+        let score = 0;
+        
+        // Score based on keyword matches
+        this.researchKeywords.forEach(keyword => {
+            const keywordLower = keyword.toLowerCase();
+            const matches = (lowerText.match(new RegExp(keywordLower, 'g')) || []).length;
+            score += matches * 10;
+        });
+        
+        // Bonus for recent papers (within last year)
+        const currentYear = new Date().getFullYear();
+        if (text.includes(currentYear.toString()) || text.includes((currentYear - 1).toString())) {
+            score += 5;
+        }
+        
+        // Bonus for AI safety and recursive systems (Adrian's specialties)
+        if (lowerText.includes('ai safety') || lowerText.includes('recursive')) {
+            score += 20;
+        }
+        
+        return score;
     }
 
     deduplicateAndRank(papers) {
@@ -106,23 +235,21 @@ class ResearchStreamer {
             seen.add(key);
             return true;
         });
-        // Sort alphabetically by title, or by date if available
+        
         return unique
-            .sort((a, b) => {
-                if (a.date && b.date) {
-                    return (b.date || '').localeCompare(a.date || '');
-                }
-                return (a.title || '').localeCompare(b.title || '');
-            });
+            .sort((a, b) => b.relevanceScore - a.relevanceScore)
+            .slice(0, 25); // Keep top 25 most relevant
     }
 
     startStreaming(targetElement) {
         if (this.isStreaming) return;
+        
         this.isStreaming = true;
         this.currentStream = targetElement;
+        
         if (this.papers.length === 0) {
-            this.displayStreamingMessage('Loading local research markdown papers...');
-            this.loadLocalMarkdownPapers().then(() => {
+            this.displayStreamingMessage('Fetching latest research papers...');
+            this.fetchLatestPapers().then(() => {
                 this.renderPaperStream();
             });
         } else {
@@ -137,14 +264,14 @@ class ResearchStreamer {
 
     renderPaperStream() {
         if (!this.currentStream || !this.isStreaming) return;
-
+        
         const html = this.papers.map((paper, index) => {
-            const relevanceClass = paper.relevanceScore > 30 ? 'high-relevance' :
-                paper.relevanceScore > 15 ? 'medium-relevance' : 'low-relevance';
-
-            const authorsList = paper.authors.slice(0, 3).join(', ') +
-                (paper.authors.length > 3 ? ' et al.' : '');
-
+            const relevanceClass = paper.relevanceScore > 30 ? 'high-relevance' : 
+                                 paper.relevanceScore > 15 ? 'medium-relevance' : 'low-relevance';
+            
+            const authorsList = paper.authors.slice(0, 3).join(', ') + 
+                               (paper.authors.length > 3 ? ' et al.' : '');
+            
             return `
                 <div class="research-paper ${relevanceClass}" data-index="${index}">
                     <div class="paper-header">
@@ -165,20 +292,20 @@ class ResearchStreamer {
                 </div>
             `;
         }).join('');
-
+        
         this.currentStream.innerHTML = html;
-
+        
         // Add click handlers for paper interaction
         this.setupPaperInteraction();
     }
 
     setupPaperInteraction() {
         if (!this.currentStream) return;
-
+        
         this.currentStream.querySelectorAll('.research-paper').forEach(paperEl => {
             paperEl.addEventListener('click', (e) => {
                 if (e.target.classList.contains('paper-link')) return;
-
+                
                 const index = parseInt(paperEl.dataset.index);
                 const paper = this.papers[index];
                 this.displayPaperDetails(paper);
@@ -238,7 +365,7 @@ class ResearchStreamer {
                 relevanceScore: 45
             },
             {
-                id: 'mock-arxiv-2',
+                id: 'mock-arxiv-2', 
                 title: 'LLM Safety Through Recursive Prompt Verification',
                 abstract: 'A novel framework for ensuring large language model safety by implementing recursive verification of prompt intentions and output alignment.',
                 authors: ['D. Wilson', 'E. Brown'],
@@ -279,7 +406,7 @@ class ResearchStreamer {
 
     searchPapers(query) {
         const lowerQuery = query.toLowerCase();
-        return this.papers.filter(paper =>
+        return this.papers.filter(paper => 
             paper.title.toLowerCase().includes(lowerQuery) ||
             paper.abstract.toLowerCase().includes(lowerQuery) ||
             paper.authors.some(author => author.toLowerCase().includes(lowerQuery))
