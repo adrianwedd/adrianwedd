@@ -4,6 +4,7 @@
   "description": "Interactive terminal interface for Adrian Wedd's digital ecosystem",
   "scripts": {
     "test": "playwright test",
+    "test:e2e": "playwright test tests/e2e",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:report": "playwright show-report",
