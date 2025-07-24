@@ -7,6 +7,10 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:playwright/recommended',
+    'prettier',
+  ],
+  plugins: [
+    'prettier',
   ],
   parserOptions: {
     ecmaVersion: 12,

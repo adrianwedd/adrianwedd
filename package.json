@@ -9,13 +9,20 @@
     "test:report": "playwright show-report",
     "screenshots": "playwright test --update-snapshots",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.js\"",
+    "format-check": "prettier --check "**/*.js"",
+    "lint:css": "stylelint "**/*.css""
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
     "@playwright/test": "^1.54.1",
     "eslint": "^9.31.0",
-    "eslint-plugin-playwright": "^2.2.0"
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-playwright": "^2.2.0",
+    "prettier": "^3.6.2",
+    "stylelint": "^16.22.0",
+    "stylelint-config-standard": "^38.0.0"
   },
   "keywords": [
     "terminal",
