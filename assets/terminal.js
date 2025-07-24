@@ -1,3 +1,14 @@
+import * as Sentry from "@sentry/browser";
+import * as Tracing from "@sentry/tracing";
+
+Sentry.init({
+  dsn: "https://example.com/sentry-dsn", // Replace with your actual DSN
+  integrations: [
+    new Sentry.BrowserTracing(),
+  ],
+  tracesSampleRate: 1.0, // Capture 100% of transactions for performance monitoring
+});
+
 class Terminal {
     constructor() {
         this.commandHistory = [];
