@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: '20'
       - run: npm ci
-      - run: npm run build # Assuming a build script exists or will be added
+      - run: npm run build
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:

@@ -19,7 +19,8 @@
     "test:accessibility": "playwright test tests/e2e/accessibility.spec.js",
     "test:mobile": "playwright test tests/e2e/mobile-responsiveness.spec.js",
     "prepare": "husky install",
-    "lhci": "lhci autorun --config=.lighthouserc.js"
+    "lhci": "lhci autorun --config=.lighthouserc.js",
+    "build": "rm -rf dist && mkdir -p dist && cp index.html dist/ && cp -r assets/ dist/assets/ && cp -r api/ dist/api/"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
