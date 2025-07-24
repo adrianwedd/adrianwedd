@@ -1,0 +1,48 @@
+{
+  "aiResponses": {
+    "default": {
+      "response": "This is a default mocked AI response.",
+      "tokens": {
+        "total": 100,
+        "cached": 10
+      }
+    },
+    "joke": {
+      "response": "Why don't scientists trust atoms? Because they make up everything!",
+      "tokens": {
+        "total": 50,
+        "cached": 0
+      }
+    },
+    "cached": {
+      "response": "This is a cached AI response.",
+      "tokens": {
+        "total": 20,
+        "cached": 20
+      }
+    },
+    "error": {
+      "response": "Error: AI service is currently unavailable.",
+      "tokens": {
+        "total": 0,
+        "cached": 0
+      }
+    }
+  },
+  "githubData": {
+    "workflowRun": {
+      "status": "completed",
+      "conclusion": "success",
+      "lastRun": "2025-07-24T10:30:00Z",
+      "url": "https://github.com/adrianwedd/adrianwedd/actions/runs/12345"
+    },
+    "repoStats": {
+      "stars": 123,
+      "forks": 45,
+      "openIssues": 5
+    },
+    "rateLimitExceeded": {
+      "message": "API rate limit exceeded for user."
+    }
+  }
+}
