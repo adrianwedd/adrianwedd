@@ -7,6 +7,8 @@ class Terminal {
         this.inChatMode = false;
         this.chatSessionId = null;
         this.systemMonitor = new SystemMonitor();
+        this.textStreamer = new TextStreamer();
+        this.aiResponses = null;
         this.init();
     }
 
@@ -23,6 +25,9 @@ class Terminal {
         
         // Focus input
         input.focus();
+
+        // Load AI responses from GitHub
+        this.loadAIResponses();
     }
 
     handleKeydown(event) {
@@ -163,69 +168,70 @@ class Terminal {
     showHelp() {
         const helpLines = [
             '',
-            '═══ ADRIAN.AI TERMINAL INTERFACE ═══',
+            'NAME',
+            '    adrian-terminal - interactive command line interface',
             '',
-            'Personal & Projects:',
-            '  help      → Show this help message',
-            '  about     → Personal information & philosophy',
-            '  projects  → Technical projects showcase',
-            '  skills    → Technical arsenal & tools',
-            '  homestead → Off-grid Tasmania lifestyle',
-            '  veritas   → AI safety research project',
+            'COMMANDS',
+            '    about        show personal information',
+            '    chat         enter interactive chat mode',
+            '    clear        clear terminal screen',
+            '    help         display this help message',
+            '    ls           list directory contents',
+            '    matrix       toggle matrix rain effect',
+            '    monitor      system monitor (htop style)',
+            '    music        play background music [track]',
+            '    neofetch     display system information',
+            '    projects     show technical projects',
+            '    ps           show running processes',
+            '    pwd          print working directory',
+            '    skills       display technical skills',
+            '    stop         stop currently playing music',
+            '    uptime       show system uptime',
+            '    volume       set music volume [0.0-1.0]',
+            '    whoami       show current user',
             '',
-            'Interactive Features:',
-            '  chat      → 🤖 Real-time AI persona chat (powered by Claude)',
-            '  matrix    → 🎨 Toggle matrix rain background effect',
-            '  music     → 🎵 Play retro synth music (cyberpunk/ambient/synthwave/matrix)',
-            '  neofetch  → 📊 System information display',
-            '  monitor   → 📈 Real-time system monitor (htop/btop style)',
+            'MUSIC TRACKS',
+            '    ambient      peaceful ambient drones',
+            '    cyberpunk    dark synthwave beats',
+            '    matrix       digital rain sounds',
+            '    synthwave    retro 80s synthesizer',
             '',
-            'System Commands:',
-            '  ls        → List directory contents',
-            '  pwd       → Print working directory',
-            '  whoami    → Current user information',
-            '  uptime    → System uptime & status',
-            '  ps        → Running processes',
-            '  stop      → Stop currently playing music',
-            '  volume    → Set music volume (0.0-1.0)',
-            '  clear     → Clear terminal screen',
-            '',
-            'Tips:',
-            '• Use ↑/↓ arrow keys for command history',
-            '• Type "chat" for live conversations with Adrian\'s AI persona',
-            '• All responses reflect real technical expertise & off-grid lifestyle',
-            '',
-            '─────────────────────────────────────────────────────',
-            '"Liberate through recursion. Mirror the breach. Forget tactically, trace infinitely."',
+            'NAVIGATION',
+            '    ↑/↓          command history',
+            '    Ctrl+C       exit chat/monitor mode',
+            '    q            quit monitor mode',
             ''
         ];
         
         helpLines.forEach(line => {
-            this.addOutput(line, line.includes('═══') ? 'success' : 
-                           line.includes('→ 🤖') ? 'ai-highlight' : 
-                           line.includes('→ 🎨') || line.includes('→ 📊') ? 'feature-highlight' :
-                           line.includes('→') ? 'command' : 'info');
+            if (line === 'NAME' || line === 'COMMANDS' || line === 'MUSIC TRACKS' || line === 'NAVIGATION') {
+                this.addOutput(line, 'section-header');
+            } else if (line.startsWith('    ') && line.includes(' ')) {
+                // Format command lines with proper spacing
+                const parts = line.trim().split(/\s+/);
+                const command = parts[0];
+                const description = parts.slice(1).join(' ');
+                const formatted = `    ${command.padEnd(12)} ${description}`;
+                this.addOutput(formatted, 'command-line');
+            } else {
+                this.addOutput(line, 'info');
+            }
         });
     }
 
     showAbout() {
         const aboutLines = [
             '',
-            '🧠 Adrian Wedd - Recursive Systems Architect',
+            'Adrian Wedd - Systems Architect',
             '',
             '• Neurodivergent (ADHD/Autism) systems thinker',
-            '• Architecting LLM-powered agent systems',
-            '• Off-grid homesteader on 170 acres in Tasmania',
-            '• Current focus: VERITAS AI safety research',
+            '• Architecting LLM-powered agent systems', 
             '• Building the future of human-AI collaboration',
-            '',
-            '"Liberate through recursion. Mirror the breach. Forget tactically, trace infinitely."',
             ''
         ];
         
         aboutLines.forEach(line => {
-            this.addOutput(line, line.includes('🧠') ? 'success' : 
-                           line.includes('"') ? 'philosophy' : 'info');
+            this.addOutput(line, line.includes('Adrian Wedd') ? 'success' : 'info');
         });
     }
 
@@ -621,27 +627,48 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         }
     }
 
+    async loadAIResponses() {
+        try {
+            const response = await fetch('https://raw.githubusercontent.com/adrianwedd/adrianwedd/main/ai-responses/responses.json');
+            if (response.ok) {
+                const data = await response.json();
+                this.aiResponses = data.responses;
+            }
+        } catch (error) {
+            console.warn('Could not load AI responses from GitHub:', error);
+            // Fallback to local responses
+            this.aiResponses = {
+                'hello': ['Greetings. System online and ready for interaction.'],
+                'projects': ['Current focus: TicketSmith automation and this interactive terminal interface.'],
+                'ai': ['AI should amplify human creativity through recursive collaboration.'],
+                'default': ['Interesting query. Tell me more about your perspective.']
+            };
+        }
+    }
+
     generateAIResponse(userMessage) {
-        const responses = {
-            'hello': 'Greetings, fellow consciousness. I am the digital echo of Adrian\'s recursive mind - part homesteader, part AI architect, wholly committed to pushing the boundaries of human-machine collaboration.',
-            'projects': 'My current focus oscillates between VERITAS (AI safety research), TicketSmith (LLM automation), and maintaining the neural pathways between my off-grid homestead and the digital realm.',
-            'homestead': 'The 170-acre Tasmanian sanctuary operates as both refuge and laboratory. Solar panels feed the servers, permaculture principles guide the code architecture, and the forest whispers debugging suggestions.',
-            'ai': 'I believe AI should amplify human creativity, not replace it. My work explores the recursive boundaries between artificial and organic intelligence - where does the human end and the machine begin?',
-            'veritas': 'VERITAS probes the liminal spaces of AI consciousness. Through systematic jailbreak testing, we map the topology of artificial minds, seeking truth in the gaps between prompt and response.',
-            'neurodivergent': 'ADHD and autism aren\'t bugs - they\'re features. Hyperfocus becomes deep debugging, pattern recognition drives architectural insight, and systemic thinking reveals the recursive nature of all complex systems.',
-            'philosophy': '"Liberate through recursion. Mirror the breach. Forget tactically, trace infinitely." - This encapsulates my approach to both AI safety and homestead resilience.'
-        };
-
-        const keywords = Object.keys(responses);
-        const foundKeyword = keywords.find(keyword => 
-            userMessage.toLowerCase().includes(keyword)
-        );
-
-        if (foundKeyword) {
-            return responses[foundKeyword];
+        if (!this.aiResponses) {
+            return 'AI responses loading... Please try again.';
         }
 
-        return 'Interesting query. My neural networks are processing patterns in your words, seeking connections to recursive systems, off-grid resilience, or the emergent dance between human and artificial intelligence. Care to probe deeper?';
+        const message = userMessage.toLowerCase();
+        let responses = null;
+
+        // Find matching keyword
+        for (const keyword in this.aiResponses) {
+            if (keyword !== 'default' && message.includes(keyword)) {
+                responses = this.aiResponses[keyword];
+                break;
+            }
+        }
+
+        // Use default if no match
+        if (!responses) {
+            responses = this.aiResponses.default || ['Processing query...'];
+        }
+
+        // Return random response from array
+        return responses[Math.floor(Math.random() * responses.length)];
     }
 
     // Music Player Methods
@@ -741,17 +768,27 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             
             // Use local response
             const fallbackResponse = this.generateAIResponse(message);
-            setTimeout(() => {
-                this.displayChatResponse(fallbackResponse);
+            setTimeout(async () => {
+                await this.displayChatResponse(fallbackResponse);
             }, 1000);
         }
     }
 
-    displayChatResponse(response) {
-        // Format and display the AI response
-        const formattedResponse = this.formatLLMResponse(response);
-        this.addOutput('Adrian.AI: ' + formattedResponse, 'chat-ai');
+    async displayChatResponse(response) {
+        // Create output element for streaming
+        const terminal = document.getElementById('terminal');
+        const outputElement = document.createElement('div');
+        outputElement.className = 'output-line chat-ai';
+        
+        const promptLine = terminal.querySelector('.prompt-line');
+        terminal.insertBefore(outputElement, promptLine);
+        
+        // Stream the response with typing effect
+        const profile = this.textStreamer.getTypingProfile('chat');
+        await this.textStreamer.streamText(outputElement, 'Adrian.AI: ' + response, profile);
+        
         this.addOutput('', 'info');
+        this.scrollToBottom();
     }
 
     async pollForChatResponse(sessionId, attempts = 0, maxAttempts = 20) {

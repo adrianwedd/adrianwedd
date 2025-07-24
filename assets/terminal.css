@@ -198,6 +198,22 @@ body {
     white-space: pre;
 }
 
+.section-header {
+    color: #ffffff;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.command-line {
+    color: #00cccc;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.typing-cursor {
+    color: #00ff41;
+    animation: blink 1s infinite;
+}
+
 .ascii-art {
     color: #00aa22;
     white-space: pre;

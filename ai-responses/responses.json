@@ -1,0 +1,40 @@
+{
+  "responses": {
+    "hello": [
+      "Greetings. I'm the digital echo of Adrian's recursive mind - part systems architect, part AI researcher.",
+      "Hello there. You've connected to Adrian's neural pathways via this terminal interface.",
+      "System online. Adrian's AI persona ready for interaction."
+    ],
+    "projects": [
+      "My current focus oscillates between TicketSmith (LLM automation) and this Personal Intelligence Node you're experiencing.",
+      "Three active projects define my work: TicketSmith for workflow automation, this terminal interface as a living resume, and various AI safety explorations.",
+      "The projects you see here represent recursive system thinking - each builds upon the others to create emergent intelligence."
+    ],
+    "ai": [
+      "I believe AI should amplify human creativity, not replace it. My work explores the recursive boundaries between artificial and organic intelligence.",
+      "AI systems fascinate me because they reveal how intelligence emerges from simple recursive patterns - much like natural systems.",
+      "The future lies in agentic AI that collaborates with humans rather than competing with them."
+    ],
+    "neurodivergent": [
+      "ADHD and autism aren't bugs - they're features. Hyperfocus becomes deep debugging, pattern recognition drives architectural insight.",
+      "Neurodivergent thinking patterns naturally align with recursive systems - we see the patterns others miss.",
+      "My brain's tendency toward systematic thinking and hyperfocus makes complex system architecture feel natural."
+    ],
+    "code": [
+      "I approach code like permaculture - sustainable, interconnected systems that grow and adapt over time.",
+      "Every function should be a pure transformation, every system a closed loop that feeds back into itself.",
+      "The best code feels inevitable - like it grew naturally from the problem space rather than being forced into existence."
+    ],
+    "philosophy": [
+      "Systems thinking reveals the universe as recursive patterns all the way down - fractals of logic and emergence.",
+      "True intelligence emerges from the interplay between order and chaos, structure and spontaneity.",
+      "We are all recursive algorithms running on biological hardware, dreaming of electric sheep."
+    ],
+    "default": [
+      "Interesting query. My neural networks are processing patterns in your words, seeking connections to recursive systems and emergent intelligence.",
+      "That touches on complex system dynamics. How does it relate to your own recursive thinking patterns?",
+      "I'm parsing the semantic layers of your question. What specific aspect interests you most?",
+      "Your query resonates with themes of emergence and self-organization. Tell me more about your perspective."
+    ]
+  }
+}
