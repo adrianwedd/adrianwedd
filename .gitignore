@@ -1,3 +1,19 @@
+# .gitignore
+
+# Secrets 
+.env
+
+# Claude
+.claude/
+CLAUDE.md
+
+# Gemini
+.gemini/
+GEMINI.md
+
+# Mac Tendrils
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]

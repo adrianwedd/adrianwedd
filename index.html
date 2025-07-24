@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adrian Wedd - Terminal Interface</title>
+    <link rel="stylesheet" href="assets/terminal.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="window-controls">
+                <span class="control close"></span>
+                <span class="control minimize"></span>
+                <span class="control maximize"></span>
+            </div>
+            <div class="title">adrian@homestead:~$ </div>
+        </div>
+        
+        <div class="terminal" id="terminal">
+            <div class="boot-sequence">
+                <div class="boot-line">Initializing VERITAS neural pathways...</div>
+                <div class="boot-line">Loading recursive systems architecture...</div>
+                <div class="boot-line">Connecting to off-grid Tasmanian node...</div>
+                <div class="boot-line">AI persona: <span class="status-online">ONLINE</span></div>
+                <div class="boot-line">Type 'help' for available commands</div>
+            </div>
+            
+            <div class="prompt-line">
+                <span class="prompt">adrian@homestead:~$</span>
+                <input type="text" id="commandInput" class="command-input" autofocus>
+                <span class="cursor">█</span>
+            </div>
+        </div>
+        
+        <div class="chat-interface" id="chatInterface" style="display: none;">
+            <div class="chat-header">
+                <span>🧠 ADRIAN.AI - Recursive Intelligence Node</span>
+                <button class="close-chat" onclick="closeChat()">×</button>
+            </div>
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-container">
+                <input type="text" id="chatInput" placeholder="Query the neural network..." class="chat-input">
+                <button onclick="sendMessage()" class="send-btn">TRANSMIT</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="assets/terminal.js"></script>
+</body>
+</html>
