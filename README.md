@@ -51,7 +51,7 @@ Experience my digital ecosystem through an authentic terminal interface at **[gi
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-<!-- GitHub Actions will populate this -->
+1. ❌ Closed PR [#2](https://github.com/adrianwedd/agent-task-management-system/pull/2) in [adrianwedd/agent-task-management-system](https://github.com/adrianwedd/agent-task-management-system)
 <!--END_SECTION:activity-->
 
 ---
