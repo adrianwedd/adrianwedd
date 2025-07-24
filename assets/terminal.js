@@ -9,6 +9,8 @@ class Terminal {
         this.systemMonitor = new SystemMonitor();
         this.textStreamer = new TextStreamer();
         this.aiResponses = null;
+        this.terminalLines = [];
+        this.maxLines = 50; // Maximum lines to keep in terminal
         this.init();
     }
 
@@ -161,8 +163,46 @@ class Terminal {
             output.appendChild(text);
         }
         
+        // Add to terminal lines array
+        this.terminalLines.push({
+            element: output,
+            text: text,
+            className: className
+        });
+        
+        // Remove old lines if we exceed max
+        if (this.terminalLines.length > this.maxLines) {
+            const removedLine = this.terminalLines.shift();
+            if (removedLine.element && removedLine.element.parentNode) {
+                removedLine.element.remove();
+            }
+        }
+        
         const promptLine = terminal.querySelector('.prompt-line');
         terminal.insertBefore(output, promptLine);
+        
+        // Animate the scroll effect
+        this.animateTerminalScroll();
+    }
+
+    animateTerminalScroll() {
+        const terminal = document.getElementById('terminal');
+        const outputs = terminal.querySelectorAll('.output-line');
+        
+        // If we have too many lines, animate them moving up
+        if (outputs.length > this.maxLines) {
+            outputs.forEach((line, index) => {
+                if (index < outputs.length - this.maxLines) {
+                    line.style.transform = 'translateY(-100%)';
+                    line.style.opacity = '0';
+                    setTimeout(() => {
+                        if (line.parentNode) {
+                            line.remove();
+                        }
+                    }, 300);
+                }
+            });
+        }
     }
 
     showHelp() {
@@ -193,6 +233,7 @@ class Terminal {
             'MUSIC TRACKS',
             '    ambient      peaceful ambient drones',
             '    cyberpunk    dark synthwave beats',
+            '    mathematical algorithmic patterns with drums',
             '    matrix       digital rain sounds',
             '    synthwave    retro 80s synthesizer',
             '',
@@ -468,12 +509,22 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
     clearTerminal() {
         const terminal = document.getElementById('terminal');
+        const retro = terminal.querySelector('.retro-header');
         const bootSequence = terminal.querySelector('.boot-sequence');
         const promptLine = terminal.querySelector('.prompt-line');
         
+        // Clear terminal lines array
+        this.terminalLines = [];
+        
+        // Remove all output lines
+        const outputs = terminal.querySelectorAll('.output-line');
+        outputs.forEach(output => output.remove());
+        
+        // Keep header, boot sequence, and prompt
         terminal.innerHTML = '';
-        terminal.appendChild(bootSequence);
-        terminal.appendChild(promptLine);
+        if (retro) terminal.appendChild(retro);
+        if (bootSequence) terminal.appendChild(bootSequence);
+        if (promptLine) terminal.appendChild(promptLine);
     }
 
     scrollToBottom() {

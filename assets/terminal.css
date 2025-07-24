@@ -53,9 +53,12 @@ body {
     flex: 1;
     padding: 20px;
     background: #000;
-    overflow-y: auto;
+    overflow-y: hidden; /* Disable scrolling for authentic terminal behavior */
     font-size: 14px;
     line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 60px);
 }
 
 .boot-sequence {
@@ -212,6 +215,83 @@ body {
 .typing-cursor {
     color: #00ff41;
     animation: blink 1s infinite;
+}
+
+/* Retro 3D Header */
+.retro-header {
+    text-align: center;
+    margin-bottom: 20px;
+    background: linear-gradient(45deg, #1a0a00, #2a1500);
+    border: 2px solid #ff6600;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 
+        0 0 20px rgba(255, 102, 0, 0.3),
+        inset 0 0 20px rgba(255, 102, 0, 0.1);
+}
+
+.retro-3d-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.1;
+    color: #ff6600;
+    text-shadow: 
+        2px 2px 0px #cc4400,
+        4px 4px 0px #aa3300,
+        6px 6px 0px #882200,
+        8px 8px 0px #661100,
+        10px 10px 20px rgba(0, 0, 0, 0.8);
+    margin: 0;
+    font-weight: bold;
+    letter-spacing: 1px;
+    animation: retro-glow 3s ease-in-out infinite alternate;
+}
+
+@keyframes retro-glow {
+    0% {
+        filter: brightness(1) contrast(1);
+        text-shadow: 
+            2px 2px 0px #cc4400,
+            4px 4px 0px #aa3300,
+            6px 6px 0px #882200,
+            8px 8px 0px #661100,
+            10px 10px 20px rgba(0, 0, 0, 0.8);
+    }
+    100% {
+        filter: brightness(1.2) contrast(1.1);
+        text-shadow: 
+            2px 2px 0px #ff5500,
+            4px 4px 0px #dd4400,
+            6px 6px 0px #bb3300,
+            8px 8px 0px #992200,
+            10px 10px 30px rgba(255, 102, 0, 0.4);
+    }
+}
+
+/* Terminal Content Area */
+.terminal-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.terminal-output {
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Audio Visualizer */
+.audio-visualizer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.6;
+    display: none;
 }
 
 .ascii-art {
