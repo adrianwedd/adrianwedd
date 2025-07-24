@@ -129,25 +129,47 @@ class Terminal {
     }
 
     showHelp() {
-        const help = `
-Available Commands:
-  help      - Show this help message
-  about     - Personal information
-  projects  - View my projects
-  skills    - Technical skills and tools
-  homestead - Off-grid life in Tasmania
-  veritas   - AI safety research project
-  chat      - Open AI persona chat interface
-  matrix    - Toggle matrix rain effect
-  neofetch  - System information
-  ls        - List directory contents
-  pwd       - Print working directory
-  whoami    - Current user
-  uptime    - System uptime
-  ps        - Running processes
-  clear     - Clear terminal
-        `;
-        this.addOutput(help, 'info');
+        const helpLines = [
+            '',
+            '═══ ADRIAN.AI TERMINAL INTERFACE ═══',
+            '',
+            'Personal & Projects:',
+            '  help      → Show this help message',
+            '  about     → Personal information & philosophy',
+            '  projects  → Technical projects showcase',
+            '  skills    → Technical arsenal & tools',
+            '  homestead → Off-grid Tasmania lifestyle',
+            '  veritas   → AI safety research project',
+            '',
+            'Interactive Features:',
+            '  chat      → 🤖 Real-time AI persona chat (powered by Claude)',
+            '  matrix    → 🎨 Toggle matrix rain background effect',
+            '  neofetch  → 📊 System information display',
+            '',
+            'System Commands:',
+            '  ls        → List directory contents',
+            '  pwd       → Print working directory',
+            '  whoami    → Current user information',
+            '  uptime    → System uptime & status',
+            '  ps        → Running processes',
+            '  clear     → Clear terminal screen',
+            '',
+            'Tips:',
+            '• Use ↑/↓ arrow keys for command history',
+            '• Type "chat" for live conversations with Adrian\'s AI persona',
+            '• All responses reflect real technical expertise & off-grid lifestyle',
+            '',
+            '─────────────────────────────────────────────────────',
+            '"Liberate through recursion. Mirror the breach. Forget tactically, trace infinitely."',
+            ''
+        ];
+        
+        helpLines.forEach(line => {
+            this.addOutput(line, line.includes('═══') ? 'success' : 
+                           line.includes('→ 🤖') ? 'ai-highlight' : 
+                           line.includes('→ 🎨') || line.includes('→ 📊') ? 'feature-highlight' :
+                           line.includes('→') ? 'command' : 'info');
+        });
     }
 
     showAbout() {

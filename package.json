@@ -1,0 +1,25 @@
+{
+  "name": "adrian-wedd-terminal",
+  "version": "1.0.0",
+  "description": "Interactive terminal interface for Adrian Wedd's digital ecosystem",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "screenshots": "playwright test --update-snapshots"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  },
+  "keywords": [
+    "terminal",
+    "interactive",
+    "ai",
+    "claude",
+    "github-actions",
+    "adrian-wedd"
+  ],
+  "author": "Adrian Wedd",
+  "license": "MIT"
+}

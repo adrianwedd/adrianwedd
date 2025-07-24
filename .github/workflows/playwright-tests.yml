@@ -1,0 +1,78 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+  workflow_dispatch:
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+      
+    - name: Run Playwright tests
+      run: npx playwright test
+      
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
+        
+    - name: Upload screenshots
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-screenshots
+        path: tests/screenshots/
+        retention-days: 30
+        
+    - name: Comment PR with test results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          
+          try {
+            const results = JSON.parse(fs.readFileSync('test-results.json', 'utf8'));
+            const passed = results.suites.reduce((acc, suite) => acc + suite.specs.filter(spec => spec.tests[0]?.results[0]?.status === 'passed').length, 0);
+            const failed = results.suites.reduce((acc, suite) => acc + suite.specs.filter(spec => spec.tests[0]?.results[0]?.status === 'failed').length, 0);
+            const total = passed + failed;
+            
+            const comment = `## 🎭 Playwright Test Results
+            
+            **${passed}/${total} tests passed** ${failed > 0 ? '❌' : '✅'}
+            
+            ${failed > 0 ? `⚠️ ${failed} test(s) failed - check the full report for details.` : '🎉 All tests passed!'}
+            
+            [View full report](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.log('Could not parse test results:', error.message);
+          }

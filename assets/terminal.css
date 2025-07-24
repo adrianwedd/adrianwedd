@@ -126,6 +126,22 @@ body {
     color: #4444ff;
 }
 
+.command {
+    color: #00dddd;
+    font-weight: bold;
+}
+
+.ai-highlight {
+    color: #44ff44;
+    font-weight: bold;
+    text-shadow: 0 0 5px #44ff44;
+}
+
+.feature-highlight {
+    color: #ffaa00;
+    font-weight: bold;
+}
+
 .ascii-art {
     color: #00aa22;
     white-space: pre;
