@@ -199,6 +199,40 @@ body {
     color: #00ff41;
 }
 
+/* Rich formatting for LLM responses */
+.ai-message .code-block {
+    background: #0a0a0a;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 12px;
+    margin: 8px 0;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #00aa22;
+}
+
+.ai-message .inline-code {
+    background: #222;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #44ff44;
+    border: 1px solid #444;
+}
+
+.ai-message strong {
+    color: #66ff66;
+    font-weight: bold;
+}
+
+.ai-message em {
+    color: #88ff88;
+    font-style: italic;
+}
+
 .typing-indicator {
     color: #888;
     font-style: italic;

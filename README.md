@@ -1,8 +1,23 @@
 <h1 align="center">Hi, I'm Adrian Wedd 👋</h1>
 <h3 align="center">🧠 Recursive Systems Architect · ⚙️ Agentic AI Engineer · 🏕 Off-Grid Permanaut</h3>
+
 <p align="center">
+  <a href="https://github.adrianwedd.com/adrianwedd">🖥️ **Interactive Terminal Interface**</a> | 
   <img src="https://komarev.com/ghpvc/?username=adrianwedd&label=Profile%20views&color=0e75b6&style=flat" alt="adrianwedd" />
 </p>
+
+---
+
+## 🖥️ **New: Interactive Terminal Experience**
+
+Experience my digital ecosystem through an authentic terminal interface at **[github.adrianwedd.com/adrianwedd](https://github.adrianwedd.com/adrianwedd)**
+
+**Features:**
+- 🖥️ **Dark Matrix Terminal** - Authentic terminal emulation with 15+ interactive commands
+- 🤖 **Real-time AI Chat** - Live conversations with my AI persona powered by Claude via GitHub Actions
+- ⚡ **Command Explorer** - Type `help` to discover commands like `projects`, `homestead`, `veritas`
+- 🎨 **Matrix Rain Effect** - Toggle with `matrix` command for full cyberpunk immersion
+- 📊 **Live Telemetry** - Real homestead and system data integration
 
 ---
 
@@ -20,7 +35,7 @@
 | Project | Description | Tech Stack |
 |--------|-------------|------------|
 | [TicketSmith](https://github.com/adrianwedd/TicketSmith) | 🛠️ LLM-powered Jira/Confluence automation | `LangChain`, `OpenTelemetry` |
-| [Personal Intelligence Node](https://github.com/adrianwedd/adrianwedd.github.io) | 🧠 Self-updating personal OS + AI-powered GitHub site | `GitHub Pages`, `AI`, `Markdown` |
+| [Personal Intelligence Node](https://github.com/adrianwedd/adrianwedd) | 🧠 Self-updating personal OS + AI-powered GitHub site | `GitHub Actions`, `AI`, `Recursive Systems` |
 
 ---
 
@@ -50,6 +65,7 @@
 ### 🛰️ Connect With Me
 
 - 🌍 Website: [adrianwedd.com](https://adrianwedd.com)
+- 🖥️ **Interactive Terminal**: [github.adrianwedd.com/adrianwedd](https://github.adrianwedd.com/adrianwedd)
 - 📝 Blog: [Blog](https://adrianwedd.github.io/blog)
 - 🐘 Mastodon: [`@adrianwedd@mastodon.social`](https://mastodon.social/@adrianwedd)
 - 📫 Email: `adrian [at] adrianwedd [dot] com`

@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/chat.js": {
+      "maxDuration": 30
+    },
+    "api/chat-status.js": {
+      "maxDuration": 10
+    }
+  },
+  "env": {
+    "GITHUB_TOKEN": "@github_token"
+  }
+}

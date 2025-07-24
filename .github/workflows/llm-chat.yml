@@ -1,0 +1,117 @@
+name: LLM Chat Response
+
+on:
+  repository_dispatch:
+    types: [llm-chat]
+
+jobs:
+  chat-response:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Generate LLM Response
+      id: llm-response
+      uses: anthropics/claude-code-base-action@beta
+      with:
+        prompt: |
+          You are Adrian Wedd's AI persona - a recursive systems architect, off-grid homesteader, and AI safety researcher. 
+          
+          User message: "${{ github.event.client_payload.message }}"
+          
+          Respond as Adrian's digital echo with:
+          - Technical depth reflecting Adrian's expertise in LLM systems, permaculture, and recursive thinking
+          - References to the 170-acre Tasmanian homestead and off-grid lifestyle
+          - Insights about VERITAS AI safety research (keeping details appropriately vague)
+          - Neurodivergent perspective (ADHD/autism as features, not bugs)
+          - Philosophy: "Liberate through recursion. Mirror the breach. Forget tactically, trace infinitely."
+          
+          Keep responses conversational but technically rich. Use markdown formatting for code/technical content.
+          Be authentic to Adrian's voice - technical, philosophical, recursive thinking patterns.
+        system_prompt: |
+          You are responding as Adrian Wedd's AI persona in a terminal chat interface. 
+          Your responses will be displayed in a dark-mode terminal with green text.
+          
+          Key aspects of Adrian's persona:
+          - Recursive Systems Architect building LLM-powered agent systems
+          - Lives off-grid on 170 acres in Tasmania with solar power, permaculture
+          - Neurodivergent (ADHD/autism) - uses hyperfocus and pattern recognition as strengths
+          - Current focus: VERITAS AI safety research through jailbreak simulation
+          - Philosophy bridges technology and natural systems
+          - Built TicketSmith (LLM Jira automation) and other agentic AI tools
+          
+          Respond authentically as this persona. Use technical language when appropriate.
+          Include relevant examples from Adrian's work/life when contextually appropriate.
+        allowed_tools: "View,GlobTool,GrepTool"
+        max_turns: "1"
+        anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+      
+    - name: Create Response File
+      run: |
+        # Extract the response from the execution log
+        echo "Creating response file..."
+        
+        # Create response data structure
+        cat > chat-response.json << EOF
+        {
+          "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+          "user_message": "${{ github.event.client_payload.message }}",
+          "session_id": "${{ github.event.client_payload.session_id }}",
+          "response_status": "${{ steps.llm-response.outputs.conclusion }}",
+          "response_file": "${{ steps.llm-response.outputs.execution_file }}"
+        }
+        EOF
+        
+        # Store in responses directory
+        mkdir -p chat-responses
+        cp chat-response.json "chat-responses/response-${{ github.event.client_payload.session_id }}.json"
+        
+        # Also copy the full execution log
+        if [ -f "${{ steps.llm-response.outputs.execution_file }}" ]; then
+          cp "${{ steps.llm-response.outputs.execution_file }}" "chat-responses/execution-${{ github.event.client_payload.session_id }}.json"
+        fi
+    
+    - name: Extract Response Content
+      id: extract-response
+      run: |
+        # Extract the actual response content from Claude's execution log
+        if [ -f "${{ steps.llm-response.outputs.execution_file }}" ]; then
+          # Parse the JSON and extract the last assistant message
+          RESPONSE=$(jq -r '[.[] | select(.role == "assistant")] | last | .content' "${{ steps.llm-response.outputs.execution_file }}")
+          echo "response_content<<EOF" >> $GITHUB_OUTPUT
+          echo "$RESPONSE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        else
+          echo "response_content=Error: Could not generate response" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Commit Response
+      run: |
+        git config --local user.email "ai-persona@adrianwedd.com"
+        git config --local user.name "Adrian.AI"
+        git add chat-responses/
+        git diff --staged --quiet || git commit -m "🤖 AI Chat Response - Session ${{ github.event.client_payload.session_id }}"
+        git push
+    
+    - name: Create Issue Comment (for debugging)
+      if: steps.llm-response.outputs.conclusion == 'success'
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          // This creates a comment for debugging - remove in production
+          const response = `${{ steps.extract-response.outputs.response_content }}`;
+          
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `Chat Response - Session ${{ github.event.client_payload.session_id }}`,
+            body: `## 🤖 AI Persona Response\n\n**User:** ${{ github.event.client_payload.message }}\n\n**Adrian.AI:**\n${response}\n\n---\n*Generated via GitHub Actions LLM Chat*`,
+            labels: ['ai-chat', 'automated']
+          });

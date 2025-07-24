@@ -379,7 +379,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         }
     }
 
-    sendMessage() {
+    async sendMessage() {
         const input = document.getElementById('chatInput');
         const message = input.value.trim();
         if (!message) return;
@@ -387,23 +387,126 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         this.addChatMessage(message, 'user');
         input.value = '';
 
-        // Simulate AI response with typing effect
-        setTimeout(() => {
-            this.addChatMessage('🤖 Processing neural pathways...', 'ai', true);
+        // Generate unique session ID
+        const sessionId = `chat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+        // Show thinking indicator
+        this.addChatMessage('🤖 Connecting to neural pathways...', 'ai', true);
+
+        try {
+            // Try real LLM response first
+            const response = await this.sendLLMRequest(message, sessionId);
+            
+            if (response.status === 'processing') {
+                this.removeChatMessage();
+                this.addChatMessage('🧠 Adrian.AI is thinking... (This uses real Claude via GitHub Actions)', 'ai', true);
+                
+                // Poll for response
+                this.pollForResponse(sessionId);
+            } else {
+                this.removeChatMessage();
+                this.addChatMessage(response.response || 'Error generating response', 'ai');
+            }
+        } catch (error) {
+            console.warn('LLM API not available, falling back to local responses:', error);
+            this.removeChatMessage();
+            this.addChatMessage('⚠️ Real-time AI unavailable. Using local responses.', 'ai', true);
             
             setTimeout(() => {
                 this.removeChatMessage();
-                const response = this.generateAIResponse(message);
-                this.addChatMessage(response, 'ai');
-            }, 2000);
-        }, 500);
+                const fallbackResponse = this.generateAIResponse(message);
+                this.addChatMessage(fallbackResponse, 'ai');
+            }, 1500);
+        }
+    }
+
+    async sendLLMRequest(message, sessionId) {
+        // Try different API endpoints (adjust for your deployment)
+        const apiEndpoints = [
+            '/api/chat',  // Vercel/Netlify
+            'https://your-domain.com/api/chat',  // Custom domain
+            'http://localhost:3000/api/chat'  // Local development
+        ];
+
+        for (const endpoint of apiEndpoints) {
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        sessionId: sessionId
+                    })
+                });
+
+                if (response.ok) {
+                    return await response.json();
+                }
+            } catch (error) {
+                console.warn(`API endpoint ${endpoint} failed:`, error);
+                continue;
+            }
+        }
+
+        throw new Error('All API endpoints failed');
+    }
+
+    async pollForResponse(sessionId, attempts = 0, maxAttempts = 20) {
+        if (attempts >= maxAttempts) {
+            this.removeChatMessage();
+            this.addChatMessage('⏰ AI response timed out. The neural networks may be overloaded.', 'ai');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/chat-status?sessionId=${sessionId}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                if (data.status === 'completed') {
+                    this.removeChatMessage();
+                    // Format the response with rich formatting
+                    const formattedResponse = this.formatLLMResponse(data.response);
+                    this.addChatMessage(formattedResponse, 'ai');
+                    return;
+                }
+            }
+        } catch (error) {
+            console.warn('Polling error:', error);
+        }
+
+        // Continue polling every 3 seconds
+        setTimeout(() => {
+            this.pollForResponse(sessionId, attempts + 1, maxAttempts);
+        }, 3000);
+    }
+
+    formatLLMResponse(response) {
+        // Add rich formatting for LLM responses
+        return response
+            .replace(/```([\s\S]*?)```/g, '<pre class="code-block">$1</pre>')
+            .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/^- (.*$)/gm, '• $1')
+            .replace(/\n/g, '<br>');
     }
 
     addChatMessage(message, sender, isTyping = false) {
         const chatMessages = document.getElementById('chatMessages');
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${sender}-message${isTyping ? ' typing-indicator' : ''}`;
-        messageDiv.textContent = message;
+        
+        // For AI messages, allow HTML formatting
+        if (sender === 'ai' && !isTyping && message.includes('<')) {
+            messageDiv.innerHTML = message;
+        } else {
+            messageDiv.textContent = message;
+        }
+        
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
