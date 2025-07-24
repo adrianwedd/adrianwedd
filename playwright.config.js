@@ -79,3 +79,10 @@ module.exports = defineConfig({
   //   reuseExistingServer: !process.env.CI,
   // },
 });
+
+// Playwright configuration already includes:
+// - Multi-browser testing (Chromium, Firefox, Safari)
+// - Mobile viewport testing
+// - Screenshot capture on failures
+// - Video recording for complex interactions
+// Accessibility testing integration can be added with a separate library/plugin if needed later.

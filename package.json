@@ -11,8 +11,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.js\"",
-    "format-check": "prettier --check "**/*.js"",
-    "lint:css": "stylelint "**/*.css""
+    "format-check": "prettier --check \"**/*.js\"",
+    "lint:css": "stylelint \"**/*.css\"",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
@@ -20,6 +21,8 @@
     "eslint": "^9.31.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-playwright": "^2.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
     "stylelint": "^16.22.0",
     "stylelint-config-standard": "^38.0.0"
@@ -46,4 +49,13 @@
     "url": "https://github.com/adrianwedd/adrianwedd/issues"
   },
   "homepage": "https://github.com/adrianwedd/adrianwedd#readme"
+},
+"lint-staged": {
+  "*.js": [
+    "eslint --fix",
+    "prettier --write"
+  ],
+  "*.css": [
+    "stylelint --fix"
+  ]
 }
