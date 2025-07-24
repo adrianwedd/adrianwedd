@@ -16,13 +16,16 @@
     "format-check": "prettier --check \"**/*.js\"",
     "lint:css": "stylelint \"**/*.css\"",
     "test:unit": "playwright test tests/unit",
+    "test:accessibility": "playwright test tests/e2e/accessibility.spec.js",
     "prepare": "husky install",
     "lhci": "lhci autorun --config=.lighthouserc.js"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@eslint/js": "^9.31.0",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.54.1",
+    "axe-core": "^4.10.3",
     "eslint": "^9.31.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-playwright": "^2.2.0",
