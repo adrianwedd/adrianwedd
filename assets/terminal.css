@@ -10,6 +10,16 @@ body {
     color: #00ff41;
     overflow: hidden;
     height: 100vh;
+    cursor: text; /* Indicate that clicking will focus text input */
+}
+
+/* Ensure interactive elements have proper cursors */
+button, .voice-toggle, .control, a, [role="button"] {
+    cursor: pointer !important;
+}
+
+input, textarea, select {
+    cursor: text !important;
 }
 
 .container {
@@ -60,6 +70,7 @@ body {
     display: flex;
     flex-direction: column;
     height: calc(100vh - 60px);
+    cursor: text; /* Indicate that clicking focuses the input */
 }
 
 .boot-sequence {

@@ -1560,36 +1560,72 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     setupTerminalFocus() {
         const input = document.getElementById('commandInput');
         
-        // Focus input when clicking anywhere on the page (except links/buttons)
+        // Focus input when clicking anywhere on the page (except interactive elements)
         document.addEventListener('click', (e) => {
             // Don't interfere with interactive elements
             if (e.target.tagName === 'A' || 
                 e.target.tagName === 'BUTTON' || 
+                e.target.tagName === 'INPUT' ||
+                e.target.tagName === 'TEXTAREA' ||
+                e.target.tagName === 'SELECT' ||
                 e.target.type === 'text' ||
+                e.target.type === 'button' ||
+                e.target.contentEditable === 'true' ||
                 e.target.classList.contains('voice-toggle') ||
                 e.target.classList.contains('paper-link') ||
-                e.target.closest('.voice-controls')) {
+                e.target.closest('.voice-controls') ||
+                e.target.closest('button') ||
+                e.target.closest('a')) {
                 return;
             }
             
-            // Focus the command input
+            // Focus the command input and prevent default
+            e.preventDefault();
             input.focus();
+            
+            // Move cursor to end if there's text
+            if (input.value) {
+                input.setSelectionRange(input.value.length, input.value.length);
+            }
         });
         
         // Keep focus on input unless explicitly focusing elsewhere
         document.addEventListener('focusin', (e) => {
-            // Allow focus on interactive elements, but return to input afterward
+            // Allow focus on interactive elements, but return to input afterward for non-interactive elements
             if (e.target !== input && 
                 e.target.tagName !== 'A' && 
                 e.target.tagName !== 'BUTTON' &&
-                !e.target.classList.contains('voice-toggle')) {
-                setTimeout(() => input.focus(), 100);
+                e.target.tagName !== 'INPUT' &&
+                e.target.tagName !== 'TEXTAREA' &&
+                e.target.tagName !== 'SELECT' &&
+                !e.target.classList.contains('voice-toggle') &&
+                !e.target.closest('.voice-controls')) {
+                setTimeout(() => {
+                    if (document.activeElement !== input) {
+                        input.focus();
+                    }
+                }, 100);
             }
         });
         
         // Ensure input stays focused when terminal gains focus
         window.addEventListener('focus', () => {
-            setTimeout(() => input.focus(), 100);
+            setTimeout(() => {
+                if (!document.activeElement || 
+                    (document.activeElement.tagName !== 'INPUT' && 
+                     document.activeElement.tagName !== 'TEXTAREA' &&
+                     document.activeElement.tagName !== 'BUTTON')) {
+                    input.focus();
+                }
+            }, 100);
+        });
+        
+        // Handle escape key to return focus to input
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.activeElement !== input) {
+                e.preventDefault();
+                input.focus();
+            }
         });
         
         // Re-focus input after commands execute
@@ -1603,17 +1639,6 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
                 }
             }, 50);
         };
-        
-        // Handle escape key to always return focus to input
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                input.focus();
-                e.preventDefault();
-            }
-        });
-        
-        // Initial focus
-        setTimeout(() => input.focus(), 100);
     }
 
     // Research command handler
