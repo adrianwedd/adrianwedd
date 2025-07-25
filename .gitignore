@@ -26,6 +26,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
+deploy/
 dist/
 downloads/
 eggs/
@@ -221,4 +222,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+# Node
 node_modules/
+node_modules
+playwright-report/
+test-results/
