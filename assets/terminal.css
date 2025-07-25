@@ -66,7 +66,7 @@ input, textarea, select {
     flex: 1;
     padding: 20px;
     background: #000;
-    overflow-y: hidden; /* Disable scrolling for authentic terminal behavior */
+    overflow-y: auto; /* Allow scrolling when content overflows */
     font-size: 14px;
     line-height: 1.4;
     display: flex;
@@ -78,10 +78,11 @@ input, textarea, select {
 
 .terminal-content {
     flex: 1;
-    overflow-y: hidden;
+    overflow-y: visible; /* Allow content to be visible */
     display: flex;
     flex-direction: column;
     min-height: 0; /* Allow shrinking */
+    padding-bottom: 80px; /* Space for prompt line */
 }
 
 .boot-sequence {
@@ -115,12 +116,15 @@ input, textarea, select {
     display: flex;
     align-items: center;
     margin-top: auto; /* Push to bottom */
-    padding-top: 20px;
+    padding: 20px 0;
     flex-shrink: 0; /* Never shrink */
-    position: sticky;
+    position: fixed;
     bottom: 0;
+    left: 20px;
+    right: 20px;
     background: #000; /* Ensure visibility over content */
     z-index: 10;
+    border-top: 1px solid #333; /* Visual separator */
 }
 
 .prompt {

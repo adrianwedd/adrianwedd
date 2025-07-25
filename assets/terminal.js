@@ -66,11 +66,18 @@ class Terminal {
 
     init() {
         const input = document.getElementById('commandInput');
+        if (!input) {
+            console.error('Command input element not found');
+            return;
+        }
+        
         input.addEventListener('keydown', this.handleKeydown.bind(this));
         
-        // Initialize chat
+        // Initialize chat - only if element exists
         const chatInput = document.getElementById('chatInput');
-        chatInput.addEventListener('keydown', this.handleChatKeydown.bind(this));
+        if (chatInput) {
+            chatInput.addEventListener('keydown', this.handleChatKeydown.bind(this));
+        }
         
         // Matrix rain effect
         this.createMatrixRain();
@@ -89,30 +96,6 @@ class Terminal {
 
         // Apply initial theme
         this.applyTheme(this.currentTheme);
-    }
-
-    init() {
-        const input = document.getElementById('commandInput');
-        input.addEventListener('keydown', this.handleKeydown.bind(this));
-        
-        // Initialize chat
-        const chatInput = document.getElementById('chatInput');
-        chatInput.addEventListener('keydown', this.handleChatKeydown.bind(this));
-        
-        // Matrix rain effect
-        this.createMatrixRain();
-        
-        // Focus input
-        input.focus();
-
-        // Load AI responses from GitHub
-        this.loadAIResponses();
-        
-        // Initialize voice interface
-        this.initVoiceInterface();
-        
-        // Set up terminal-style input focus
-        this.setupTerminalFocus();
     }
 
     handleKeydown(event) {
@@ -597,7 +580,7 @@ Current focus: Deep work mode - VERITAS research
                         this.addOutput(`   Average Tokens: ${stats.average_tokens}`, 'info');
                         this.addOutput(`   Token Range: ${stats.min_tokens}-${stats.max_tokens}`, 'info');
                     }
-                } catch (e) {
+                } catch (_e) {
                     // Stats not available yet
                 }
                 
@@ -621,7 +604,7 @@ Current focus: Deep work mode - VERITAS research
                 this.addOutput('', 'info');
                 this.addOutput('🎯 Philosophy: "True creativity emerges from constraints, not abundance."', 'philosophy');
             }
-        } catch (error) {
+        } catch (_error) {
             this.addOutput('❌ Could not load daily magic data', 'error');
             this.addOutput('The Daily Claude Magic system may not be initialized yet.', 'info');
         }
@@ -647,7 +630,7 @@ Current focus: Deep work mode - VERITAS research
                     this.addOutput(line, 'info');
                 }
             });
-        } catch (error) {
+        } catch (_error) {
             this.addOutput('❌ GitHub Actions integration not available', 'error');
             this.addOutput('Make sure you are authenticated with GitHub CLI (gh auth login)', 'info');
         }
@@ -677,7 +660,7 @@ Current focus: Deep work mode - VERITAS research
             // Show helpful tip
             this.addOutput('', 'info');
             this.addOutput('💡 Copy and run the command above in your terminal to trigger the workflow!', 'philosophy');
-        } catch (error) {
+        } catch (_error) {
             this.addOutput('❌ Could not trigger workflow', 'error');
             this.addOutput('Make sure you are authenticated with GitHub CLI', 'info');
         }
@@ -703,7 +686,7 @@ Current focus: Deep work mode - VERITAS research
                     this.addOutput(line, 'info');
                 }
             });
-        } catch (error) {
+        } catch (_error) {
             this.addOutput('❌ Could not fetch workflow runs', 'error');
             this.addOutput('GitHub Actions integration may not be available', 'info');
         }
@@ -981,7 +964,7 @@ Current focus: Deep work mode - VERITAS research
                 this.addOutput('', 'info');
                 this.addOutput('🔄 Trigger a manual update using GitHub Actions!', 'philosophy');
             }
-        } catch (error) {
+        } catch (_error) {
             this.addOutput('❌ Could not load weather data', 'error');
             this.addOutput('The weather system may not be initialized yet.', 'info');
         }
