@@ -22,6 +22,10 @@ class Terminal {
         // Initialize AI service for advanced prompt caching
         this.aiService = new AIService();
         
+        // Theme system
+        this.currentTheme = localStorage.getItem('terminal-theme') || 'matrix';
+        this.availableThemes = ['matrix', 'cyberpunk', 'amber', 'synthwave'];
+        
         // Initialize voice interface
         this.voiceInterface = null;
         this.voiceEnabled = false;
@@ -38,14 +42,18 @@ class Terminal {
         // Initialize particle effects system
         this.particleEffects = new ParticleEffects();
         
+        // Initialize enhanced research streamer
+        this.researchStreamer = null;
+        this.initResearchStreamer();
+        
         // Matrix rain state
         this.matrixInterval = null;
         
         // Command completion state
         this.availableCommands = [
-            'about', 'actions', 'cache', 'chat', 'clear', 'effects', 'gh-create', 'gh-list', 'gh-sync', 'help', 'history', 'homestead', 'ls', 'magic', 'matrix',
-            'monitor', 'music', 'neofetch', 'particles', 'projects', 'ps', 'pwd', 'research', 'runs',
-            'skills', 'speak', 'stop', 'tokens', 'trigger', 'uptime', 'veritas', 'voice',
+            'about', 'actions', 'adrian', 'boot', 'cache', 'cat', 'chat', 'clear', 'effects', 'gemini', 'gh-create', 'gh-list', 'gh-sync', 'grep', 'help', 'history', 'home', 'ls', 'magic', 'matrix',
+            'monitor', 'music', 'neofetch', 'particles', 'projects', 'ps', 'pwd', 'reboot', 'research', 'runs',
+            'skills', 'speak', 'split', 'stop', 'tail', 'tokens', 'trigger', 'uptime', 'veritas', 'voice',
             'volume', 'weather', 'whoami', 'theme'
         ];
         this.completionIndex = -1;
@@ -89,6 +97,9 @@ class Terminal {
 
         // Apply initial theme
         this.applyTheme(this.currentTheme);
+        
+        // Start boot sequence
+        this.startBootSequence();
     }
 
     handleKeydown(event) {
@@ -160,8 +171,8 @@ class Terminal {
             case 'skills':
                 this.showMarkdownContent('skills');
                 break;
-            case 'homestead':
-                this.showMarkdownContent('homestead');
+            case 'home':
+                this.showMarkdownContent('home');
                 break;
             case 'veritas':
                 this.showMarkdownContent('veritas');
@@ -182,7 +193,7 @@ class Terminal {
                 this.addOutput('adrian - Recursive Systems Architect & Off-Grid Permanaut', 'success');
                 break;
             case 'pwd':
-                this.addOutput(`/home/adrian/tasmania/homestead${this.currentPath}`, 'info');
+                this.addOutput(`/home/adrian/tasmania${this.currentPath}`, 'info');
                 break;
             case 'uptime':
                 this.showUptime();
@@ -223,6 +234,17 @@ class Terminal {
             case 'btop':
                 this.enterMonitorMode();
                 break;
+            case 'split':
+                this.enterSplitMode();
+                break;
+            case 'boot':
+            case 'reboot':
+                this.addOutput('🔄 Restarting system...', 'info');
+                this.addOutput('', 'info');
+                setTimeout(() => {
+                    this.startBootSequence();
+                }, 500);
+                break;
             case 'music':
             case 'play':
                 this.handleMusicCommand(args);
@@ -251,6 +273,24 @@ class Terminal {
             case 'research':
                 this.handleResearchCommand(args);
                 break;
+            case 'theme':
+                this.handleThemeCommand(args);
+                break;
+            case 'grep':
+                this.handleGrepCommand(args);
+                break;
+            case 'tail':
+                this.handleTailCommand(args);
+                break;
+            case 'cat':
+                this.handleCatCommand(args);
+                break;
+            case 'gemini':
+                this.showGeminiLogo();
+                break;
+            case 'adrian':
+                this.showAdrianLogo();
+                break;
             case 'sudo':
                 this.addOutput('adrian is not in the sudoers file. This incident will be reported.', 'error');
                 break;
@@ -261,13 +301,17 @@ class Terminal {
         this.scrollToBottom();
     }
 
-    addOutput(text, className = '') {
+    addOutput(text, className = '', allowHTML = false) {
         const terminal = document.getElementById('terminal');
         const output = document.createElement('div');
         output.className = `output-line ${className}`;
         
         if (typeof text === 'string') {
-            output.textContent = text;
+            if (allowHTML) {
+                output.innerHTML = text;
+            } else {
+                output.textContent = text;
+            }
         } else {
             output.appendChild(text);
         }
@@ -332,14 +376,20 @@ class Terminal {
             '    about        personal information & background',
             '    projects     technical projects & repositories',
             '    skills       technical skills & expertise',
-            '    homestead    off-grid Tasmania setup details',
+            '    home         off-grid Tasmania home details',
             '    veritas      AI safety research platform',
             '    whoami       current user information',
             '    pwd          print working directory',
             '    ls           list directory contents',
+            '    cat          display file contents',
+            '    grep         search files and command output',
+            '    tail         show last lines of files/logs',
             '    clear        clear terminal screen',
+            '    boot         restart boot sequence',
             '    uptime       show system uptime',
             '    neofetch     display system information',
+            '    gemini       display GEMINI ASCII art logo',
+            '    adrian       display ADRIAN ASCII art logo',
             '    ps           show running processes',
             '',
             'AI & CHAT SYSTEM',
@@ -353,7 +403,7 @@ class Terminal {
             '    voice        voice controls [on|off|status|rate|pitch|volume]',
             '    Wake Words:  "Adrian", "Computer", "Terminal", "Hey Adrian"',
             '    Commands:    "show help", "clear screen", "show projects"',
-            '    Usage:       Click "Enable Voice" → say wake word → speak command',
+            '    Usage:       Click "Voice Ready" → say wake word → speak command',
             '    Features:    - Speech-to-text transcription',
             '                 - Direct command execution',
             '                 - Voice transcripts → terminal input',
@@ -365,6 +415,7 @@ class Terminal {
             '    volume       set music volume [0.0-1.0]',
             '    effects      particle effects [matrix|stars|rain|fireflies|neural]',
             '    matrix       toggle matrix rain effect',
+            '    theme        change terminal theme [matrix|cyberpunk|amber|synthwave]',
             '',
             'AVAILABLE MUSIC TRACKS',
             '    ambient      peaceful ambient drones',
@@ -384,6 +435,7 @@ class Terminal {
             '',
             'SYSTEM MONITORING 📊',
             '    monitor      system monitor (htop/btop style)',
+            '    split        terminal + monitor split screen',
             '    weather      Tasmania weather data (BOM API)',
             '    actions      list GitHub Actions workflows',
             '    runs         show recent workflow runs',
@@ -477,8 +529,8 @@ class Terminal {
                     const parts = trimmed.split(/\s+/);
                     const command = parts[0];
                     const description = parts.slice(1).join(' ');
-                    const formatted = `    ${command.padEnd(15)} ${description}`;
-                    this.addOutput(formatted, 'command-line');
+                    const formatted = `    <span class="command-name">${command.padEnd(15)}</span> <span class="command-line">${description}</span>`;
+                    this.addOutput(formatted, 'info', true); // allowHTML flag for styled commands
                 }
             } else if (line.includes('•')) {
                 this.addOutput(line, 'success');
@@ -566,9 +618,9 @@ class Terminal {
         });
     }
 
-    showHomestead() {
-        const homestead = `
-🏔️ Tasmania Off-Grid Homestead:
+    showHome() {
+        const home = `
+🏔️ Tasmania Off-Grid Home:
 
 Location:     170 acres of Tasmanian bushland
 Power:        Solar + Battery bank + Backup generator
@@ -585,7 +637,7 @@ Current Sensor Network:
 
 Philosophy: Technology should enhance, not dominate, natural systems.
         `;
-        this.addOutput(homestead, 'success');
+        this.addOutput(home, 'success');
     }
 
     showVeritas() {
@@ -1057,7 +1109,7 @@ Current focus: Deep work mode - VERITAS research
                 this.addOutput('   • Wind speed and direction', 'info');
                 this.addOutput('   • Humidity and pressure readings', 'info');
                 this.addOutput('   • Rainfall measurements', 'info');
-                this.addOutput('   • Homestead impact assessment', 'info');
+                this.addOutput('   • Home impact assessment', 'info');
                 this.addOutput('   • ASCII visualizations', 'info');
                 this.addOutput('', 'info');
                 this.addOutput('🔄 Trigger a manual update using GitHub Actions!', 'philosophy');
@@ -1072,7 +1124,7 @@ Current focus: Deep work mode - VERITAS research
         const processes = `
   PID  COMMAND                    CPU  MEM
   1337 veritas-research-daemon   2.1%  15%
-  2048 homestead-monitoring      0.8%  8%
+  2048 home-monitoring           0.8%  8%
   3141 ai-persona-server         1.2%  12%
   4096 recursive-thought-loop    99%   42%
   8080 off-grid-optimization     0.3%  5%
@@ -1092,11 +1144,11 @@ Current focus: Deep work mode - VERITAS research
             '    ║    ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝ ╚═════╝  ╚═╝  ╚═══╝    ║',
             '    ║                                                   ║',
             '    ║         🧠 Recursive Systems Architect            ║',
-            '    ║         🌱 Off-Grid Tasmanian Homestead           ║',
+            '    ║         🌱 Off-Grid Tasmanian Home                ║',
             '    ║         🤖 AI Safety Research • VERITAS           ║',
             '    ╚═══════════════════════════════════════════════════╝',
             '',
-            '    adrian@tasmania-homestead',
+            '    adrian@tasmania-home',
             '    ──────────────────────────',
             '    OS: Tasmania Linux (Off-Grid Edition)',
             '    Host: 170-Acre Permaculture Node',
@@ -1117,7 +1169,7 @@ Current focus: Deep work mode - VERITAS research
     listDirectory() {
         const files = `
 drwxr-xr-x  adrian adrian  4096 Jul 24 13:37 projects/
-drwxr-xr-x  adrian adrian  4096 Jul 24 12:00 homestead/
+drwxr-xr-x  adrian adrian  4096 Jul 24 12:00 home/
 drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 -rw-r--r--  adrian adrian  2048 Jul 24 10:30 thoughts.md
 -rw-r--r--  adrian adrian  1024 Jul 24 09:15 todo.txt
@@ -1464,6 +1516,375 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         await this.systemMonitor.enterMonitorMode();
     }
 
+    // Split Screen Mode Methods
+    async enterSplitMode() {
+        this.addOutput('', 'info');
+        this.addOutput('🔗 Entering split screen mode...', 'success');
+        this.addOutput('Terminal + Monitor side-by-side view', 'info');
+        this.addOutput('Click [✕] or type "exit" to return to normal mode', 'info');
+        this.addOutput('', 'info');
+        
+        // Initialize split screen
+        this.initializeSplitScreen();
+    }
+
+    initializeSplitScreen() {
+        // Hide main terminal and monitor interfaces
+        document.getElementById('terminal').style.display = 'none';
+        document.getElementById('monitorInterface').style.display = 'none';
+        
+        // Show split screen container
+        const splitContainer = document.getElementById('splitScreenContainer');
+        splitContainer.style.display = 'flex';
+        
+        // Mirror current terminal output to split view
+        this.mirrorTerminalToSplit();
+        
+        // Initialize split system monitor
+        this.initializeSplitMonitor();
+        
+        // Set up split screen event handlers
+        this.setupSplitEventHandlers();
+        
+        // Focus split terminal input
+        const splitInput = document.getElementById('commandInputSplit');
+        if (splitInput) {
+            splitInput.focus();
+        }
+    }
+
+    mirrorTerminalToSplit() {
+        const mainOutput = document.getElementById('terminalOutput');
+        const splitOutput = document.getElementById('terminalOutputSplit');
+        
+        if (mainOutput && splitOutput) {
+            // Copy current terminal output
+            splitOutput.innerHTML = mainOutput.innerHTML;
+            
+            // Scroll to bottom
+            splitOutput.scrollTop = splitOutput.scrollHeight;
+        }
+    }
+
+    async initializeSplitMonitor() {
+        // Initialize mini system monitor for split view
+        if (!this.splitSystemMonitor) {
+            this.splitSystemMonitor = new SystemMonitor();
+        }
+        
+        // Start monitoring in split mode
+        this.splitSystemMonitor.isActive = true;
+        await this.splitSystemMonitor.updateAllData();
+        
+        // Set up split monitor update intervals
+        this.splitMonitorInterval = setInterval(async () => {
+            if (this.splitSystemMonitor && this.splitSystemMonitor.isActive) {
+                await this.splitSystemMonitor.updateAllData();
+            }
+        }, 10000);
+    }
+
+    setupSplitEventHandlers() {
+        // Split terminal input handler
+        const splitInput = document.getElementById('commandInputSplit');
+        if (splitInput) {
+            splitInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    const command = splitInput.value.trim();
+                    if (command) {
+                        if (command.toLowerCase() === 'exit') {
+                            this.exitSplitMode();
+                            return;
+                        }
+                        
+                        // Execute command in split context
+                        this.executeSplitCommand(command);
+                        splitInput.value = '';
+                    }
+                } else if (event.key === 'Tab') {
+                    event.preventDefault();
+                    this.handleTabCompletion(splitInput);
+                }
+            });
+        }
+        
+        // Close split button
+        const closeSplitBtn = document.getElementById('closeSplit');
+        if (closeSplitBtn) {
+            closeSplitBtn.addEventListener('click', () => {
+                this.exitSplitMode();
+            });
+        }
+        
+        // Focus buttons
+        const focusTerminalBtn = document.getElementById('focusTerminal');
+        const focusMonitorBtn = document.getElementById('focusMonitor');
+        
+        if (focusTerminalBtn) {
+            focusTerminalBtn.addEventListener('click', () => {
+                document.getElementById('commandInputSplit').focus();
+            });
+        }
+        
+        if (focusMonitorBtn) {
+            focusMonitorBtn.addEventListener('click', () => {
+                // Scroll monitor to top or refresh
+                const monitorContent = document.querySelector('.monitor-content-split');
+                if (monitorContent) {
+                    monitorContent.scrollTop = 0;
+                }
+            });
+        }
+        
+        // Refresh monitor button
+        const refreshMonitorBtn = document.getElementById('refreshMonitor');
+        if (refreshMonitorBtn) {
+            refreshMonitorBtn.addEventListener('click', async () => {
+                if (this.splitSystemMonitor) {
+                    await this.splitSystemMonitor.updateAllData();
+                }
+            });
+        }
+        
+        // Draggable divider functionality
+        this.setupSplitDividerResize();
+    }
+
+    setupSplitDividerResize() {
+        const divider = document.getElementById('splitDivider');
+        const container = document.getElementById('splitScreenContainer');
+        const terminalPane = document.querySelector('.terminal-pane');
+        const monitorPane = document.querySelector('.monitor-pane');
+        
+        if (!divider || !container || !terminalPane || !monitorPane) return;
+        
+        let isResizing = false;
+        
+        divider.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = window.innerWidth > 768 ? 'col-resize' : 'row-resize';
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            
+            const containerRect = container.getBoundingClientRect();
+            
+            if (window.innerWidth > 768) {
+                // Desktop: horizontal resize
+                const newTerminalWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
+                const clampedWidth = Math.max(30, Math.min(70, newTerminalWidth));
+                
+                terminalPane.style.flex = `0 0 ${clampedWidth}%`;
+                monitorPane.style.flex = `0 0 ${100 - clampedWidth}%`;
+            } else {
+                // Mobile: vertical resize
+                const newTerminalHeight = ((e.clientY - containerRect.top) / containerRect.height) * 100;
+                const clampedHeight = Math.max(30, Math.min(70, newTerminalHeight));
+                
+                terminalPane.style.flex = `0 0 ${clampedHeight}%`;
+                monitorPane.style.flex = `0 0 ${100 - clampedHeight}%`;
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = 'default';
+            }
+        });
+    }
+
+    executeSplitCommand(command) {
+        // Add command to split terminal output
+        this.addSplitOutput(`adrian@split:~$ ${command}`, 'command');
+        
+        // Execute the command normally but redirect output to split
+        const originalAddOutput = this.addOutput;
+        this.addOutput = this.addSplitOutput.bind(this);
+        
+        // Execute command
+        this.executeCommand(command);
+        
+        // Restore original output method
+        this.addOutput = originalAddOutput;
+        
+        // Also add to main terminal history for consistency
+        this.commandHistory.push(command);
+        this.historyIndex = this.commandHistory.length;
+    }
+
+    addSplitOutput(text, className = 'info') {
+        const splitOutput = document.getElementById('terminalOutputSplit');
+        if (!splitOutput) return;
+        
+        const line = document.createElement('div');
+        line.className = `output-line ${className}`;
+        line.textContent = text;
+        
+        splitOutput.appendChild(line);
+        splitOutput.scrollTop = splitOutput.scrollHeight;
+        
+        // Also add to main terminal for consistency
+        const mainOutput = document.getElementById('terminalOutput');
+        if (mainOutput) {
+            const mainLine = document.createElement('div');
+            mainLine.className = `output-line ${className}`;
+            mainLine.textContent = text;
+            mainOutput.appendChild(mainLine);
+        }
+    }
+
+    exitSplitMode() {
+        // Hide split screen container
+        const splitContainer = document.getElementById('splitScreenContainer');
+        splitContainer.style.display = 'none';
+        
+        // Show main terminal
+        document.getElementById('terminal').style.display = 'block';
+        
+        // Clean up split monitor
+        if (this.splitSystemMonitor) {
+            this.splitSystemMonitor.isActive = false;
+        }
+        
+        if (this.splitMonitorInterval) {
+            clearInterval(this.splitMonitorInterval);
+        }
+        
+        // Focus main terminal input
+        document.getElementById('commandInput').focus();
+        
+        this.addOutput('', 'info');
+        this.addOutput('🔗 Exited split screen mode', 'success');
+    }
+
+    // Boot Sequence Methods
+    startBootSequence() {
+        const bootContainer = document.getElementById('bootSequence');
+        if (!bootContainer) return;
+        
+        // Clear any existing content
+        bootContainer.innerHTML = '';
+        
+        // Define realistic boot sequence messages
+        const bootMessages = [
+            'BIOS: UEFI Boot Manager v2.4.1',
+            'Initializing hardware components...',
+            'CPU: AMD Ryzen 9 7900X @ 4.7GHz [OK]',
+            'Memory: 64GB DDR5-5600 [OK]',
+            'Storage: 2TB NVMe SSD Samsung 980 PRO [OK]',
+            'GPU: NVIDIA RTX 4090 24GB [OK]',
+            'Network: Gigabit Ethernet [OK]',
+            'USB: 12 ports detected [OK]',
+            '',
+            'Loading kernel modules...',
+            'systemd: Starting system initialization',
+            'Loading neural network drivers...',
+            'AI subsystem: Claude integration [OK]',
+            'Voice recognition engine [OK]',
+            'Audio synthesis engine [OK]',
+            'WebGL renderer [OK]',
+            'Chart.js visualization [OK]',
+            '',
+            'Starting network services...',
+            'GitHub Actions API [OK]',
+            'Weather API (BOM) [OK]',
+            'Research paper indexing [OK]',
+            'Terminal interface [OK]',
+            'System monitor [OK]',
+            '',
+            'Recursive systems architecture: ACTIVE',
+            'Self-improving algorithms: ENABLED',
+            'Neural pathways: SYNCHRONIZED',
+            'Quantum entanglement matrix: STABLE',
+            'Reality.exe: RUNNING',
+            '',
+            'System initialization complete.',
+            'Welcome to ADRIAN.SYS Terminal Interface',
+            'Type "help" for available commands',
+        ];
+        
+        this.typeBootMessages(bootMessages, 0);
+    }
+    
+    typeBootMessages(messages, index) {
+        if (index >= messages.length) {
+            // Boot complete - show ready prompt
+            setTimeout(() => {
+                this.showBootComplete();
+            }, 500);
+            return;
+        }
+        
+        const message = messages[index];
+        const bootContainer = document.getElementById('bootSequence');
+        
+        if (message === '') {
+            // Empty line - just add space and continue quickly
+            const line = document.createElement('div');
+            line.className = 'boot-line';
+            line.innerHTML = '&nbsp;';
+            bootContainer.appendChild(line);
+            
+            setTimeout(() => {
+                this.typeBootMessages(messages, index + 1);
+            }, 50);
+            return;
+        }
+        
+        // Create line element
+        const line = document.createElement('div');
+        line.className = 'boot-line';
+        bootContainer.appendChild(line);
+        
+        // Type out the message character by character (fast)
+        let charIndex = 0;
+        const typeChar = () => {
+            if (charIndex < message.length) {
+                line.textContent += message[charIndex];
+                charIndex++;
+                // Very fast typing - 10-20ms per character
+                setTimeout(typeChar, Math.random() * 10 + 5);
+            } else {
+                // Line complete - scroll and continue to next
+                bootContainer.scrollTop = bootContainer.scrollHeight;
+                
+                // Short delay before next line (50-150ms)
+                setTimeout(() => {
+                    this.typeBootMessages(messages, index + 1);
+                }, Math.random() * 100 + 25);
+            }
+        };
+        
+        typeChar();
+    }
+    
+    showBootComplete() {
+        const bootContainer = document.getElementById('bootSequence');
+        
+        // Add final status line
+        const statusLine = document.createElement('div');
+        statusLine.className = 'boot-line status-line';
+        statusLine.innerHTML = 'Ready for interaction: <span class="status-online">ACTIVE</span>';
+        bootContainer.appendChild(statusLine);
+        
+        // Focus the command input
+        const commandInput = document.getElementById('commandInput');
+        if (commandInput) {
+            commandInput.focus();
+        }
+        
+        // Optional: Add subtle completion effect
+        setTimeout(() => {
+            bootContainer.style.borderLeft = '3px solid #00ff41';
+            setTimeout(() => {
+                bootContainer.style.borderLeft = 'none';
+            }, 1000);
+        }, 200);
+    }
+
     // Inline Chat Methods
     async handleChatMessage(message) {
         // Check for exit commands
@@ -1586,7 +2007,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         if (this.inChatMode) {
             promptElement.textContent = 'chat>';
         } else {
-            promptElement.textContent = 'adrian@homestead:~$';
+            promptElement.textContent = 'adrian@home:~$';
         }
     }
 
@@ -1718,16 +2139,32 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         try {
             this.voiceInterface = new VoiceInterface();
             const initialized = await this.voiceInterface.init();
+            const button = document.getElementById('voiceToggle');
             
             if (initialized) {
                 this.addOutput('🎤 Voice interface initialized', 'success');
                 this.addOutput('Say "Adrian" or "Computer" to activate voice commands', 'info');
+                
+                // Update button text to show it's ready
+                if (button) {
+                    button.textContent = 'Voice Ready';
+                    button.classList.remove('error');
+                }
             } else {
                 this.addOutput('⚠️ Voice interface not available', 'error');
+                if (button) {
+                    button.textContent = 'Voice Unavailable';
+                    button.classList.add('error');
+                }
             }
         } catch (error) {
             console.error('Voice interface initialization failed:', error);
             this.addOutput('❌ Voice interface failed to initialize', 'error');
+            const button = document.getElementById('voiceToggle');
+            if (button) {
+                button.textContent = 'Voice Error';
+                button.classList.add('error');
+            }
         }
     }
 
@@ -1748,7 +2185,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             this.addOutput('Say "Adrian", "Computer", or "Hey Adrian" to get my attention', 'info');
         } else {
             this.voiceEnabled = false;
-            button.textContent = 'Enable Voice';
+            button.textContent = 'Voice Ready';
             button.classList.remove('active');
             this.addOutput('🔇 Voice interface deactivated', 'info');
         }
@@ -1894,8 +2331,8 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             case 'skills':
                 this.showSkills();
                 break;
-            case 'homestead':
-                this.showHomestead();
+            case 'home':
+                this.showHome();
                 break;
             case 'veritas':
                 this.showVeritas();
@@ -1988,34 +2425,278 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         };
     }
 
-    // Research command handler
-    handleResearchCommand(args) {
-        if (args.length === 0) {
-            this.addOutput('Usage: research [personal|global]', 'error');
-            this.addOutput('  personal - Load local markdown research papers', 'info');
-            this.addOutput('  global   - Fetch from arXiv and academic sources', 'info');
+    // Initialize research streamer
+    async initResearchStreamer() {
+        try {
+            if (window.EnhancedResearchStreamer) {
+                this.researchStreamer = new EnhancedResearchStreamer();
+                console.log('Enhanced research streamer initialized');
+            } else {
+                console.warn('EnhancedResearchStreamer not available, using fallback');
+            }
+        } catch (error) {
+            console.error('Failed to initialize research streamer:', error);
+        }
+    }
+
+    // Enhanced research command handler
+    async handleResearchCommand(args) {
+        if (!this.researchStreamer) {
+            this.addOutput('❌ Research streamer not available', 'error');
+            this.addOutput('Enhanced research features require research-streamer-enhanced.js', 'info');
             return;
         }
 
-        const mode = args[0].toLowerCase();
+        if (args.length === 0) {
+            this.showResearchHelp();
+            return;
+        }
+
+        const subcommand = args[0].toLowerCase();
+        const remainingArgs = args.slice(1);
         
-        switch (mode) {
+        switch (subcommand) {
+            case 'stream':
+                await this.startResearchStream(remainingArgs);
+                break;
+                
+            case 'search':
+                this.searchResearchPapers(remainingArgs);
+                break;
+                
+            case 'list':
+                this.listResearchPapers(remainingArgs);
+                break;
+                
+            case 'categories':
+                this.showResearchCategories();
+                break;
+                
+            case 'stats':
+                this.showResearchStats();
+                break;
+                
+            case 'local':
             case 'personal':
-                this.addOutput('📚 Loading personal research papers...', 'info');
-                this.addOutput('This would load papers from /research/ directory', 'info');
-                this.addOutput('Feature coming soon - local markdown research streaming', 'success');
+                await this.startResearchStream(['local']);
                 break;
                 
             case 'global':
-                this.addOutput('🌍 Global research streaming not yet implemented', 'info');
-                this.addOutput('Would fetch from arXiv, Semantic Scholar, and other sources', 'info');
-                this.addOutput('Use research-streamer-remote.js for this functionality', 'success');
+                await this.startResearchStream(['global']);
+                break;
+                
+            case 'hybrid':
+                await this.startResearchStream(['hybrid']);
                 break;
                 
             default:
-                this.addOutput(`Unknown research mode: ${mode}`, 'error');
-                this.addOutput('Available modes: personal, global', 'info');
+                this.addOutput(`Unknown research command: ${subcommand}`, 'error');
+                this.showResearchHelp();
         }
+    }
+
+    showResearchHelp() {
+        this.addOutput('', 'info');
+        this.addOutput('📚 RESEARCH STREAMING SYSTEM', 'success');
+        this.addOutput('', 'info');
+        this.addOutput('Commands:', 'feature-highlight');
+        this.addOutput('  research stream [mode]     Start interactive research stream', 'info');
+        this.addOutput('  research search <query>    Search research papers', 'info');
+        this.addOutput('  research list [category]   List papers by category', 'info');
+        this.addOutput('  research categories        Show available categories', 'info');
+        this.addOutput('  research stats             Show research statistics', 'info');
+        this.addOutput('', 'info');
+        this.addOutput('Streaming Modes:', 'feature-highlight');
+        this.addOutput('  local     - Local markdown papers only', 'ai-highlight');
+        this.addOutput('  global    - External sources (arXiv, Semantic Scholar)', 'ai-highlight');
+        this.addOutput('  hybrid    - Combined local and global sources', 'ai-highlight');
+        this.addOutput('', 'info');
+        this.addOutput('Examples:', 'feature-highlight');
+        this.addOutput('  research stream local              # Stream local papers', 'info');
+        this.addOutput('  research search "ai safety"        # Search for AI safety papers', 'info');
+        this.addOutput('  research list agent-systems        # List multi-agent papers', 'info');
+        this.addOutput('', 'info');
+    }
+
+    async startResearchStream(args) {
+        const mode = args[0] || 'local';
+        const category = args[1] || 'all';
+        const query = args.slice(2).join(' ');
+        
+        this.addOutput('', 'info');
+        this.addOutput(`🔄 Starting research stream in ${mode} mode...`, 'success');
+        
+        if (category !== 'all') {
+            this.addOutput(`📂 Category filter: ${category}`, 'info');
+        }
+        
+        if (query) {
+            this.addOutput(`🔍 Search query: "${query}"`, 'info');
+        }
+        
+        this.addOutput('', 'info');
+        this.addOutput('📊 Research papers will be displayed below:', 'feature-highlight');
+        this.addOutput('', 'info');
+        
+        // Create a container for the research stream
+        const streamContainer = document.createElement('div');
+        streamContainer.className = 'research-stream-display';
+        streamContainer.style.cssText = `
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid var(--terminal-green);
+            border-radius: 8px;
+            background: rgba(0, 255, 65, 0.05);
+            max-height: 600px;
+            overflow-y: auto;
+        `;
+        
+        this.addOutput(streamContainer, 'info');
+        
+        // Start the enhanced streaming
+        try {
+            await this.researchStreamer.startStreaming(streamContainer, {
+                mode: mode,
+                category: category,
+                query: query
+            });
+            
+            this.addOutput('', 'info');
+            this.addOutput('✨ Research stream active! Click on papers for details.', 'success');
+            this.addOutput('Use Ctrl+C or type a new command to exit stream mode.', 'info');
+            this.addOutput('', 'info');
+            
+        } catch (error) {
+            this.addOutput(`❌ Failed to start research stream: ${error.message}`, 'error');
+        }
+    }
+
+    searchResearchPapers(args) {
+        if (args.length === 0) {
+            this.addOutput('Usage: research search <query>', 'error');
+            return;
+        }
+        
+        const query = args.join(' ');
+        const results = this.researchStreamer.searchPapers(query);
+        
+        this.addOutput('', 'info');
+        this.addOutput(`🔍 SEARCH RESULTS for "${query}"`, 'success');
+        this.addOutput('', 'info');
+        
+        if (results.length === 0) {
+            this.addOutput('No papers found matching your search query.', 'info');
+            this.addOutput('Try different keywords or check available categories.', 'info');
+        } else {
+            this.addOutput(`Found ${results.length} matching papers:`, 'feature-highlight');
+            this.addOutput('', 'info');
+            
+            results.slice(0, 10).forEach((paper, index) => {
+                this.addOutput(`${index + 1}. ${paper.title}`, 'ai-highlight');
+                this.addOutput(`   Authors: ${paper.authors.slice(0, 2).join(', ')}`, 'info');
+                this.addOutput(`   Source: ${paper.source} | Relevance: ${paper.relevanceScore}%`, 'info');
+                this.addOutput('', 'info');
+            });
+            
+            if (results.length > 10) {
+                this.addOutput(`... and ${results.length - 10} more papers`, 'info');
+                this.addOutput('Use "research stream" to view all results interactively', 'feature-highlight');
+            }
+        }
+        this.addOutput('', 'info');
+    }
+
+    listResearchPapers(args) {
+        const category = args[0] || 'all';
+        
+        let papers;
+        if (category === 'all') {
+            papers = this.researchStreamer.getPapers();
+        } else {
+            papers = this.researchStreamer.getPapersByCategory(category);
+        }
+        
+        this.addOutput('', 'info');
+        this.addOutput(`📋 RESEARCH PAPERS - ${category.toUpperCase()}`, 'success');
+        this.addOutput('', 'info');
+        
+        if (papers.length === 0) {
+            this.addOutput(`No papers found in category: ${category}`, 'info');
+            this.addOutput('Use "research categories" to see available categories', 'feature-highlight');
+        } else {
+            this.addOutput(`Total papers: ${papers.length}`, 'feature-highlight');
+            this.addOutput('', 'info');
+            
+            // Show top 15 papers
+            papers.slice(0, 15).forEach((paper, index) => {
+                const relevanceBar = '█'.repeat(Math.floor(paper.relevanceScore / 10)) + 
+                                   '░'.repeat(10 - Math.floor(paper.relevanceScore / 10));
+                
+                this.addOutput(`${index + 1}. ${paper.title}`, 'ai-highlight');
+                this.addOutput(`   [${relevanceBar}] ${paper.relevanceScore}% | ${paper.source}`, 'info');
+                this.addOutput('', 'info');
+            });
+            
+            if (papers.length > 15) {
+                this.addOutput(`... and ${papers.length - 15} more papers`, 'info');
+                this.addOutput('Use "research stream" for full interactive view', 'feature-highlight');
+            }
+        }
+        this.addOutput('', 'info');
+    }
+
+    showResearchCategories() {
+        if (!this.researchStreamer.categories) {
+            this.addOutput('❌ Research categories not available', 'error');
+            return;
+        }
+        
+        this.addOutput('', 'info');
+        this.addOutput('📂 RESEARCH CATEGORIES', 'success');
+        this.addOutput('', 'info');
+        
+        Object.entries(this.researchStreamer.categories).forEach(([key, label]) => {
+            const count = this.researchStreamer.getPapersByCategory(key).length;
+            this.addOutput(`${key.padEnd(20)} ${label} (${count} papers)`, 'info');
+        });
+        
+        this.addOutput('', 'info');
+        this.addOutput('Usage: research list <category-key>', 'feature-highlight');
+        this.addOutput('', 'info');
+    }
+
+    showResearchStats() {
+        const allPapers = this.researchStreamer.getPapers();
+        const localPapers = this.researchStreamer.getLocalPapers();
+        
+        this.addOutput('', 'info');
+        this.addOutput('📊 RESEARCH STATISTICS', 'success');
+        this.addOutput('', 'info');
+        
+        this.addOutput(`Total Papers:        ${allPapers.length}`, 'info');
+        this.addOutput(`Local Papers:        ${localPapers.length}`, 'info');
+        this.addOutput(`External Papers:     ${allPapers.length - localPapers.length}`, 'info');
+        this.addOutput('', 'info');
+        
+        // Category breakdown
+        this.addOutput('Category Breakdown:', 'feature-highlight');
+        Object.entries(this.researchStreamer.categories).forEach(([key, label]) => {
+            if (key !== 'all') {
+                const count = this.researchStreamer.getPapersByCategory(key).length;
+                this.addOutput(`  ${label}: ${count}`, 'info');
+            }
+        });
+        
+        this.addOutput('', 'info');
+        
+        // Top papers by relevance
+        const topPapers = this.researchStreamer.getTopPapersByRelevance(5);
+        this.addOutput('Top 5 Most Relevant Papers:', 'feature-highlight');
+        topPapers.forEach((paper, index) => {
+            this.addOutput(`  ${index + 1}. ${paper.title} (${paper.relevanceScore}%)`, 'ai-highlight');
+        });
+        
+        this.addOutput('', 'info');
     }
 
     // Fuzzy matching utility
@@ -2034,43 +2715,175 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         return true;
     }
 
-    // Tab completion methods
+    // Enhanced Tab completion with subcommand support
     handleTabCompletion(input) {
         const currentValue = input.value;
         const words = currentValue.split(' ');
+        const command = words[0];
         const lastWord = words[words.length - 1];
         
-        // Only complete the first word (command)
+        let matches = [];
+        
+        // Command completion (first word)
         if (words.length === 1) {
-            const matches = this.availableCommands.filter(cmd => 
+            matches = this.availableCommands.filter(cmd => 
                 this.fuzzyMatch(lastWord, cmd)
-            ).sort(); // Sort to ensure consistent cycling
-            
-            if (matches.length === 0) return;
-            
-            if (matches.length === 1) {
-                // Single match - complete it
-                input.value = matches[0];
-                this.resetCompletion();
+            ).sort();
+        } 
+        // Subcommand and argument completion
+        else {
+            matches = this.getSubcommandCompletions(command, words, lastWord);
+        }
+        
+        if (matches.length === 0) return;
+        
+        if (matches.length === 1) {
+            // Single match - complete it
+            const completedValue = this.buildCompletedCommand(currentValue, words, matches[0]);
+            input.value = completedValue;
+            this.resetCompletion();
+        } else {
+            // Multiple matches - cycle through them
+            if (currentValue !== this.lastInput) {
+                // New completion - start from beginning
+                this.completionIndex = 0;
+                this.lastInput = currentValue;
             } else {
-                // Multiple matches - cycle through them
-                if (currentValue !== this.lastInput) {
-                    // New completion - start from beginning
-                    this.completionIndex = 0;
-                    this.lastInput = currentValue;
-                } else {
-                    // Cycle to next completion
-                    this.completionIndex = (this.completionIndex + 1) % matches.length;
-                }
-                
-                input.value = matches[this.completionIndex];
-                
-                // Show available completions
-                if (this.completionIndex === 0) {
-                    this.showCompletions(matches);
-                }
+                // Cycle to next completion
+                this.completionIndex = (this.completionIndex + 1) % matches.length;
+            }
+            
+            const completedValue = this.buildCompletedCommand(currentValue, words, matches[this.completionIndex]);
+            input.value = completedValue;
+            
+            // Show available completions
+            if (this.completionIndex === 0) {
+                this.showCompletions(matches);
             }
         }
+    }
+
+    // Get subcommand completions based on command context
+    getSubcommandCompletions(command, words, lastWord) {
+        const completions = [];
+        
+        switch (command.toLowerCase()) {
+            case 'theme':
+                if (words.length === 2) {
+                    // Theme names and commands
+                    const themeOptions = [...this.availableThemes, 'list', 'refresh'];
+                    return themeOptions.filter(option => 
+                        this.fuzzyMatch(lastWord, option)
+                    ).sort();
+                }
+                break;
+                
+            case 'grep':
+                if (words.length === 2) {
+                    // Common grep patterns
+                    const grepPatterns = [
+                        'function', 'class', 'const', 'let', 'var', 'import', 'export',
+                        'TODO', 'FIXME', 'console.log', 'error', 'warning'
+                    ];
+                    return grepPatterns.filter(pattern => 
+                        this.fuzzyMatch(lastWord, pattern)
+                    );
+                } else if (words.length === 3) {
+                    // File paths and extensions
+                    const fileTypes = [
+                        '*.js', '*.css', '*.html', '*.md', '*.json', '*.yml',
+                        'assets/', 'tests/', 'research/', '.github/'
+                    ];
+                    return fileTypes.filter(path => 
+                        this.fuzzyMatch(lastWord, path)
+                    );
+                }
+                break;
+                
+            case 'tail':
+                if (words.length >= 2) {
+                    // Available files for tail command
+                    const tailFiles = [
+                        'README.md', 'CLAUDE.md', 'CHANGELOG.md',
+                        'assets/terminal.js', 'assets/ai-service.js',
+                        'tests/README.md', 'research/'
+                    ];
+                    return tailFiles.filter(file => 
+                        this.fuzzyMatch(lastWord, file)
+                    );
+                }
+                break;
+                
+            case 'cat':
+                if (words.length >= 2) {
+                    // Available content files
+                    const contentFiles = [
+                        'about', 'projects', 'skills', 'contact', 'home'
+                    ];
+                    return contentFiles.filter(file => 
+                        this.fuzzyMatch(lastWord, file)
+                    );
+                }
+                break;
+                
+            case 'research':
+                if (words.length === 2) {
+                    // Research stream options
+                    const researchOptions = ['personal', 'global', 'categories', 'stats'];
+                    return researchOptions.filter(option => 
+                        this.fuzzyMatch(lastWord, option)
+                    );
+                } else if (words.length === 3 && words[1] === 'search') {
+                    // Research categories if we have research streamer
+                    if (window.researchStreamer) {
+                        const categories = window.researchStreamer.getAllCategories();
+                        return categories.filter(cat => 
+                            this.fuzzyMatch(lastWord, cat)
+                        );
+                    }
+                }
+                break;
+                
+            case 'effects':
+            case 'particles':
+                if (words.length === 2) {
+                    const effectOptions = [
+                        'matrix', 'snow', 'rain', 'stars', 'neural', 'code',
+                        'stop', 'clear', 'list'
+                    ];
+                    return effectOptions.filter(effect => 
+                        this.fuzzyMatch(lastWord, effect)
+                    );
+                }
+                break;
+                
+            case 'music':
+                if (words.length === 2) {
+                    const musicOptions = ['start', 'stop', 'volume', 'frequency', 'waveform'];
+                    return musicOptions.filter(option => 
+                        this.fuzzyMatch(lastWord, option)
+                    );
+                }
+                break;
+                
+            case 'voice':
+                if (words.length === 2) {
+                    const voiceOptions = ['enable', 'disable', 'status', 'wake'];
+                    return voiceOptions.filter(option => 
+                        this.fuzzyMatch(lastWord, option)
+                    );
+                }
+                break;
+        }
+        
+        return completions;
+    }
+
+    // Build the completed command string
+    buildCompletedCommand(currentValue, words, completion) {
+        const wordsCopy = [...words];
+        wordsCopy[wordsCopy.length - 1] = completion;
+        return wordsCopy.join(' ');
     }
 
     resetCompletion() {
@@ -2111,13 +2924,398 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         }
     }
 
+    // Theme System Methods
+    handleThemeCommand(args) {
+        if (args.length === 0) {
+            this.showThemeStatus();
+            return;
+        }
+
+        const command = args[0].toLowerCase();
+        
+        if (command === 'list') {
+            this.showAvailableThemes();
+            return;
+        }
+        
+        if (command === 'refresh') {
+            this.applyTheme(this.currentTheme);
+            this.addOutput(`🔄 Theme refreshed: ${this.currentTheme}`, 'success');
+            return;
+        }
+
+        if (this.availableThemes.includes(command)) {
+            this.setTheme(command);
+        } else {
+            this.addOutput(`❌ Unknown theme: ${command}`, 'error');
+            this.addOutput(`Available themes: ${this.availableThemes.join(', ')}`, 'info');
+        }
+    }
+
+    showThemeStatus() {
+        this.addOutput('', 'info');
+        this.addOutput('🎨 TERMINAL THEME SYSTEM', 'success');
+        this.addOutput('', 'info');
+        this.addOutput(`Current Theme: ${this.currentTheme}`, 'feature-highlight');
+        this.addOutput('', 'info');
+        this.addOutput('Available Themes:', 'section-header');
+        
+        this.availableThemes.forEach(theme => {
+            const status = theme === this.currentTheme ? '● active' : '○ inactive';
+            const description = this.getThemeDescription(theme);
+            this.addOutput(`   ${theme.padEnd(12)} ${status} - ${description}`, 'info');
+        });
+        
+        this.addOutput('', 'info');
+        this.addOutput('Usage:', 'feature-highlight');
+        this.addOutput('   theme <name>     Switch to specified theme', 'info');
+        this.addOutput('   theme list       Show all available themes', 'info');
+        this.addOutput('', 'info');
+        this.addOutput('Examples:', 'feature-highlight');
+        this.addOutput('   theme cyberpunk  Switch to cyberpunk theme', 'ai-highlight');
+        this.addOutput('   theme matrix     Switch to matrix theme', 'ai-highlight');
+    }
+
+    getThemeDescription(theme) {
+        const descriptions = {
+            'matrix': 'Classic green-on-black Matrix aesthetic',
+            'cyberpunk': 'Pink and cyan neon cyberpunk vibes',
+            'amber': 'Warm amber monochrome retro terminal',
+            'synthwave': 'Purple and magenta synthwave colors'
+        };
+        return descriptions[theme] || 'Custom theme';
+    }
+
+    setTheme(themeName) {
+        if (!this.availableThemes.includes(themeName)) {
+            this.addOutput(`❌ Invalid theme: ${themeName}`, 'error');
+            this.addOutput(`Available themes: ${this.availableThemes.join(', ')}`, 'info');
+            return;
+        }
+
+        this.currentTheme = themeName;
+        localStorage.setItem('terminal-theme', themeName);
+        
+        // Apply theme to document
+        this.applyTheme(themeName);
+        
+        this.addOutput(`🎨 Theme changed to: ${themeName}`, 'success');
+        this.addOutput(`Theme will persist across sessions`, 'info');
+    }
+
     applyTheme(themeName) {
         const body = document.body;
-        // Remove all existing theme classes
-        body.className = body.className.split(' ').filter(c => !c.startsWith('theme-')).join(' ');
-        // Add the new theme class
-        body.classList.add(`theme-${themeName}`);
-        this.currentTheme = themeName;
+        
+        // Remove existing theme attribute
+        body.removeAttribute('data-theme');
+        
+        // Apply new theme (matrix is default, no data attribute needed)
+        if (themeName !== 'matrix') {
+            body.setAttribute('data-theme', themeName);
+        }
+        
+        // Trigger CSS transitions
+        body.style.transition = 'var(--theme-transition)';
+        
+        // Debug: Log the current theme attribute
+        console.log('Applied theme:', themeName, 'data-theme:', body.getAttribute('data-theme'));
+    }
+
+    showAvailableThemes() {
+        this.addOutput('', 'info');
+        this.addOutput('🎨 AVAILABLE THEMES', 'success');
+        this.addOutput('', 'info');
+        
+        this.availableThemes.forEach(theme => {
+            const current = theme === this.currentTheme ? ' (current)' : '';
+            const description = this.getThemeDescription(theme);
+            this.addOutput(`${theme}${current}`, 'feature-highlight');
+            this.addOutput(`   ${description}`, 'info');
+            this.addOutput('', 'info');
+        });
+    }
+
+    // File System Commands
+    handleGrepCommand(args) {
+        if (args.length === 0) {
+            this.addOutput('Usage: grep <pattern> [file/command]', 'error');
+            this.addOutput('Examples:', 'feature-highlight');
+            this.addOutput('  grep "error" history    # Search command history', 'info');
+            this.addOutput('  grep "token" research   # Search research papers', 'info');
+            this.addOutput('  grep "ai" help         # Search help output', 'info');
+            return;
+        }
+
+        const pattern = args[0];
+        const target = args[1] || 'history';
+
+        switch (target.toLowerCase()) {
+            case 'history':
+                this.grepHistory(pattern);
+                break;
+            case 'research':
+                this.grepResearch(pattern);
+                break;
+            case 'help':
+                this.grepHelp(pattern);
+                break;
+            default:
+                this.addOutput(`grep: ${target}: No such file or command output`, 'error');
+                this.addOutput('Available targets: history, research, help', 'info');
+        }
+    }
+
+    grepHistory(pattern) {
+        const regex = new RegExp(pattern, 'i');
+        const matches = this.commandHistory.filter(cmd => regex.test(cmd));
+        
+        this.addOutput('', 'info');
+        this.addOutput(`🔍 GREP RESULTS: "${pattern}" in command history`, 'success');
+        this.addOutput('', 'info');
+        
+        if (matches.length === 0) {
+            this.addOutput('No matches found', 'info');
+        } else {
+            matches.forEach((match, index) => {
+                const highlighted = match.replace(regex, `\x1b[43m\x1b[30m$&\x1b[0m`);
+                this.addOutput(`${index + 1}: ${highlighted}`, 'info');
+            });
+            this.addOutput('', 'info');
+            this.addOutput(`Found ${matches.length} matches`, 'feature-highlight');
+        }
+    }
+
+    grepResearch(pattern) {
+        if (!this.researchStreamer) {
+            this.addOutput('Research system not available', 'error');
+            return;
+        }
+
+        const papers = this.researchStreamer.searchPapers(pattern);
+        this.addOutput('', 'info');
+        this.addOutput(`🔍 GREP RESULTS: "${pattern}" in research papers`, 'success');
+        this.addOutput('', 'info');
+        
+        if (papers.length === 0) {
+            this.addOutput('No matches found', 'info');
+        } else {
+            papers.slice(0, 10).forEach(paper => {
+                this.addOutput(`📄 ${paper.title}`, 'ai-highlight');
+                if (paper.abstract) {
+                    const abstract = paper.abstract.substring(0, 150) + '...';
+                    this.addOutput(`   ${abstract}`, 'info');
+                }
+                this.addOutput('', 'info');
+            });
+            if (papers.length > 10) {
+                this.addOutput(`... and ${papers.length - 10} more results`, 'feature-highlight');
+            }
+        }
+    }
+
+    grepHelp(pattern) {
+        const helpOutput = [
+            'BASIC COMMANDS', 'help', 'about', 'projects', 'skills', 'home', 'veritas', 'whoami', 'pwd', 'ls',
+            'INTERACTIVE FEATURES', 'chat', 'matrix', 'clear', 'history', 'neofetch', 'uptime', 'magic', 'particles',
+            'SYSTEM MONITORING', 'monitor', 'weather', 'actions', 'runs', 'trigger', 'ps', 'tokens', 'cache',
+            'VOICE & MUSIC', 'voice', 'speak', 'music', 'volume', 'stop',
+            'ADVANCED FEATURES', 'research', 'theme', 'effects'
+        ];
+        
+        const regex = new RegExp(pattern, 'i');
+        const matches = helpOutput.filter(item => regex.test(item));
+        
+        this.addOutput('', 'info');
+        this.addOutput(`🔍 GREP RESULTS: "${pattern}" in help system`, 'success');
+        this.addOutput('', 'info');
+        
+        if (matches.length === 0) {
+            this.addOutput('No matches found', 'info');
+        } else {
+            matches.forEach(match => {
+                const highlighted = match.replace(regex, `\x1b[43m\x1b[30m$&\x1b[0m`);
+                this.addOutput(`• ${highlighted}`, 'info');
+            });
+            this.addOutput('', 'info');
+            this.addOutput(`Found ${matches.length} matches`, 'feature-highlight');
+        }
+    }
+
+    handleTailCommand(args) {
+        if (args.length === 0) {
+            this.addOutput('Usage: tail [-n lines] <file/log>', 'error');
+            this.addOutput('Examples:', 'feature-highlight');
+            this.addOutput('  tail history           # Show last 10 commands', 'info');
+            this.addOutput('  tail -n 20 history     # Show last 20 commands', 'info');
+            this.addOutput('  tail research          # Show recent research papers', 'info');
+            this.addOutput('  tail system            # Show system logs', 'info');
+            return;
+        }
+
+        let lines = 10;
+        let target = args[0];
+        
+        // Parse -n option
+        if (args[0] === '-n' && args.length >= 3) {
+            lines = parseInt(args[1]) || 10;
+            target = args[2];
+        }
+
+        switch (target.toLowerCase()) {
+            case 'history':
+                this.tailHistory(lines);
+                break;
+            case 'research':
+                this.tailResearch(lines);
+                break;
+            case 'system':
+                this.tailSystem(lines);
+                break;
+            default:
+                this.addOutput(`tail: ${target}: No such file or log`, 'error');
+                this.addOutput('Available targets: history, research, system', 'info');
+        }
+    }
+
+    tailHistory(lines) {
+        const recent = this.commandHistory.slice(-lines);
+        
+        this.addOutput('', 'info');
+        this.addOutput(`📜 TAIL: Last ${lines} commands`, 'success');
+        this.addOutput('', 'info');
+        
+        if (recent.length === 0) {
+            this.addOutput('No command history available', 'info');
+        } else {
+            recent.forEach((cmd, index) => {
+                const lineNum = this.commandHistory.length - recent.length + index + 1;
+                this.addOutput(`${lineNum.toString().padStart(3)}: ${cmd}`, 'info');
+            });
+        }
+    }
+
+    tailResearch(lines) {
+        if (!this.researchStreamer) {
+            this.addOutput('Research system not available', 'error');
+            return;
+        }
+
+        const papers = this.researchStreamer.getPapers().slice(-lines);
+        
+        this.addOutput('', 'info');
+        this.addOutput(`📜 TAIL: Last ${lines} research papers`, 'success');
+        this.addOutput('', 'info');
+        
+        papers.forEach(paper => {
+            this.addOutput(`📄 ${paper.title}`, 'ai-highlight');
+            this.addOutput(`   ${paper.venue} (${paper.year})`, 'info');
+            this.addOutput('', 'info');
+        });
+    }
+
+    tailSystem(lines) {
+        const systemLogs = [
+            `${new Date().toISOString()} [INFO] Terminal session active`,
+            `${new Date(Date.now() - 30000).toISOString()} [INFO] AI service initialized`,
+            `${new Date(Date.now() - 60000).toISOString()} [INFO] Weather data updated`,
+            `${new Date(Date.now() - 90000).toISOString()} [INFO] Research streamer loaded`,
+            `${new Date(Date.now() - 120000).toISOString()} [INFO] Theme system initialized`,
+            `${new Date(Date.now() - 150000).toISOString()} [INFO] Voice interface ready`,
+            `${new Date(Date.now() - 180000).toISOString()} [INFO] Music system loaded`,
+            `${new Date(Date.now() - 210000).toISOString()} [INFO] Particle effects initialized`
+        ];
+        
+        const recent = systemLogs.slice(-lines);
+        
+        this.addOutput('', 'info');
+        this.addOutput(`📜 TAIL: Last ${lines} system log entries`, 'success');
+        this.addOutput('', 'info');
+        
+        recent.forEach(log => {
+            this.addOutput(log, 'info');
+        });
+    }
+
+    handleCatCommand(args) {
+        if (args.length === 0) {
+            this.addOutput('Usage: cat <file>', 'error');
+            this.addOutput('Available files:', 'feature-highlight');
+            this.addOutput('  about.md          # Personal information', 'info');
+            this.addOutput('  projects.md       # Technical projects', 'info');
+            this.addOutput('  skills.md         # Technical skills', 'info');
+            this.addOutput('  home.md           # Off-grid home info', 'info');
+            this.addOutput('  veritas.md        # AI safety research', 'info');
+            return;
+        }
+
+        const filename = args[0];
+        let contentFile = filename;
+        
+        // Handle .md extension
+        if (!filename.endsWith('.md')) {
+            contentFile = filename + '.md';
+        }
+        
+        // Remove .md for the actual command
+        const command = filename.replace('.md', '');
+        
+        // Check if it's a valid content file
+        const validFiles = ['about', 'projects', 'skills', 'home', 'veritas'];
+        if (validFiles.includes(command)) {
+            this.addOutput(`📄 Contents of ${contentFile}:`, 'feature-highlight');
+            this.addOutput('', 'info');
+            this.showMarkdownContent(command);
+        } else {
+            this.addOutput(`cat: ${filename}: No such file`, 'error');
+            this.addOutput('Available files: ' + validFiles.map(f => f + '.md').join(', '), 'info');
+        }
+    }
+
+    showGeminiLogo() {
+        const geminiAscii = `
+> ███            █████████  ██████████ ██████   ██████ █████ ██████   █████ █████
+>░░░███         ███░░░░░███░░███░░░░░█░░██████ ██████ ░░███ ░░██████ ░░███ ░░███
+>  ░░░███      ███     ░░░  ░███  █ ░  ░███░█████░███  ░███  ░███░███ ░███  ░███
+>    ░░░███   ░███          ░██████    ░███░░███ ░███  ░███  ░███░░███░███  ░███
+>     ███░    ░███    █████ ░███░░█    ░███ ░░░  ░███  ░███  ░███ ░░██████  ░███
+>   ███░      ░░███  ░░███  ░███ ░   █ ░███      ░███  ░███  ░███  ░░█████  ░███
+> ███░         ░░█████████  ██████████ █████     █████ █████ █████  ░░█████ █████
+>░░░            ░░░░░░░░░  ░░░░░░░░░░ ░░░░░     ░░░░░ ░░░░░ ░░░░░    ░░░░░ ░░░░░`;
+
+        this.addOutput('', 'info');
+        geminiAscii.split('\n').forEach(line => {
+            if (line.trim()) {
+                this.addOutput(line, 'success');
+            }
+        });
+        this.addOutput('', 'info');
+        this.addOutput('🌟 GEMINI - Google\'s Advanced AI Model', 'feature-highlight');
+        this.addOutput('   Multimodal AI capabilities with reasoning and creativity', 'info');
+        this.addOutput('', 'info');
+    }
+
+    showAdrianLogo() {
+        const adrianAscii = `
+____/\\\\\\\\\\\\\\\\______________/\\\\\\\\\\\\\\\\\\\\\\\\______/\\\\\\\\\\\\\\\\\\\\\\\\______/\\\\\\\\\\\\\\\\___/\\\\\\\\\\\\\\\\\\\\\\\\___/\\\\\\\\\\\\\\\\___/\\\\\\\\\\\\\\\\\_____
+ __/\\\\\\////////////__________/\\\\\\//////////\\\\\\___/\\\\\\//////////\\\\\\__/\\\\\\////\\\\\\_\/\\\\\\//////////\\\\\\\_/\\\\\\////\\\\\\\_\/\\\\\\////\\\\\\____
+  _\////\\\\\\____________/\\\\\\/_____________\////\\\\\\__/\\\\\\____________\////\\\\\\__/\\\\\\\_\//\\\\\\\_\/\\\\\\____________\////\\\\\\__/\\\\\\/_\//\\\\\\\_\/\\\\\\__\//\\\\\\___
+   ____\////\\\\\\______/\\\\\\__________________\////\\\\\\___/\\\\\\___________________/\\\\\\/__/\\\\\\\\\\\\\\\\\\\_\/\\\\\\___________________/\\\\\\/__/\\\\\\\\\\\\\\\\\\\_\/\\\\\\\\\\\\\\\\\\___
+    _______\////\\\\\\___\//\\\\\\____________/\\\\\\/_\//\\\\\\__\//\\\\\\_______________/\\\\\\/__\/\\\\\\////\\\\\\\_\/\\\\\\_______________/\\\\\\/__\/\\\\\\////\\\\\\\_\/\\\\\\////\\\\\\___
+     ___________\////\\\\\\_\///\\\\\\_____/\\\\\\//____\////\\\\\\__\///\\\\\\_____/\\\\\\//____\/\\\\\\_\//\\\\\\\_\/\\\\\\_____/\\\\\\//____\/\\\\\\_\//\\\\\\\_\/\\\\\\_\//\\\\\\__
+      ___/\\\\\\\\\\\\\\\\\\____\////\\\\\\\\\\\\\\//________/\\\\\\\\\_\\////\\\\\\\\\\\\\\//______\/\\\\\\__\//\\\\\\\_\/\\\\\\\\\\\\\\\\\\//______\/\\\\\\__\//\\\\\\\_\/\\\\\\__\//\\\\\\_
+       _\//////////////________\/////////__________\/////__\\////////__________\///____\///__\////////////__________\///____\///__\///____\///__
+        `;
+
+        this.addOutput('', 'info');
+        adrianAscii.split('\n').forEach(line => {
+            if (line.trim()) {
+                this.addOutput(line, 'success');
+            }
+        });
+        this.addOutput('', 'info');
+        this.addOutput('🚀 >ADRIAN - Recursive Systems Architect & Off-Grid Permanaut', 'feature-highlight');
+        this.addOutput('   Building intelligent systems from Tasmania\'s wilderness', 'info');
+        this.addOutput('', 'info');
     }
 }
 

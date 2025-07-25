@@ -15,7 +15,7 @@
                 <span class="control minimize"></span>
                 <span class="control maximize"></span>
             </div>
-            <div class="title">adrian@homestead:~$ </div>
+            <div class="title">adrian@home:~$ </div>
             <div class="voice-controls">
                 <div class="voice-indicator" id="voiceIndicator">🎤</div>
                 <div class="voice-status" id="voiceStatus">Voice ready</div>
@@ -40,17 +40,91 @@
                     </pre>
                 </div>
                 
-                <div class="boot-sequence">
-                    <div class="boot-line">System initialization complete</div>
-                    <div class="boot-line">Neural pathways: <span class="status-online">ACTIVE</span></div>
-                    <div class="boot-line">Ready for interaction</div>
+                <div class="boot-sequence" id="bootSequence">
+                    <!-- Dynamic boot sequence will be populated here -->
                 </div>
             </div>
             
             <div class="prompt-line">
-                <span class="prompt">adrian@homestead:~$</span>
+                <span class="prompt">adrian@home:~$</span>
                 <input type="text" id="commandInput" class="command-input" autofocus>
                 <span class="cursor">█</span>
+            </div>
+        </div>
+        
+        <!-- Split Screen Layout Container -->
+        <div class="split-screen-container" id="splitScreenContainer" style="display: none;">
+            <div class="split-pane terminal-pane">
+                <div class="split-header">
+                    <span class="split-title">🖥️ TERMINAL</span>
+                    <div class="split-controls">
+                        <button class="split-btn" id="focusTerminal">Focus</button>
+                        <button class="split-btn" id="closeSplit">✕</button>
+                    </div>
+                </div>
+                <div class="split-terminal-content">
+                    <div class="terminal-output-split" id="terminalOutputSplit">
+                        <!-- Terminal output mirrored here -->
+                    </div>
+                    <div class="prompt-line-split">
+                        <span class="prompt">adrian@split:~$</span>
+                        <input type="text" id="commandInputSplit" class="command-input" placeholder="Type commands here...">
+                        <span class="cursor">█</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="split-divider" id="splitDivider">
+                <div class="divider-handle">⋮⋮⋮</div>
+            </div>
+            
+            <div class="split-pane monitor-pane">
+                <div class="split-header">
+                    <span class="split-title">📊 SYSTEM MONITOR</span>
+                    <div class="split-controls">
+                        <button class="split-btn" id="focusMonitor">Focus</button>
+                        <button class="split-btn" id="refreshMonitor">↻</button>
+                    </div>
+                </div>
+                <div class="split-monitor-content">
+                    <div class="monitor-content-split">
+                        <div class="monitor-pane-split left-pane">
+                            <div class="pane-header">
+                                <span class="pane-title">🏗️ CI/CD STATUS</span>
+                                <span class="pane-refresh" id="ciRefreshSplit">●</span>
+                            </div>
+                            <div class="pane-content" id="ciContentSplit">
+                                <div class="chart-container">
+                                    <canvas id="ciChartSplit" width="300" height="150"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="monitor-pane-split right-pane">
+                            <div class="pane-header">
+                                <span class="pane-title">🌤️ WEATHER & SYSTEMS</span>
+                                <span class="pane-refresh" id="homesteadRefreshSplit">●</span>
+                            </div>
+                            <div class="pane-content" id="homeContentSplit">
+                                <div class="chart-container">
+                                    <canvas id="weatherChartSplit" width="300" height="150"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="monitor-pane-split bottom-pane">
+                            <div class="pane-header">
+                                <span class="pane-title">🤖 AI ANALYTICS</span>
+                                <span class="pane-refresh" id="aiRefreshSplit">●</span>
+                            </div>
+                            <div class="pane-content" id="aiContentSplit">
+                                <div class="chart-container">
+                                    <canvas id="aiChartSplit" width="300" height="150"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -72,6 +146,9 @@
                     </div>
                     <div class="pane-content" id="ciContent">
                         <!-- CI/CD data will be populated here -->
+                        <div class="chart-container">
+                            <canvas id="ciChart" width="400" height="200"></canvas>
+                        </div>
                     </div>
                 </div>
                 
@@ -84,6 +161,9 @@
                     </div>
                     <div class="pane-content" id="aiContent">
                         <!-- AI token data will be populated here -->
+                        <div class="chart-container">
+                            <canvas id="aiChart" width="400" height="200"></canvas>
+                        </div>
                     </div>
                 </div>
                 
@@ -91,11 +171,14 @@
                 
                 <div class="monitor-pane right-pane">
                     <div class="pane-header">
-                        <span class="pane-title">🏡 HOMESTEAD TELEMETRY</span>
-                        <span class="pane-refresh" id="homesteadRefresh">●</span>
+                        <span class="pane-title">🌤️ WEATHER & SYSTEMS</span>
+                        <span class="pane-refresh" id="homeRefresh">●</span>
                     </div>
-                    <div class="pane-content" id="homesteadContent">
-                        <!-- Homestead data will be populated here -->
+                    <div class="pane-content" id="homeContent">
+                        <!-- Weather & systems data will be populated here -->
+                        <div class="chart-container">
+                            <canvas id="weatherChart" width="400" height="200"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -122,6 +205,10 @@
     <script src="assets/system-monitor.js"></script>
     <script src="assets/github-task-manager.js"></script>
     <script src="assets/github-actions-manager.js"></script>
+    <script src="assets/research-streamer.js"></script>
+    <script src="assets/research-streamer-global.js"></script>
+    <script src="assets/research-streamer-enhanced.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="assets/rich-effects.js"></script>
     <script src="assets/terminal.js"></script>
 </body>
