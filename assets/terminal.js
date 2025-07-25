@@ -82,8 +82,9 @@ class Terminal {
         // Matrix rain effect
         this.createMatrixRain();
         
-        // Focus input
+        // Focus input and scroll to top
         input.focus();
+        this.scrollToTop();
 
         // Load AI responses from GitHub
         this.loadAIResponses();
@@ -1101,6 +1102,13 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     scrollToBottom() {
         const terminal = document.getElementById('terminal');
         terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    scrollToTop() {
+        const terminal = document.getElementById('terminal');
+        terminal.scrollTop = 0;
+        // Also scroll the window to top
+        window.scrollTo(0, 0);
     }
 
     handleChatKeydown(event) {

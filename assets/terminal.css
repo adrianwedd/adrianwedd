@@ -27,6 +27,9 @@ input, textarea, select {
     display: flex;
     flex-direction: column;
     background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    max-width: 1400px; /* Limit width on desktop */
+    margin: 0 auto; /* Center on desktop */
+    box-shadow: 0 0 50px rgba(0, 255, 65, 0.1); /* Subtle glow effect */
 }
 
 .header {
@@ -83,6 +86,7 @@ input, textarea, select {
     flex-direction: column;
     min-height: 0; /* Allow shrinking */
     padding-bottom: 80px; /* Space for prompt line */
+    justify-content: flex-start; /* Start content at top */
 }
 
 .boot-sequence {
@@ -1005,8 +1009,25 @@ input, textarea, select {
     }
 }
 
-/* Responsive */
+/* Responsive Design */
+@media (width >= 1200px) {
+    .container {
+        border-left: 1px solid #333;
+        border-right: 1px solid #333;
+    }
+    
+    .terminal {
+        font-size: 15px; /* Slightly larger on desktop */
+    }
+}
+
 @media (width <= 768px) {
+    .container {
+        max-width: 100%; /* Full width on mobile */
+        margin: 0;
+        box-shadow: none;
+    }
+    
     .monitor-content {
         flex-direction: column;
     }
@@ -1048,5 +1069,10 @@ input, textarea, select {
     .terminal {
         font-size: 12px;
         padding: 15px;
+    }
+    
+    .prompt-line {
+        left: 15px;
+        right: 15px;
     }
 }
