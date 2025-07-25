@@ -225,5 +225,11 @@ __marimo__/
 # Node
 node_modules/
 node_modules
+# Test artefects
 playwright-report/
 test-results/
+# Claude
+CLAUDE_PLAN.md
+.claude/
+# Gemini
+GEMINI_PLAN.md
