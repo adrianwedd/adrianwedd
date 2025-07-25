@@ -2022,11 +2022,23 @@ function closeChat() { // eslint-disable-line no-unused-vars
 }
 
 function sendMessage() { // eslint-disable-line no-unused-vars
-    terminal.sendMessage();
+    if (window.terminal) {
+        window.terminal.sendMessage();
+    }
 }
 
-// Initialize terminal
-const terminal = new Terminal();
+// Initialize terminal when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, initializing terminal...');
+    try {
+        const terminal = new Terminal();
+        // Make terminal globally available for debugging
+        window.terminal = terminal;
+        console.log('Terminal initialized successfully');
+    } catch (error) {
+        console.error('Terminal initialization failed:', error);
+    }
+});
 
 // Handle window resize for matrix rain
 window.addEventListener('resize', () => {
