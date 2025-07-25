@@ -120,14 +120,17 @@ input, textarea, select {
     display: flex;
     align-items: center;
     margin-top: auto; /* Push to bottom */
-    padding: 20px 0;
+    padding: 20px;
     flex-shrink: 0; /* Never shrink */
     position: fixed;
     bottom: 0;
-    left: 20px;
-    right: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 1400px; /* Match container constraint */
     background: #000; /* Ensure visibility over content */
     z-index: 10;
+    box-sizing: border-box;
 }
 
 .prompt {
@@ -1070,7 +1073,7 @@ input, textarea, select {
     }
     
     .prompt-line {
-        left: 15px;
-        right: 15px;
+        padding: 15px;
+        max-width: 100%;
     }
 }

@@ -217,8 +217,8 @@ class VoiceInterface {
             return;
         }
 
-        // Default: treat as chat message
-        this.handleVoiceChat(transcript);
+        // Default: insert transcript into terminal input for user to review
+        this.insertIntoTerminalInput(transcript);
     }
 
     isChatQuery(transcript) {
@@ -243,6 +243,19 @@ class VoiceInterface {
             this.updateVoiceIndicator('executing', `Executing: ${command}`);
             window.terminal.executeCommand(command);
             this.speak(`Executing ${command}`);
+        } else {
+            // Fallback: Insert into terminal input field
+            this.insertIntoTerminalInput(command);
+        }
+    }
+
+    insertIntoTerminalInput(text) {
+        const input = document.getElementById('commandInput');
+        if (input) {
+            input.value = text;
+            input.focus();
+            this.updateVoiceIndicator('ready', `Ready: ${text}`);
+            this.speak(`Ready to execute ${text}. Press enter to confirm.`);
         }
     }
 
