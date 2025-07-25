@@ -1,2 +1,8 @@
 
 test-results.json
+node_modules/
+*.log
+.DS_Store
+.env
+dist/
+coverage/
