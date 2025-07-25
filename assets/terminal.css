@@ -128,7 +128,6 @@ input, textarea, select {
     right: 20px;
     background: #000; /* Ensure visibility over content */
     z-index: 10;
-    border-top: 1px solid #333; /* Visual separator */
 }
 
 .prompt {
