@@ -323,63 +323,168 @@ class Terminal {
     showHelp() {
         const helpLines = [
             '',
-            'NAME',
-            '    adrian-terminal - interactive command line interface',
+            '══════════════════════════════════════════════════════════════════════',
+            '    🧠 ADRIAN.TERMINAL - Advanced Interactive Command Interface',
+            '══════════════════════════════════════════════════════════════════════',
             '',
-            'COMMANDS',
-            '    about        show personal information',
-            '    actions      list GitHub Actions workflows',
-            '    cache        manage prompt cache [clear|stats]',
-            '    chat         enter interactive chat mode',
-            '    clear        clear terminal screen',
-            '    effects      particle effects system [matrix|stars|rain|fireflies|neural]',
-            '    help         display this help message',
-            '    ls           list directory contents',
-            '    magic        display daily Claude creativity',
-            '    matrix       toggle matrix rain effect',
-            '    monitor      system monitor (htop style)',
-            '    music        play background music [track]',
-            '    neofetch     display system information',
-            '    projects     show technical projects',
-            '    ps           show running processes',
+            'CORE COMMANDS',
+            '    help         display this comprehensive help',
+            '    about        personal information & background',
+            '    projects     technical projects & repositories',
+            '    skills       technical skills & expertise',
+            '    homestead    off-grid Tasmania setup details',
+            '    veritas      AI safety research platform',
+            '    whoami       current user information',
             '    pwd          print working directory',
-            '    research     stream research papers [personal|global]',
-            '    runs         show recent workflow runs',
-            '    skills       display technical skills',
-            '    speak        text-to-speech [text]',
-            '    stop         stop currently playing music',
-            '    tokens       show AI token statistics',
-            '    trigger      trigger GitHub Actions workflow',
+            '    ls           list directory contents',
+            '    clear        clear terminal screen',
             '    uptime       show system uptime',
-            '    voice        voice controls [on|off|status]',
-            '    volume       set music volume [0.0-1.0]',
-            '    weather      show Tasmania weather data',
-            '    whoami       show current user',
+            '    neofetch     display system information',
+            '    ps           show running processes',
             '',
-            'MUSIC TRACKS',
+            'AI & CHAT SYSTEM',
+            '    chat         enter interactive AI chat mode',
+            '    tokens       AI token usage statistics & analytics',
+            '    cache        manage prompt cache [clear|stats]',
+            '    magic        daily Claude creativity showcase',
+            '    speak        text-to-speech synthesis [text]',
+            '',
+            'VOICE INTERFACE 🎤',
+            '    voice        voice controls [on|off|status|rate|pitch|volume]',
+            '    Wake Words:  "Adrian", "Computer", "Terminal", "Hey Adrian"',
+            '    Commands:    "show help", "clear screen", "show projects"',
+            '    Usage:       Click "Enable Voice" → say wake word → speak command',
+            '    Features:    - Speech-to-text transcription',
+            '                 - Direct command execution',
+            '                 - Voice transcripts → terminal input',
+            '                 - Configurable voice synthesis',
+            '',
+            'AUDIO & VISUAL EFFECTS 🎵',
+            '    music        play background music [track]',
+            '    stop         stop currently playing music',
+            '    volume       set music volume [0.0-1.0]',
+            '    effects      particle effects [matrix|stars|rain|fireflies|neural]',
+            '    matrix       toggle matrix rain effect',
+            '',
+            'AVAILABLE MUSIC TRACKS',
             '    ambient      peaceful ambient drones',
-            '    cyberpunk    dark synthwave beats',
+            '    cyberpunk    dark synthwave beats', 
             '    mathematical algorithmic patterns with drums',
             '    matrix       digital rain sounds',
             '    synthwave    retro 80s synthesizer',
             '',
-            'NAVIGATION',
-            '    ↑/↓          command history',
+            'PARTICLE EFFECTS SYSTEM',
+            '    effects matrix on     - Start matrix digital rain',
+            '    effects stars         - Twinkling starfield',
+            '    effects rain          - Falling rain particles',
+            '    effects fireflies     - Organic floating lights',
+            '    effects neural        - Neural network visualization',
+            '    effects opacity 0.5   - Set effects transparency',
+            '    effects clear         - Stop all effects',
+            '',
+            'SYSTEM MONITORING 📊',
+            '    monitor      system monitor (htop/btop style)',
+            '    weather      Tasmania weather data (BOM API)',
+            '    actions      list GitHub Actions workflows',
+            '    runs         show recent workflow runs',
+            '    trigger      trigger GitHub Actions workflow',
+            '',
+            'ADVANCED FEATURES',
+            '    research     stream research papers [personal|global]',
+            '    theme        change terminal theme [default|cyberpunk|matrix]',
+            '    Tab          autocomplete commands (fuzzy matching)',
+            '    History:     ↑/↓ arrows navigate command history',
+            '    Search:      history search <term>',
+            '',
+            'KEYBOARD SHORTCUTS',
+            '    Tab          command autocomplete & cycling',
+            '    ↑/↓          command history navigation',
             '    Ctrl+C       exit chat/monitor mode',
+            '    Escape       return focus to terminal input',
             '    q            quit monitor mode',
+            '    Click        anywhere to focus input',
+            '',
+            'TERMINAL FEATURES',
+            '    • Authentic retro terminal scrolling (no scroll bars)',
+            '    • Desktop width constraint (max 1400px, centered)',
+            '    • Responsive design (mobile & desktop optimized)',
+            '    • WebGL audio visualizations with FFT analysis',
+            '    • Mathematical music synthesis & modulation',
+            '    • Real-time system monitoring with live data',
+            '    • Advanced AI integration with prompt caching',
+            '    • Persistent command history with search',
+            '    • Click-anywhere input focus management',
+            '    • Fuzzy command completion & suggestions',
+            '',
+            'AI INTEGRATION 🤖',
+            '    • Claude-powered chat with context awareness',
+            '    • Advanced prompt caching for efficiency',
+            '    • Token usage tracking & optimization',
+            '    • Voice recognition with wake word detection',
+            '    • Text-to-speech synthesis with voice controls',
+            '    • Real-time GitHub Actions integration',
+            '    • Daily automated content generation',
+            '',
+            'TECHNICAL ARCHITECTURE',
+            '    • ES6+ JavaScript with modern APIs',
+            '    • WebGL shaders for visual effects',
+            '    • Web Audio API for real-time synthesis',
+            '    • Canvas-based particle systems',
+            '    • CSS3 animations & responsive design',
+            '    • GitHub Actions CI/CD automation',
+            '    • RESTful API integrations (BOM, GitHub)',
+            '    • Local storage for persistent data',
+            '',
+            'USAGE EXAMPLES',
+            '    help                     - Show this help',
+            '    music cyberpunk          - Play cyberpunk beats',
+            '    effects matrix on        - Start matrix rain',
+            '    voice on                 - Enable voice recognition',
+            '    weather                  - Show Tasmania weather',
+            '    chat                     - Enter AI chat mode',
+            '    history search git       - Search command history',
+            '    cache stats              - Show prompt cache info',
+            '    monitor                  - Enter system monitor',
+            '',
+            'DEVELOPER INFO',
+            '    Repository:   github.com/adrianwedd/adrianwedd',
+            '    Technology:   Vanilla JS, WebGL, Web Audio API',
+            '    Deployment:   GitHub Pages with Actions automation',
+            '    Architecture: Client-side with API integrations',
+            '    Author:       Adrian Wedd (Recursive Systems Architect)',
+            '',
+            '══════════════════════════════════════════════════════════════════════',
+            '  Type any command above or explore with Tab completion! 🚀',
+            '══════════════════════════════════════════════════════════════════════',
             ''
         ];
         
         helpLines.forEach(line => {
-            if (line === 'NAME' || line === 'COMMANDS' || line === 'MUSIC TRACKS' || line === 'NAVIGATION') {
+            if (line.includes('══') || line.includes('🧠')) {
                 this.addOutput(line, 'section-header');
-            } else if (line.startsWith('    ') && line.includes(' ')) {
+            } else if (line.includes('COMMANDS') || line.includes('SYSTEM') || line.includes('VOICE') || 
+                      line.includes('AUDIO') || line.includes('TRACKS') || line.includes('EFFECTS') ||
+                      line.includes('MONITORING') || line.includes('FEATURES') || line.includes('SHORTCUTS') ||
+                      line.includes('INTEGRATION') || line.includes('ARCHITECTURE') || line.includes('EXAMPLES') ||
+                      line.includes('DEVELOPER')) {
+                this.addOutput(line, 'feature-highlight');
+            } else if (line.startsWith('    ') && line.includes(' ') && !line.includes('•')) {
                 // Format command lines with proper spacing
-                const parts = line.trim().split(/\s+/);
-                const command = parts[0];
-                const description = parts.slice(1).join(' ');
-                const formatted = `    ${command.padEnd(12)} ${description}`;
-                this.addOutput(formatted, 'command-line');
+                const trimmed = line.trim();
+                if (trimmed.includes('-')) {
+                    this.addOutput(line, 'ai-highlight');
+                } else {
+                    const parts = trimmed.split(/\s+/);
+                    const command = parts[0];
+                    const description = parts.slice(1).join(' ');
+                    const formatted = `    ${command.padEnd(15)} ${description}`;
+                    this.addOutput(formatted, 'command-line');
+                }
+            } else if (line.includes('•')) {
+                this.addOutput(line, 'success');
+            } else if (line.includes('Wake Words:') || line.includes('Commands:') || line.includes('Usage:') || 
+                      line.includes('Features:') || line.includes('Repository:') || line.includes('Technology:')) {
+                this.addOutput(line, 'philosophy');
             } else {
                 this.addOutput(line, 'info');
             }
