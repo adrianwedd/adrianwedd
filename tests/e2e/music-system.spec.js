@@ -1,5 +1,5 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Music System Functionality', () => {
   test.beforeEach(async ({ page }) => {
@@ -61,7 +61,7 @@ test.describe('Music System Functionality', () => {
 
     await terminalInput.fill('visualizer off');
     await terminalInput.press('Enter');
-    await expect(visualizerCanvas).not.toBeVisible();
+    await expect(visualizerCanvas).toBeHidden();
   });
 
   test('WebGL shader switching', async ({ page }) => {
@@ -127,8 +127,7 @@ test.describe('Music System Functionality', () => {
     await expect(musicPlayerStatus).toContainText('Music stopped');
 
     await terminalInput.fill('play ambient');
-    await terminalInput.press('Enter
-');
+    await terminalInput.press('Enter');
     await expect(musicPlayerStatus).toContainText('Now playing: Ambient');
 
     await terminalInput.fill('stop music');

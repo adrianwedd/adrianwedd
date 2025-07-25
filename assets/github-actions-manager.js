@@ -150,13 +150,15 @@ class GitHubActionsManager {
                     const subcommand = args[0] || 'list';
                     
                     switch (subcommand.toLowerCase()) {
-                        case 'list':
+                        case 'list': {
                             const workflows = await this.listWorkflows();
                             return this.formatWorkflowsList(workflows);
+                        }
                         
-                        case 'runs':
+                        case 'runs': {
                             const runs = await this.getWorkflowRuns();
                             return this.formatRunsList(runs);
+                        }
                         
                         case 'status':
                             return 'GitHub Actions integration: ' + (this.initialized ? 'Active ✅' : 'Initializing...');

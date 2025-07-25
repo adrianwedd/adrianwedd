@@ -301,7 +301,7 @@ test.describe('Terminal Basic Functionality', () => {
 
     // Check that older lines have the animation properties
     const oldLine = terminalOutput.locator('text=test-line-0');
-    await expect(oldLine).not.toBeVisible(); // Should be removed or hidden
+    await expect(oldLine).toBeHidden(); // Should be removed or hidden
 
     // Check a line that should still be visible but might have been animated
     const visibleLine = terminalOutput.locator('text=test-line-2');
@@ -329,5 +329,26 @@ test.describe('Terminal Basic Functionality', () => {
 
     // Expect input to remain focused
     await expect(terminalInput).toBeFocused();
+  });
+
+  test('Tab completion - fuzzy matching', async ({ page }) => {
+    const terminalInput = page.locator('#terminal-input');
+    const terminalOutput = page.locator('#terminal-output');
+
+    await terminalInput.fill('mon'); // Fuzzy match for 'monitor'
+    await terminalInput.press('Tab');
+    await expect(terminalInput).toHaveValue('monitor');
+    await expect(terminalOutput).not.toContainText('Tab completions:');
+
+    await terminalInput.fill('cl'); // Fuzzy match for 'clear' and 'chat'
+    await terminalInput.press('Tab');
+    await expect(terminalInput).toHaveValue('cache'); // Assuming 'cache' comes first alphabetically
+    await expect(terminalOutput).toContainText('Tab completions: cache, chat, clear');
+
+    await terminalInput.press('Tab');
+    await expect(terminalInput).toHaveValue('chat');
+
+    await terminalInput.press('Tab');
+    await expect(terminalInput).toHaveValue('clear');
   });
 });

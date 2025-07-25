@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/browser";
-import * as Tracing from "@sentry/tracing";
+// import * as Tracing from "@sentry/tracing"; // Unused import
 
 Sentry.init({
   dsn: "https://example.com/sentry-dsn", // Replace with your actual DSN
@@ -13,6 +13,10 @@ class Terminal {
     constructor() {
         this.commandHistory = [];
         this.historyIndex = -1;
+        this.maxHistorySize = 1000;
+        this.historySearchMode = false;
+        this.historySearchTerm = '';
+        this.filteredHistory = [];
         this.currentPath = '~';
         this.musicPlayer = new RetroMusicPlayer();
         this.inChatMode = false;
@@ -39,20 +43,52 @@ class Terminal {
         // Initialize GitHub Actions manager
         this.githubActionsManager = new GitHubActionsManager();
         
+        // Initialize particle effects system
+        this.particleEffects = new ParticleEffects();
+        
         // Matrix rain state
         this.matrixInterval = null;
         
         // Command completion state
         this.availableCommands = [
-            'about', 'actions', 'cache', 'chat', 'clear', 'gh-create', 'gh-list', 'gh-sync', 'help', 'homestead', 'ls', 'magic', 'matrix',
-            'monitor', 'music', 'neofetch', 'projects', 'ps', 'pwd', 'research', 'runs',
+            'about', 'actions', 'cache', 'chat', 'clear', 'effects', 'gh-create', 'gh-list', 'gh-sync', 'help', 'history', 'homestead', 'ls', 'magic', 'matrix',
+            'monitor', 'music', 'neofetch', 'particles', 'projects', 'ps', 'pwd', 'research', 'runs',
             'skills', 'speak', 'stop', 'tokens', 'trigger', 'uptime', 'veritas', 'voice',
-            'volume', 'weather', 'whoami'
+            'volume', 'weather', 'whoami', 'theme'
         ];
         this.completionIndex = -1;
         this.lastInput = '';
+        this.currentTheme = 'default'; // Default theme
         
         this.init();
+        this.loadHistoryFromStorage();
+    }
+
+    init() {
+        const input = document.getElementById('commandInput');
+        input.addEventListener('keydown', this.handleKeydown.bind(this));
+        
+        // Initialize chat
+        const chatInput = document.getElementById('chatInput');
+        chatInput.addEventListener('keydown', this.handleChatKeydown.bind(this));
+        
+        // Matrix rain effect
+        this.createMatrixRain();
+        
+        // Focus input
+        input.focus();
+
+        // Load AI responses from GitHub
+        this.loadAIResponses();
+        
+        // Initialize voice interface
+        this.initVoiceInterface();
+        
+        // Set up terminal-style input focus
+        this.setupTerminalFocus();
+
+        // Apply initial theme
+        this.applyTheme(this.currentTheme);
     }
 
     init() {
@@ -181,6 +217,16 @@ class Terminal {
             case 'weather':
                 this.showWeather();
                 break;
+            case 'theme':
+                this.handleThemeCommand(args);
+                break;
+            case 'effects':
+            case 'particles':
+                this.handleParticleEffects(parts.slice(1));
+                break;
+            case 'history':
+                this.showHistory(parts.slice(1));
+                break;
             case 'actions':
                 this.handleActionsCommand(parts.slice(1));
                 break;
@@ -210,6 +256,9 @@ class Terminal {
                 break;
             case 'volume':
                 this.setVolume(args[0]);
+                break;
+            case 'shader':
+                this.setShader(args[0]);
                 break;
             case 'tokens':
                 this.showTokenStats();
@@ -262,8 +311,14 @@ class Terminal {
             }
         }
         
-        const promptLine = terminal.querySelector('.prompt-line');
-        terminal.insertBefore(output, promptLine);
+        const terminalContent = terminal.querySelector('.terminal-content');
+        if (terminalContent) {
+            terminalContent.appendChild(output);
+        } else {
+            // Fallback for backwards compatibility
+            const promptLine = terminal.querySelector('.prompt-line');
+            terminal.insertBefore(output, promptLine);
+        }
         
         // Animate the scroll effect
         this.animateTerminalScroll();
@@ -301,6 +356,7 @@ class Terminal {
             '    cache        manage prompt cache [clear|stats]',
             '    chat         enter interactive chat mode',
             '    clear        clear terminal screen',
+            '    effects      particle effects system [matrix|stars|rain|fireflies|neural]',
             '    help         display this help message',
             '    ls           list directory contents',
             '    magic        display daily Claude creativity',
@@ -653,6 +709,184 @@ Current focus: Deep work mode - VERITAS research
         }
     }
 
+    handleParticleEffects(args) {
+        if (args.length === 0) {
+            this.addOutput('🎨 PARTICLE EFFECTS SYSTEM', 'success');
+            this.addOutput('', 'info');
+            this.addOutput('Available effects:', 'feature-highlight');
+            
+            const effects = this.particleEffects.getAvailableEffects();
+            effects.forEach(effect => {
+                const status = this.particleEffects.effects[effect].active ? '✅ active' : '❌ inactive';
+                this.addOutput(`   ${effect.padEnd(12)} ${status}`, 'info');
+            });
+            
+            this.addOutput('', 'info');
+            this.addOutput('Usage:', 'feature-highlight');
+            this.addOutput('   effects <effect> [on|off]  - Toggle or set effect state', 'info');
+            this.addOutput('   effects opacity <0.0-1.0>  - Set effects opacity', 'info');
+            this.addOutput('   effects clear              - Stop all effects', 'info');
+            this.addOutput('', 'info');
+            this.addOutput('Examples:', 'feature-highlight');
+            this.addOutput('   effects matrix on          - Start matrix rain', 'ai-highlight');
+            this.addOutput('   effects fireflies          - Toggle fireflies', 'ai-highlight');
+            this.addOutput('   effects neural on          - Start neural network', 'ai-highlight');
+            this.addOutput('   effects stars rain         - Multiple effects', 'ai-highlight');
+            this.addOutput('   effects opacity 0.3        - Set to 30% opacity', 'ai-highlight');
+            
+            return;
+        }
+
+        const command = args[0].toLowerCase();
+        
+        if (command === 'clear' || command === 'stop') {
+            this.particleEffects.getAvailableEffects().forEach(effect => {
+                this.particleEffects.stopEffect(effect);
+            });
+            this.addOutput('✨ All particle effects stopped', 'success');
+            return;
+        }
+        
+        if (command === 'opacity') {
+            const opacity = parseFloat(args[1]);
+            if (isNaN(opacity) || opacity < 0 || opacity > 1) {
+                this.addOutput('❌ Invalid opacity value. Use 0.0 to 1.0', 'error');
+                return;
+            }
+            
+            this.particleEffects.setOpacity(opacity);
+            this.addOutput(`🎨 Effects opacity set to ${Math.round(opacity * 100)}%`, 'success');
+            return;
+        }
+        
+        // Handle effect commands
+        const availableEffects = this.particleEffects.getAvailableEffects();
+        
+        for (const arg of args) {
+            const effectName = arg.toLowerCase();
+            const isToggleOff = args.includes('off') || args.includes('stop');
+            const isToggleOn = args.includes('on') || args.includes('start');
+            
+            if (availableEffects.includes(effectName)) {
+                if (isToggleOff) {
+                    this.particleEffects.stopEffect(effectName);
+                    this.addOutput(`❌ ${effectName} effect stopped`, 'info');
+                } else if (isToggleOn || args.length === 1) {
+                    // Set effect-specific options
+                    const options = this.getEffectOptions(effectName);
+                    this.particleEffects.startEffect(effectName, options);
+                    this.addOutput(`✨ ${effectName} effect started`, 'success');
+                } else {
+                    // Toggle effect
+                    this.particleEffects.toggleEffect(effectName);
+                    const isActive = this.particleEffects.effects[effectName].active;
+                    this.addOutput(`${isActive ? '✨' : '❌'} ${effectName} effect ${isActive ? 'started' : 'stopped'}`, 
+                                 isActive ? 'success' : 'info');
+                }
+            }
+        }
+        
+        // Handle unknown effects
+        const unknownEffects = args.filter(arg => 
+            !availableEffects.includes(arg.toLowerCase()) && 
+            !['on', 'off', 'start', 'stop'].includes(arg.toLowerCase())
+        );
+        
+        if (unknownEffects.length > 0) {
+            this.addOutput(`❌ Unknown effects: ${unknownEffects.join(', ')}`, 'error');
+            this.addOutput(`Available: ${availableEffects.join(', ')}`, 'info');
+        }
+    }
+
+    getEffectOptions(effectName) {
+        const options = {};
+        
+        switch (effectName) {
+            case 'matrix':
+                options.intensity = 0.4;
+                options.speed = 1.2;
+                break;
+            case 'stars':
+                options.count = 150;
+                options.speed = 0.8;
+                break;
+            case 'rain':
+                options.intensity = 0.2;
+                break;
+            case 'fireflies':
+                options.count = 20;
+                break;
+            case 'neural':
+                options.nodeCount = 25;
+                options.connectionDistance = 120;
+                break;
+        }
+        
+        return options;
+    }
+
+    showHistory(args) {
+        const [command, ...params] = args;
+        
+        if (!command) {
+            this.addOutput('📜 COMMAND HISTORY', 'success');
+            this.addOutput('', 'info');
+            
+            if (this.commandHistory.length === 0) {
+                this.addOutput('No commands in history.', 'info');
+                return;
+            }
+            
+            const recent = this.commandHistory.slice(-20);
+            recent.forEach((cmd, index) => {
+                const actualIndex = this.commandHistory.length - recent.length + index;
+                this.addOutput(`${String(actualIndex + 1).padStart(4)}: ${cmd}`, 'info');
+            });
+            
+            this.addOutput('', 'info');
+            this.addOutput(`Showing last 20 of ${this.commandHistory.length} commands`, 'info');
+            this.addOutput('Use: history clear, history search <term>', 'feature-highlight');
+            return;
+        }
+        
+        switch (command.toLowerCase()) {
+            case 'clear':
+                this.commandHistory = [];
+                this.historyIndex = -1;
+                this.saveHistoryToStorage();
+                this.addOutput('✨ Command history cleared', 'success');
+                break;
+                
+            case 'search': {
+                const searchTerm = params.join(' ');
+                if (!searchTerm) {
+                    this.addOutput('❌ Please provide a search term', 'error');
+                    return;
+                }
+                
+                const matches = this.commandHistory.filter(cmd => 
+                    cmd.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                
+                if (matches.length === 0) {
+                    this.addOutput(`🔍 No commands found containing: ${searchTerm}`, 'info');
+                } else {
+                    this.addOutput(`🔍 Found ${matches.length} commands containing: ${searchTerm}`, 'success');
+                    this.addOutput('', 'info');
+                    matches.slice(-10).forEach(cmd => {
+                        const index = this.commandHistory.lastIndexOf(cmd);
+                        this.addOutput(`${String(index + 1).padStart(4)}: ${cmd}`, 'ai-highlight');
+                    });
+                }
+                break;
+            }
+                
+            default:
+                this.addOutput('❌ Unknown history command', 'error');
+                this.addOutput('Available: clear, search <term>', 'info');
+        }
+    }
+
     async showWeather() {
         try {
             // Try to load current weather data
@@ -864,22 +1098,21 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
     clearTerminal() {
         const terminal = document.getElementById('terminal');
-        const retro = terminal.querySelector('.retro-header');
-        const bootSequence = terminal.querySelector('.boot-sequence');
-        const promptLine = terminal.querySelector('.prompt-line');
+        const terminalContent = terminal.querySelector('.terminal-content');
+        // const promptLine = terminal.querySelector('.prompt-line'); // Unused variable
         
         // Clear terminal lines array
         this.terminalLines = [];
         
-        // Remove all output lines
-        const outputs = terminal.querySelectorAll('.output-line');
-        outputs.forEach(output => output.remove());
-        
-        // Keep header, boot sequence, and prompt
-        terminal.innerHTML = '';
-        if (retro) terminal.appendChild(retro);
-        if (bootSequence) terminal.appendChild(bootSequence);
-        if (promptLine) terminal.appendChild(promptLine);
+        // Remove all output lines from terminal content
+        if (terminalContent) {
+            const outputs = terminalContent.querySelectorAll('.output-line');
+            outputs.forEach(output => output.remove());
+        } else {
+            // Fallback: remove all output lines from terminal
+            const outputs = terminal.querySelectorAll('.output-line');
+            outputs.forEach(output => output.remove());
+        }
     }
 
     scrollToBottom() {
@@ -1126,6 +1359,15 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         this.addOutput(`🔊 Volume set to ${Math.round(volume * 100)}%`, 'success');
     }
 
+    setShader(shaderName) {
+        if (!shaderName) {
+            this.addOutput('Usage: shader <spectrum|waveform|cyberpunk|minimal|particles>', 'error');
+            return;
+        }
+        this.musicPlayer.visualizer.switchShader(shaderName);
+        this.addOutput(`🎨 Switched shader to: ${shaderName}`, 'success');
+    }
+
     // System Monitor Methods
     async enterMonitorMode() {
         this.addOutput('', 'info');
@@ -1193,8 +1435,14 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         const outputElement = document.createElement('div');
         outputElement.className = 'output-line chat-ai';
         
-        const promptLine = terminal.querySelector('.prompt-line');
-        terminal.insertBefore(outputElement, promptLine);
+        const terminalContent = terminal.querySelector('.terminal-content');
+        if (terminalContent) {
+            terminalContent.appendChild(outputElement);
+        } else {
+            // Fallback for backwards compatibility
+            const promptLine = terminal.querySelector('.prompt-line');
+            terminal.insertBefore(outputElement, promptLine);
+        }
         
         // Stream the response with typing effect
         const profile = this.textStreamer.getTypingProfile('chat');
@@ -1682,6 +1930,22 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         }
     }
 
+    // Fuzzy matching utility
+    fuzzyMatch(pattern, text) {
+        const p = pattern.toLowerCase();
+        const t = text.toLowerCase();
+        let tIndex = 0;
+        for (let i = 0; i < p.length; i++) {
+            const char = p[i];
+            const found = t.indexOf(char, tIndex);
+            if (found === -1) {
+                return false;
+            }
+            tIndex = found + 1;
+        }
+        return true;
+    }
+
     // Tab completion methods
     handleTabCompletion(input) {
         const currentValue = input.value;
@@ -1691,8 +1955,8 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         // Only complete the first word (command)
         if (words.length === 1) {
             const matches = this.availableCommands.filter(cmd => 
-                cmd.startsWith(lastWord.toLowerCase())
-            );
+                this.fuzzyMatch(lastWord, cmd)
+            ).sort(); // Sort to ensure consistent cycling
             
             if (matches.length === 0) return;
             
@@ -1731,14 +1995,50 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             this.addOutput(`Tab completions: ${matches.join(', ')}`, 'info');
         }
     }
+
+    handleThemeCommand(args) {
+        if (args.length === 0) {
+            this.addOutput('🎨 TERMINAL THEMES', 'success');
+            this.addOutput('', 'info');
+            this.addOutput('Available themes:', 'feature-highlight');
+            this.addOutput('   • default', 'info');
+            this.addOutput('   • dark-mode', 'info');
+            this.addOutput('   • light-mode', 'info');
+            this.addOutput('   • cyberpunk', 'info');
+            this.addOutput('   • matrix', 'info');
+            this.addOutput('', 'info');
+            this.addOutput('Usage: theme <theme-name>', 'feature-highlight');
+            return;
+        }
+
+        const themeName = args[0].toLowerCase();
+        const availableThemes = ['default', 'dark-mode', 'light-mode', 'cyberpunk', 'matrix'];
+
+        if (availableThemes.includes(themeName)) {
+            this.applyTheme(themeName);
+            this.addOutput(`🎨 Theme set to: ${themeName}`, 'success');
+        } else {
+            this.addOutput(`❌ Unknown theme: ${themeName}`, 'error');
+            this.addOutput(`Available themes: ${availableThemes.join(', ')}`, 'info');
+        }
+    }
+
+    applyTheme(themeName) {
+        const body = document.body;
+        // Remove all existing theme classes
+        body.className = body.className.split(' ').filter(c => !c.startsWith('theme-')).join(' ');
+        // Add the new theme class
+        body.classList.add(`theme-${themeName}`);
+        this.currentTheme = themeName;
+    }
 }
 
-function closeChat() {
+function closeChat() { // eslint-disable-line no-unused-vars
     document.getElementById('chatInterface').style.display = 'none';
     document.getElementById('commandInput').focus();
 }
 
-function sendMessage() {
+function sendMessage() { // eslint-disable-line no-unused-vars
     terminal.sendMessage();
 }
 

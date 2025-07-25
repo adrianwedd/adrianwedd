@@ -1,23 +1,20 @@
 module.exports = {
   extends: 'stylelint-config-standard',
   rules: {
-    'indentation': 2,
-    'string-quotes': 'single',
-    'color-hex-case': 'lower',
-    'color-hex-length': 'short',
-    'declaration-block-trailing-semicolon': 'always',
+    // Disable problematic rules for our retro terminal theme
+    'no-descending-specificity': null,
+    'no-duplicate-selectors': null,
+    'keyframes-name-pattern': null,
+    'declaration-block-single-line-max-declarations': null,
+    'alpha-value-notation': null,
+    'color-function-notation': null,
+    'media-feature-range-notation': null,
     'rule-empty-line-before': [
       'always',
       {
-        ignore: ['after-comment', 'first-nested'],
+        except: ['first-nested'],
+        ignore: ['after-comment']
       },
     ],
-    'at-rule-empty-line-before': [
-      'always',
-      {
-        ignore: ['after-comment', 'first-nested'],
-      },
-    ],
-    // Add custom rules for retro theme color palette validation if needed
   },
 };

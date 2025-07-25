@@ -181,6 +181,66 @@ class AudioVisualizer {
                     
                     gl_FragColor = vec4(color, circle * 0.7);
                 }
+            `,
+            particles: `
+                precision mediump float;
+                uniform float iTime;
+                uniform vec2 iResolution;
+                uniform float iFFT[128];
+                varying vec2 fragCoord;
+
+                // Hash function from https://www.shadertoy.com/view/4djSRW
+                float hash(float n) { return fract(sin(n) * 43758.5453123); }
+
+                void main() {
+                    vec2 uv = fragCoord;
+                    vec3 finalColor = vec3(0.0);
+
+                    for (int i = 0; i < 20; ++i) {
+                        float seed = float(i) * 0.1 + hash(uv.x + uv.y + float(i));
+                        vec2 p = uv + vec2(sin(iTime * 0.5 + seed * 10.0), cos(iTime * 0.7 + seed * 12.0)) * 0.1;
+                        p += vec2(hash(seed * 2.0) - 0.5, hash(seed * 3.0) - 0.5) * 0.5;
+
+                        float dist = length(p - uv);
+                        float alpha = smoothstep(0.05, 0.0, dist);
+
+                        // Color based on audio and time
+                        float audioInfluence = iFFT[int(mod(seed * 100.0, 128.0))] * 0.5;
+                        vec3 particleColor = vec3(0.8 + audioInfluence, 0.2, 1.0 - audioInfluence);
+
+                        finalColor += particleColor * alpha;
+                    }
+
+                    gl_FragColor = vec4(finalColor, 1.0);
+                }
+            `,
+            procedural: `
+                precision mediump float;
+                uniform float iTime;
+                uniform vec2 iResolution;
+                uniform float iFFT[128];
+                varying vec2 fragCoord;
+
+                void main() {
+                    vec2 uv = fragCoord;
+                    vec2 p = uv - 0.5;
+                    p.x *= iResolution.x / iResolution.y; // Aspect ratio correction
+
+                    float audio = iFFT[int(uv.x * 128.0)];
+
+                    // Simple procedural pattern based on sine waves and audio
+                    float color1 = sin(p.x * 20.0 + iTime * 0.5 + audio * 5.0);
+                    float color2 = cos(p.y * 20.0 + iTime * 0.7 + audio * 3.0);
+                    float color3 = sin(length(p) * 30.0 - iTime * 1.0 + audio * 8.0);
+
+                    vec3 finalColor = vec3(color1, color2, color3) * 0.5 + 0.5;
+
+                    // Add a subtle glow based on audio
+                    float glow = audio * 2.0;
+                    finalColor += glow * vec3(0.1, 0.5, 0.8);
+
+                    gl_FragColor = vec4(finalColor, 1.0);
+                }
             `
         };
 

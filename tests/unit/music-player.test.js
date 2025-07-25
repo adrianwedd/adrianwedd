@@ -1,5 +1,5 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('Music Player Unit Tests', () => {
   test.beforeEach(async ({ page }) => {
@@ -44,7 +44,7 @@ test.describe('Music Player Unit Tests', () => {
 
     await terminalInput.fill('visualizer off');
     await terminalInput.press('Enter');
-    await expect(visualizerCanvas).not.toBeVisible();
+    await expect(visualizerCanvas).toBeHidden();
   });
 
   test('should switch WebGL shaders', async ({ page }) => {

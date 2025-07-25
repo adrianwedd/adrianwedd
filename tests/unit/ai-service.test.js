@@ -1,5 +1,5 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('AI Service Unit Tests', () => {
   // Mock the fetch API for all tests in this describe block

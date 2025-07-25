@@ -38,7 +38,10 @@ export default [
                 AIService: 'readonly',
                 MarkdownLoader: 'readonly',
                 VoiceInterface: 'readonly',
-                AudioVisualizer: 'readonly'
+                AudioVisualizer: 'readonly',
+                GitHubTaskManager: 'readonly',
+                GitHubActionsManager: 'readonly',
+                ParticleEffects: 'readonly'
             }
         },
         rules: {

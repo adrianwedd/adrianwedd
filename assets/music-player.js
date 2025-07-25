@@ -9,7 +9,8 @@ class RetroMusicPlayer {
             'ambient': this.createAmbientTrack.bind(this),
             'synthwave': this.createSynthwaveTrack.bind(this),
             'matrix': this.createMatrixTrack.bind(this),
-            'mathematical': this.createMathematicalTrack.bind(this)
+            'mathematical': this.createMathematicalTrack.bind(this),
+            'procedural': this.createProceduralTrack.bind(this)
         };
         this.oscillators = [];
         this.gainNodes = [];
@@ -67,7 +68,9 @@ class RetroMusicPlayer {
                     'matrix': 'cyberpunk',
                     'synthwave': 'spectrum',
                     'ambient': 'minimal',
-                    'mathematical': 'waveform'
+                    'mathematical': 'waveform',
+                    'particles': 'particles',
+                    'procedural': 'procedural'
                 };
                 this.visualizer.switchShader(shaderMap[trackName] || 'spectrum');
                 this.visualizer.start();
@@ -426,6 +429,58 @@ class RetroMusicPlayer {
                 this.createMathematicalTrack();
             }
         }, fibonacci.length * beat * 1000);
+    }
+
+    createProceduralTrack() {
+        // Simple procedural track with evolving patterns
+        const baseFreq = 110; // A2
+        const scale = [0, 2, 4, 5, 7, 9, 11, 12]; // Major scale intervals
+
+        let currentNoteIndex = 0;
+        let direction = 1;
+
+        const playNote = () => {
+            if (!this.isPlaying) return;
+
+            const interval = scale[currentNoteIndex];
+            const freq = baseFreq * Math.pow(2, interval / 12);
+
+            const { oscillator, gainNode } = this.createOscillator(freq, 'sine', 0.5);
+            gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+            oscillator.start();
+
+            currentNoteIndex += direction;
+            if (currentNoteIndex >= scale.length - 1 || currentNoteIndex <= 0) {
+                direction *= -1; // Reverse direction at ends of scale
+            }
+
+            setTimeout(playNote, 500); // Play a note every 500ms
+        };
+
+        playNote();
+
+        // Add a simple evolving drone
+        const droneFreq = 55; // A1
+        const { oscillator: droneOsc, gainNode: droneGain } = this.createOscillator(droneFreq, 'sawtooth');
+        droneGain.gain.setValueAtTime(0.02, this.audioContext.currentTime);
+        droneOsc.start();
+
+        // Modulate drone frequency slowly
+        const lfo = this.audioContext.createOscillator();
+        const lfoGain = this.audioContext.createGain();
+        lfo.frequency.setValueAtTime(0.05, this.audioContext.currentTime); // Very slow LFO
+        lfoGain.gain.setValueAtTime(5, this.audioContext.currentTime); // Small frequency shift
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(droneOsc.frequency);
+        lfo.start();
+
+        // Schedule next loop
+        setTimeout(() => {
+            if (this.isPlaying && this.currentTrack === 'procedural') {
+                this.createProceduralTrack();
+            }
+        }, 10000);
     }
 
     createDrumPattern(beat) {
