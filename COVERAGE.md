@@ -21,7 +21,7 @@
 | ai-service.js | 0% | 0% | 0% | 0% | 🔴 No tests |
 | audio-visualizer.js | 0% | 0% | 0% | 0% | 🔴 No tests |
 | github-actions-manager.js | 0% | 0% | 0% | 0% | 🔴 No tests |
-| github-task-manager.js | 0% | 0% | 0% | 0% | 🔴 No tests |
+| github-task-manager.js | 0% | 0% | 0% | 0% | ✅ 51 unit tests |
 | markdown-loader.js | 0% | 0% | 0% | 0% | 🔴 No tests |
 | music-player.js | 0% | 0% | 0% | 0% | 🔴 No tests |
 | particle-effects.js | 0% | 0% | 0% | 0% | 🔴 No tests |
@@ -29,7 +29,7 @@
 | research-streamer.js | 0% | 0% | 0% | 0% | 🔴 No tests |
 | rich-effects.js | 0% | 0% | 0% | 0% | 🔴 No tests |
 | system-monitor.js | 0% | 0% | 0% | 0% | 🔴 No tests |
-| terminal.js | 0% | 0% | 0% | 0% | 🔴 No tests |
+| terminal.js | 0% | 0% | 0% | 0% | ✅ 45 unit tests |
 | text-streamer.js | 0% | 0% | 0% | 0% | 🔴 No tests |
 | voice-interface.js | 0% | 0% | 0% | 0% | 🔴 No tests |
 
@@ -42,8 +42,8 @@
 - [x] Baseline measurement established
 
 ### Phase 2: Core Module Testing (🚧 In Progress)
-- [ ] Terminal.js core functionality (>90% target)
-- [ ] GitHubTaskManager class (>95% target)
+- [x] Terminal.js core functionality (>90% target) - ✅ **45 tests passing**
+- [x] GitHubTaskManager class (>95% target) - ✅ **51 tests passing**
 - [ ] AI service integration (>85% target)
 - [ ] System monitor functionality (>80% target)
 

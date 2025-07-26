@@ -235,7 +235,13 @@ class Terminal {
                 this.enterMonitorMode();
                 break;
             case 'split':
-                this.enterSplitMode();
+                // Check if user is on mobile device
+                if (window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    this.addOutput('⚠ Split screen is disabled on mobile devices for better experience', 'warning');
+                    this.addOutput('Try using "monitor" for system monitoring instead', 'info');
+                } else {
+                    this.enterSplitMode();
+                }
                 break;
             case 'boot':
             case 'reboot':
@@ -438,7 +444,7 @@ class Terminal {
             '',
             'SYSTEM MONITORING 📊',
             '    monitor      system monitor (htop/btop style)',
-            '    split        terminal + monitor split screen',
+            '    split        terminal + monitor split screen (desktop only)',
             '    weather      Tasmania weather data (BOM API)',
             '    actions      list GitHub Actions workflows',
             '    runs         show recent workflow runs',
@@ -512,12 +518,12 @@ class Terminal {
             '    task create "Fix bug" high bug - Create high-priority bug issue',
             '    task list open "priority: high" - List high-priority open issues',
             '',
-            'DEVELOPER INFO',
-            '    Repository:   github.com/adrianwedd/adrianwedd',
-            '    Technology:   Vanilla JS, WebGL, Web Audio API',
-            '    Deployment:   GitHub Pages with Actions automation',
-            '    Architecture: Client-side with API integrations',
-            '    Author:       Adrian Wedd (Recursive Systems Architect)',
+            '🛠 TECHNICAL DETAILS',
+            '    Repository:   https://github.com/adrianwedd/adrianwedd',
+            '    Technology:   Vanilla JS, WebGL, Web Audio API, WebRTC',
+            '    Deployment:   GitHub Pages with automated CI/CD',
+            '    Architecture: Client-side progressive web app',
+            '    Author:       Adrian Wedd (Systems Architect & Off-Grid Permanaut)',
             '',
             '══════════════════════════════════════════════════════════════════════',
             '  Type any command above or explore with Tab completion! 🚀',
@@ -532,7 +538,7 @@ class Terminal {
                       line.includes('AUDIO') || line.includes('TRACKS') || line.includes('EFFECTS') ||
                       line.includes('MONITORING') || line.includes('FEATURES') || line.includes('SHORTCUTS') ||
                       line.includes('INTEGRATION') || line.includes('ARCHITECTURE') || line.includes('EXAMPLES') ||
-                      line.includes('DEVELOPER')) {
+                      line.includes('TECHNICAL DETAILS')) {
                 this.addOutput(line, 'feature-highlight');
             } else if (line.startsWith('    ') && line.includes(' ') && !line.includes('•')) {
                 // Format command lines with proper spacing
