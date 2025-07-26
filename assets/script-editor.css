@@ -1,0 +1,358 @@
+/* Script Editor Styles */
+.script-editor {
+    position: fixed;
+    top: 5%;
+    left: 5%;
+    right: 5%;
+    bottom: 5%;
+    z-index: 1000;
+    background: #0d1117;
+    border: 2px solid #30363d;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+}
+
+/* Editor Header */
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #21262d;
+    border-bottom: 1px solid #30363d;
+    border-radius: 6px 6px 0 0;
+}
+
+.editor-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.title-text {
+    color: #58a6ff;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.script-name {
+    color: #f0f6fc;
+    background: #30363d;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.editor-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.editor-btn {
+    background: #238636;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s;
+}
+
+.editor-btn:hover {
+    background: #2ea043;
+}
+
+.editor-btn:active {
+    background: #1a7f37;
+}
+
+/* Save button */
+.editor-btn:nth-child(1) {
+    background: #1f6feb;
+}
+
+.editor-btn:nth-child(1):hover {
+    background: #388bfd;
+}
+
+/* Run button */
+.editor-btn:nth-child(2) {
+    background: #da3633;
+}
+
+.editor-btn:nth-child(2):hover {
+    background: #f85149;
+}
+
+/* Close button */
+.editor-btn:last-child {
+    background: #6e7681;
+}
+
+.editor-btn:last-child:hover {
+    background: #8b949e;
+}
+
+/* Editor Content */
+.editor-content {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+}
+
+.editor-sidebar {
+    width: 60px;
+    background: #161b22;
+    border-right: 1px solid #30363d;
+    overflow: hidden;
+}
+
+.line-numbers {
+    padding: 16px 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #6e7681;
+    text-align: right;
+    user-select: none;
+    overflow: hidden;
+    height: 100%;
+}
+
+.line-number {
+    height: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.editor-main {
+    flex: 1;
+    position: relative;
+}
+
+.script-textarea {
+    width: 100%;
+    height: 100%;
+    background: #0d1117;
+    color: #f0f6fc;
+    border: none;
+    outline: none;
+    padding: 16px;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: none;
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: auto;
+    tab-size: 4;
+}
+
+.script-textarea::placeholder {
+    color: #6e7681;
+    opacity: 0.8;
+}
+
+.script-textarea:focus {
+    background: #0d1117;
+}
+
+/* Syntax highlighting (basic) */
+.script-textarea {
+    /* This would be enhanced with proper syntax highlighting */
+    caret-color: #58a6ff;
+}
+
+/* Status Bar */
+.editor-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: #161b22;
+    border-top: 1px solid #30363d;
+    font-size: 12px;
+    color: #8b949e;
+}
+
+.status-item {
+    margin-right: 16px;
+}
+
+.status-item:last-child {
+    margin-right: 0;
+}
+
+.status-help {
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .script-editor {
+        top: 2%;
+        left: 2%;
+        right: 2%;
+        bottom: 2%;
+    }
+    
+    .editor-header {
+        flex-direction: column;
+        gap: 12px;
+        padding: 8px 12px;
+    }
+    
+    .editor-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .editor-btn {
+        flex: 1;
+        margin: 0 2px;
+        font-size: 10px;
+        padding: 4px 6px;
+    }
+    
+    .editor-sidebar {
+        width: 40px;
+    }
+    
+    .line-numbers {
+        padding: 16px 4px;
+        font-size: 11px;
+    }
+    
+    .script-textarea {
+        font-size: 12px;
+        padding: 12px;
+    }
+    
+    .editor-status-bar {
+        flex-direction: column;
+        gap: 4px;
+        align-items: flex-start;
+    }
+    
+    .status-help {
+        font-size: 10px;
+    }
+}
+
+/* Dark theme enhancements */
+.script-editor {
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+}
+
+/* Selection highlighting */
+.script-textarea::selection {
+    background: #264f78;
+}
+
+.script-textarea::-moz-selection {
+    background: #264f78;
+}
+
+/* Scrollbar styling */
+.script-textarea::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.script-textarea::-webkit-scrollbar-track {
+    background: #161b22;
+}
+
+.script-textarea::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 6px;
+}
+
+.script-textarea::-webkit-scrollbar-thumb:hover {
+    background: #484f58;
+}
+
+.line-numbers::-webkit-scrollbar {
+    width: 8px;
+}
+
+.line-numbers::-webkit-scrollbar-track {
+    background: #161b22;
+}
+
+.line-numbers::-webkit-scrollbar-thumb {
+    background: #30363d;
+    border-radius: 4px;
+}
+
+/* Animation for editor opening */
+.script-editor {
+    animation: editorSlideIn 0.3s ease-out;
+}
+
+@keyframes editorSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Focus indicators for accessibility */
+.editor-btn:focus {
+    outline: 2px solid #58a6ff;
+    outline-offset: 2px;
+}
+
+.script-textarea:focus {
+    box-shadow: inset 0 0 0 2px #58a6ff;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .script-editor {
+        border-color: #ffffff;
+        background: #000000;
+    }
+    
+    .editor-header {
+        background: #1a1a1a;
+        border-bottom-color: #ffffff;
+    }
+    
+    .script-textarea {
+        background: #000000;
+        color: #ffffff;
+    }
+    
+    .line-numbers {
+        background: #1a1a1a;
+        color: #ffffff;
+        border-right-color: #ffffff;
+    }
+    
+    .editor-status-bar {
+        background: #1a1a1a;
+        border-top-color: #ffffff;
+        color: #ffffff;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .script-editor {
+        animation: none;
+    }
+    
+    .editor-btn {
+        transition: none;
+    }
+}

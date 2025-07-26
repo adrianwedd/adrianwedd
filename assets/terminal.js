@@ -46,13 +46,17 @@ class Terminal {
         this.researchStreamer = null;
         this.initResearchStreamer();
         
+        // Initialize scripting engine and editor
+        this.scriptEngine = new window.ScriptEngine(this);
+        this.scriptEditor = new window.ScriptEditor(this, this.scriptEngine);
+        
         // Matrix rain state
         this.matrixInterval = null;
         
         // Command completion state
         this.availableCommands = [
-            'about', 'actions', 'adrian', 'boot', 'cache', 'cat', 'chat', 'clear', 'effects', 'gemini', 'gh-create', 'gh-list', 'gh-sync', 'grep', 'help', 'history', 'home', 'ls', 'magic', 'matrix',
-            'monitor', 'music', 'neofetch', 'particles', 'projects', 'ps', 'pwd', 'reboot', 'research', 'runs',
+            'about', 'actions', 'adrian', 'boot', 'cache', 'cat', 'chat', 'clear', 'edit', 'effects', 'exec', 'gemini', 'gh-create', 'gh-list', 'gh-sync', 'grep', 'help', 'history', 'home', 'ls', 'magic', 'matrix',
+            'monitor', 'music', 'neofetch', 'particles', 'projects', 'ps', 'pwd', 'reboot', 'research', 'runs', 'script',
             'skills', 'speak', 'split', 'stop', 'tail', 'tokens', 'trigger', 'uptime', 'veritas', 'voice',
             'volume', 'weather', 'whoami', 'theme'
         ];
@@ -279,8 +283,14 @@ class Terminal {
             case 'research':
                 this.handleResearchCommand(args);
                 break;
-            case 'theme':
-                this.handleThemeCommand(args);
+            case 'script':
+                this.handleScriptCommand(args);
+                break;
+            case 'edit':
+                this.handleEditCommand(args);
+                break;
+            case 'exec':
+                this.handleExecCommand(args);
                 break;
             case 'grep':
                 this.handleGrepCommand(args);
@@ -458,6 +468,26 @@ class Terminal {
             '    task close   close issue with completion comment',
             '    task show    display detailed issue information',
             '    task sync    sync todo system with GitHub issues',
+            '',
+            'SCRIPTING & AUTOMATION 📜',
+            '    script       script management system',
+            '    script list  list all available scripts',
+            '    script create <name>     create new script',
+            '    script run <name> [args] execute script with arguments',
+            '    script edit <name>       edit script in built-in editor',
+            '    script show <name>       display script content',
+            '    script delete <name>     remove script',
+            '    script debug [on|off]    toggle debug mode',
+            '    script status            show engine statistics',
+            '    edit [name]  open script editor (with optional script)',
+            '    exec <name> [args]       execute script (shorthand)',
+            '',
+            'SCRIPT LANGUAGE FEATURES',
+            '    • Variables: set var value, get var, $var, ${var}',
+            '    • Control flow: for loops, while loops, if conditions',
+            '    • Functions: echo, wait, repeat, custom functions',
+            '    • Comments: # prefix for line comments',
+            '    • All terminal commands accessible in scripts',
             '',
             'ADVANCED FEATURES',
             '    research     stream research papers [personal|global]',
@@ -2917,33 +2947,6 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         }
     }
 
-    handleThemeCommand(args) {
-        if (args.length === 0) {
-            this.addOutput('🎨 TERMINAL THEMES', 'success');
-            this.addOutput('', 'info');
-            this.addOutput('Available themes:', 'feature-highlight');
-            this.addOutput('   • default', 'info');
-            this.addOutput('   • dark-mode', 'info');
-            this.addOutput('   • light-mode', 'info');
-            this.addOutput('   • cyberpunk', 'info');
-            this.addOutput('   • matrix', 'info');
-            this.addOutput('', 'info');
-            this.addOutput('Usage: theme <theme-name>', 'feature-highlight');
-            return;
-        }
-
-        const themeName = args[0].toLowerCase();
-        const availableThemes = ['default', 'dark-mode', 'light-mode', 'cyberpunk', 'matrix'];
-
-        if (availableThemes.includes(themeName)) {
-            this.applyTheme(themeName);
-            this.addOutput(`🎨 Theme set to: ${themeName}`, 'success');
-        } else {
-            this.addOutput(`❌ Unknown theme: ${themeName}`, 'error');
-            this.addOutput(`Available themes: ${availableThemes.join(', ')}`, 'info');
-        }
-    }
-
     // Theme System Methods
     handleThemeCommand(args) {
         if (args.length === 0) {
@@ -3559,6 +3562,292 @@ ____/\\\\\\\\\\\\\\\\______________/\\\\\\\\\\\\\\\\\\\\\\\\______/\\\\\\\\\\\\\
         this.addOutput('   • Label suggestions based on content', 'info');
         this.addOutput('', 'info');
         this.addOutput('💡 Use the TodoWrite tool to create tasks that can be synced', 'feature-highlight');
+    }
+
+    // Script Engine Command Handlers
+    handleScriptCommand(args) {
+        if (args.length === 0) {
+            this.showScriptHelp();
+            return;
+        }
+
+        const command = args[0].toLowerCase();
+
+        switch (command) {
+            case 'list':
+            case 'ls':
+                this.listScripts();
+                break;
+            case 'create':
+            case 'new':
+                if (args.length < 2) {
+                    this.addOutput('❌ Usage: script create <name>', 'error');
+                    return;
+                }
+                this.createScript(args[1]);
+                break;
+            case 'run':
+            case 'exec':
+                if (args.length < 2) {
+                    this.addOutput('❌ Usage: script run <name> [args...]', 'error');
+                    return;
+                }
+                this.runScript(args[1], args.slice(2));
+                break;
+            case 'delete':
+            case 'rm':
+                if (args.length < 2) {
+                    this.addOutput('❌ Usage: script delete <name>', 'error');
+                    return;
+                }
+                this.deleteScript(args[1]);
+                break;
+            case 'show':
+            case 'cat':
+                if (args.length < 2) {
+                    this.addOutput('❌ Usage: script show <name>', 'error');
+                    return;
+                }
+                this.showScript(args[1]);
+                break;
+            case 'edit':
+                if (args.length < 2) {
+                    this.addOutput('❌ Usage: script edit <name>', 'error');
+                    return;
+                }
+                this.editScript(args[1]);
+                break;
+            case 'debug':
+                this.toggleScriptDebug(args[1]);
+                break;
+            case 'status':
+                this.showScriptStatus();
+                break;
+            case 'import':
+                this.addOutput('💡 Use the script editor to import scripts', 'info');
+                break;
+            case 'export':
+                if (args.length < 2) {
+                    this.addOutput('❌ Usage: script export <name>', 'error');
+                    return;
+                }
+                this.exportScript(args[1]);
+                break;
+            case 'help':
+            default:
+                this.showScriptHelp();
+                break;
+        }
+    }
+
+    handleEditCommand(args) {
+        if (args.length === 0) {
+            this.scriptEditor.openEditor();
+        } else {
+            this.scriptEditor.openEditor(args[0]);
+        }
+    }
+
+    handleExecCommand(args) {
+        if (args.length === 0) {
+            this.addOutput('❌ Usage: exec <script-name> [args...]', 'error');
+            return;
+        }
+        this.runScript(args[0], args.slice(1));
+    }
+
+    // Script Management Methods
+    showScriptHelp() {
+        this.addOutput('', 'info');
+        this.addOutput('📜 Script Engine Commands:', 'success');
+        this.addOutput('', 'info');
+        this.addOutput('script list              - List all scripts', 'info');
+        this.addOutput('script create <name>     - Create new script', 'info');
+        this.addOutput('script run <name> [args] - Execute script', 'info');
+        this.addOutput('script edit <name>       - Edit script in editor', 'info');
+        this.addOutput('script show <name>       - Display script content', 'info');
+        this.addOutput('script delete <name>     - Delete script', 'info');
+        this.addOutput('script debug [on|off]    - Toggle debug mode', 'info');
+        this.addOutput('script status            - Show script statistics', 'info');
+        this.addOutput('script export <name>     - Export script', 'info');
+        this.addOutput('', 'info');
+        this.addOutput('edit [script-name]       - Open script editor', 'info');
+        this.addOutput('exec <name> [args]       - Execute script (shorthand)', 'info');
+        this.addOutput('', 'info');
+        this.addOutput('💡 Script Language Features:', 'feature-highlight');
+        this.addOutput('   • Variables: set/get, $varname, ${varname}', 'info');
+        this.addOutput('   • Control flow: for loops, while loops, if conditions', 'info');
+        this.addOutput('   • Functions: Built-in (echo, wait, repeat) and custom', 'info');
+        this.addOutput('   • Comments: Lines starting with #', 'info');
+        this.addOutput('   • All terminal commands available', 'info');
+    }
+
+    listScripts() {
+        const scripts = this.scriptEngine.listScripts();
+        
+        if (scripts.length === 0) {
+            this.addOutput('📂 No scripts found', 'info');
+            this.addOutput('💡 Use "edit" or "script create <name>" to create your first script', 'info');
+            return;
+        }
+
+        this.addOutput('', 'info');
+        this.addOutput('📜 Available Scripts:', 'success');
+        this.addOutput('', 'info');
+
+        scripts.forEach((script, index) => {
+            const lastRun = script.executions > 0 ? `(${script.executions} runs)` : '(never run)';
+            const size = `${script.content.length} chars`;
+            this.addOutput(`  ${index + 1}. ${script.name.padEnd(20)} ${size.padEnd(12)} ${lastRun}`, 'info');
+        });
+
+        this.addOutput('', 'info');
+        this.addOutput(`Total: ${scripts.length} scripts`, 'info');
+    }
+
+    createScript(name) {
+        try {
+            if (this.scriptEngine.getScript(name)) {
+                this.addOutput(`❌ Script '${name}' already exists`, 'error');
+                return;
+            }
+
+            this.scriptEngine.createScript(name, '# New script\necho "Hello from ' + name + '!"', 'Auto-created script');
+            this.addOutput(`✅ Script '${name}' created`, 'success');
+            this.addOutput(`💡 Use "edit ${name}" to open in editor`, 'info');
+        } catch (error) {
+            this.addOutput(`❌ Failed to create script: ${error.message}`, 'error');
+        }
+    }
+
+    async runScript(name, args = []) {
+        try {
+            this.addOutput(`▶️ Executing script: ${name}`, 'info');
+            if (args.length > 0) {
+                this.addOutput(`   Arguments: ${args.join(' ')}`, 'info');
+            }
+            this.addOutput('', 'info');
+
+            const result = await this.scriptEngine.executeScript(name, args);
+            if (result && result.trim()) {
+                this.addOutput(result, 'info');
+            }
+
+            this.addOutput('', 'info');
+            this.addOutput(`✅ Script '${name}' completed`, 'success');
+        } catch (error) {
+            this.addOutput(`❌ Script execution failed: ${error.message}`, 'error');
+        }
+    }
+
+    deleteScript(name) {
+        try {
+            const script = this.scriptEngine.getScript(name);
+            if (!script) {
+                this.addOutput(`❌ Script '${name}' not found`, 'error');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete script '${name}'?`)) {
+                this.scriptEngine.deleteScript(name);
+                this.addOutput(`🗑️ Script '${name}' deleted`, 'success');
+            }
+        } catch (error) {
+            this.addOutput(`❌ Failed to delete script: ${error.message}`, 'error');
+        }
+    }
+
+    showScript(name) {
+        try {
+            const script = this.scriptEngine.getScript(name);
+            if (!script) {
+                this.addOutput(`❌ Script '${name}' not found`, 'error');
+                return;
+            }
+
+            this.addOutput('', 'info');
+            this.addOutput(`📜 Script: ${script.name}`, 'success');
+            this.addOutput(`📅 Created: ${new Date(script.created).toLocaleDateString()}`, 'info');
+            this.addOutput(`📝 Modified: ${new Date(script.modified).toLocaleDateString()}`, 'info');
+            this.addOutput(`🔢 Executions: ${script.executions}`, 'info');
+            this.addOutput('', 'info');
+            this.addOutput('--- Content ---', 'info');
+            
+            const lines = script.content.split('\n');
+            lines.forEach((line, index) => {
+                this.addOutput(`${(index + 1).toString().padStart(3)}: ${line}`, 'info');
+            });
+            
+            this.addOutput('--- End ---', 'info');
+        } catch (error) {
+            this.addOutput(`❌ Failed to show script: ${error.message}`, 'error');
+        }
+    }
+
+    editScript(name) {
+        if (!this.scriptEngine.getScript(name)) {
+            this.addOutput(`❌ Script '${name}' not found`, 'error');
+            this.addOutput('💡 Use "script list" to see available scripts', 'info');
+            return;
+        }
+
+        this.scriptEditor.openEditor(name);
+    }
+
+    toggleScriptDebug(mode) {
+        if (mode === 'on' || mode === 'true' || mode === '1') {
+            this.scriptEngine.setDebugMode(true);
+            this.addOutput('🐛 Script debug mode enabled', 'success');
+        } else if (mode === 'off' || mode === 'false' || mode === '0') {
+            this.scriptEngine.setDebugMode(false);
+            this.addOutput('🐛 Script debug mode disabled', 'success');
+        } else {
+            const current = this.scriptEngine.debugMode;
+            this.scriptEngine.setDebugMode(!current);
+            this.addOutput(`🐛 Script debug mode ${!current ? 'enabled' : 'disabled'}`, 'success');
+        }
+    }
+
+    showScriptStatus() {
+        const stats = this.scriptEngine.getScriptStats();
+        const runningScripts = this.scriptEngine.getRunningScripts();
+
+        this.addOutput('', 'info');
+        this.addOutput('📊 Script Engine Status:', 'success');
+        this.addOutput('', 'info');
+        this.addOutput(`📜 Total Scripts: ${stats.totalScripts}`, 'info');
+        this.addOutput(`🔢 Total Executions: ${stats.totalExecutions}`, 'info');
+        this.addOutput(`⭐ Most Used: ${stats.mostUsed}`, 'info');
+        this.addOutput(`📏 Average Length: ${stats.averageLength} characters`, 'info');
+        this.addOutput(`🐛 Debug Mode: ${this.scriptEngine.debugMode ? 'Enabled' : 'Disabled'}`, 'info');
+        this.addOutput(`⚡ Running Scripts: ${runningScripts.length}`, 'info');
+
+        if (runningScripts.length > 0) {
+            this.addOutput('', 'info');
+            this.addOutput('🏃 Currently Running:', 'info');
+            runningScripts.forEach(script => {
+                const duration = Math.round(script.duration / 1000);
+                this.addOutput(`  • ${script.name} (${duration}s)`, 'info');
+            });
+        }
+    }
+
+    exportScript(name) {
+        try {
+            const exported = this.scriptEngine.exportScript(name);
+            const exportData = JSON.stringify(exported, null, 2);
+            
+            this.addOutput('', 'info');
+            this.addOutput(`📤 Exported Script: ${name}`, 'success');
+            this.addOutput('', 'info');
+            this.addOutput('--- Export Data ---', 'info');
+            this.addOutput(exportData, 'info');
+            this.addOutput('--- End Export ---', 'info');
+            this.addOutput('', 'info');
+            this.addOutput('💡 Copy the export data to share or backup this script', 'info');
+        } catch (error) {
+            this.addOutput(`❌ Failed to export script: ${error.message}`, 'error');
+        }
     }
 }
 
