@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Adrian Wedd Terminal Interface', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the terminal interface
-    await page.goto('https://github.adrianwedd.com/adrianwedd');
+    await page.goto('/');
     
     // Wait for terminal to be ready
     await page.waitForSelector('.terminal');
