@@ -1,0 +1,22 @@
+╭───────────────────────────────────────────────────╮
+│ ✻ Welcome to Claude Code!                         │
+│                                                   │
+│   /help for help, /status for your current setup  │
+│                                                   │
+│   cwd: /Users/adrian/repos/adrianwedd             │
+╰───────────────────────────────────────────────────╯
+⏺ Compact summary (ctrl+r to expand)
+  ⎿  Read index.html (215 lines)
+  ⎿  Read GEMINI_PLAN.md (7 lines)
+  ⎿  Read assets/research-streamer.js (602 lines)
+  ⎿  Todo list read (16 items)
+  ⎿  Claude usage limit reached. Your limit will reset at 5am (Australia/Hobart).
+
+      • /upgrade to increase your usage limit.
+
+> load up @scripts/sync-github-tasks.js
+  ⎿  Read scripts/sync-github-tasks.js (281 lines)
+  ⎿  Claude usage limit reached. Your limit will reset at 5am (Australia/Hobart).
+
+      • /upgrade to increase your usage limit.
+
