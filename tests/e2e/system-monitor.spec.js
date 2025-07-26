@@ -135,7 +135,7 @@ test.describe('System Monitor Functionality', () => {
     await terminalInput.press('Enter');
 
     // Mock API to return an error
-    await page.route('**/api/monitor-data.js?type=ci', async route => {
+    await page.route('**/api/monitor-data.js?type=ci-cd', async route => {
       await route.fulfill({ status: 500, body: 'Internal Server Error' });
     });
 
@@ -186,190 +186,36 @@ test.describe('System Monitor Functionality', () => {
     await expect(terminalOutput).toContainText('Error fetching system data. Displaying mock data.');
     await expect(terminalOutput).toContainText('Hostname: mock'); // Check for fallback data
   });
-});
+
+  test('Monitor display responsiveness', async ({ page }) => {
+    const terminalInput = page.locator('#terminal-input');
+    await terminalInput.fill('monitor');
+    await terminalInput.press('Enter');
+
+    // Test that monitor adapts to different viewport sizes
+    await page.setViewportSize({ width: 800, height: 600 });
+    
+    const monitorDisplay = page.locator('#system-monitor-display');
+    await expect(monitorDisplay).toBeVisible();
+
+    // Test mobile viewport
+    await page.setViewportSize({ width: 375, height: 667 });
+    await expect(monitorDisplay).toBeVisible();
   });
 
-  test('CI/CD data fetching handles API error', async ({ page }) => {
+  test('Monitor keyboard shortcuts', async ({ page }) => {
     const terminalInput = page.locator('#terminal-input');
     const terminalOutput = page.locator('#terminal-output');
 
     await terminalInput.fill('monitor');
     await terminalInput.press('Enter');
 
-    // Mock API to return an error
-    await page.route('**/api/monitor-data.js?type=ci', async route => {
-      await route.fulfill({ status: 500, body: 'Internal Server Error' });
-    });
+    // Test 'r' for refresh
+    await page.keyboard.press('r');
+    await expect(terminalOutput).toContainText('Refreshing monitor data...');
 
-    // Re-enter monitor mode to trigger data fetch with error
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    await expect(terminalOutput).toContainText('Error fetching CI/CD data. Displaying mock data.');
-    await expect(terminalOutput).toContainText('CI/CD Status: mock'); // Check for fallback data
-  });
-
-  test('Homestead telemetry handles API error', async ({ page }) => {
-    const terminalInput = page.locator('#terminal-input');
-    const terminalOutput = page.locator('#terminal-output');
-
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    // Mock API to return an error
-    await page.route('**/api/monitor-data.js?type=homestead', async route => {
-      await route.fulfill({ status: 500, body: 'Internal Server Error' });
-    });
-
-    // Re-enter monitor mode to trigger data fetch with error
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    await expect(terminalOutput).toContainText('Error fetching homestead data. Displaying mock data.');
-    await expect(terminalOutput).toContainText('Location: mock'); // Check for fallback data
-  });
-
-  test('System data handles API error', async ({ page }) => {
-    const terminalInput = page.locator('#terminal-input');
-    const terminalOutput = page.locator('#terminal-output');
-
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    // Mock API to return an error
-    await page.route('**/api/monitor-data.js?type=system', async route => {
-      await route.fulfill({ status: 500, body: 'Internal Server Error' });
-    });
-
-    // Re-enter monitor mode to trigger data fetch with error
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    await expect(terminalOutput).toContainText('Error fetching system data. Displaying mock data.');
-    await expect(terminalOutput).toContainText('Hostname: mock'); // Check for fallback data
-  });
-});
-  });
-
-  test('CI/CD data fetching handles API error', async ({ page }) => {
-    const terminalInput = page.locator('#terminal-input');
-    const terminalOutput = page.locator('#terminal-output');
-
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    // Mock API to return an error
-    await page.route('**/api/monitor-data.js?type=ci', async route => {
-      await route.fulfill({ status: 500, body: 'Internal Server Error' });
-    });
-
-    // Re-enter monitor mode to trigger data fetch with error
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    await expect(terminalOutput).toContainText('Error fetching CI/CD data. Displaying mock data.');
-    await expect(terminalOutput).toContainText('CI/CD Status: mock'); // Check for fallback data
-  });
-
-  test('Homestead telemetry handles API error', async ({ page }) => {
-    const terminalInput = page.locator('#terminal-input');
-    const terminalOutput = page.locator('#terminal-output');
-
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    // Mock API to return an error
-    await page.route('**/api/monitor-data.js?type=homestead', async route => {
-      await route.fulfill({ status: 500, body: 'Internal Server Error' });
-    });
-
-    // Re-enter monitor mode to trigger data fetch with error
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    await expect(terminalOutput).toContainText('Error fetching homestead data. Displaying mock data.');
-    await expect(terminalOutput).toContainText('Location: mock'); // Check for fallback data
-  });
-
-  test('System data handles API error', async ({ page }) => {
-    const terminalInput = page.locator('#terminal-input');
-    const terminalOutput = page.locator('#terminal-output');
-
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    // Mock API to return an error
-    await page.route('**/api/monitor-data.js?type=system', async route => {
-      await route.fulfill({ status: 500, body: 'Internal Server Error' });
-    });
-
-    // Re-enter monitor mode to trigger data fetch with error
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    await expect(terminalOutput).toContainText('Error fetching system data. Displaying mock data.');
-    await expect(terminalOutput).toContainText('Hostname: mock'); // Check for fallback data
-  });
-});
-  });
-
-  test('CI/CD data fetching handles API error', async ({ page }) => {
-    const terminalInput = page.locator('#terminal-input');
-    const terminalOutput = page.locator('#terminal-output');
-
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    // Mock API to return an error
-    await page.route('**/api/monitor-data.js?type=ci', async route => {
-      await route.fulfill({ status: 500, body: 'Internal Server Error' });
-    });
-
-    // Re-enter monitor mode to trigger data fetch with error
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    await expect(terminalOutput).toContainText('Error fetching CI/CD data. Displaying mock data.');
-    await expect(terminalOutput).toContainText('CI/CD Status: mock'); // Check for fallback data
-  });
-
-  test('Homestead telemetry handles API error', async ({ page }) => {
-    const terminalInput = page.locator('#terminal-input');
-    const terminalOutput = page.locator('#terminal-output');
-
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    // Mock API to return an error
-    await page.route('**/api/monitor-data.js?type=homestead', async route => {
-      await route.fulfill({ status: 500, body: 'Internal Server Error' });
-    });
-
-    // Re-enter monitor mode to trigger data fetch with error
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    await expect(terminalOutput).toContainText('Error fetching homestead data. Displaying mock data.');
-    await expect(terminalOutput).toContainText('Location: mock'); // Check for fallback data
-  });
-
-  test('System data handles API error', async ({ page }) => {
-    const terminalInput = page.locator('#terminal-input');
-    const terminalOutput = page.locator('#terminal-output');
-
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    // Mock API to return an error
-    await page.route('**/api/monitor-data.js?type=system', async route => {
-      await route.fulfill({ status: 500, body: 'Internal Server Error' });
-    });
-
-    // Re-enter monitor mode to trigger data fetch with error
-    await terminalInput.fill('monitor');
-    await terminalInput.press('Enter');
-
-    await expect(terminalOutput).toContainText('Error fetching system data. Displaying mock data.');
-    await expect(terminalOutput).toContainText('Hostname: mock'); // Check for fallback data
+    // Test 'h' for help
+    await page.keyboard.press('h');
+    await expect(terminalOutput).toContainText('Monitor Help');
   });
 });
