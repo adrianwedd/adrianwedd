@@ -1,22 +1,134 @@
 class GitHubTaskManager {
     constructor() {
-        this.repo = 'adrianwedd/adrianwedd';
-        this.apiBase = 'https://api.github.com';
-        this.labels = {
-            'high': 'priority: high',
-            'medium': 'priority: medium', 
-            'low': 'priority: low',
-            'bug': 'type: bug',
-            'enhancement': 'type: enhancement',
-            'task': 'type: task',
-            'documentation': 'type: documentation'
-        };
+        this.config = null;
         this.cache = new Map();
         this.initialized = false;
     }
 
+    async loadConfig() {
+        try {
+            const response = await fetch('/tasks.yml');
+            if (!response.ok) {
+                throw new Error('Cannot load tasks.yml');
+            }
+            const yamlText = await response.text();
+            this.config = this.parseYAML(yamlText);
+            
+            // Set properties from config
+            this.repo = this.config.task_management?.repository || 'adrianwedd/adrianwedd';
+            this.apiBase = 'https://api.github.com';
+            this.defaultAssignee = this.config.task_management?.default_assignee || 'adrianwedd';
+            
+            return true;
+        } catch (error) {
+            console.warn('Failed to load tasks.yml, using defaults:', error);
+            // Fallback to hardcoded config
+            this.repo = 'adrianwedd/adrianwedd';
+            this.apiBase = 'https://api.github.com';
+            this.defaultAssignee = 'adrianwedd';
+            this.config = this.getDefaultConfig();
+            return false;
+        }
+    }
+
+    parseYAML(yamlText) {
+        // Simple YAML parser for our specific use case
+        // This is a basic implementation - in production you'd use js-yaml
+        const lines = yamlText.split('\n');
+        const result = {};
+        let currentSection = result;
+        let sectionStack = [result];
+        let indentStack = [0];
+        
+        for (const line of lines) {
+            if (line.trim() === '' || line.trim().startsWith('#')) continue;
+            
+            const indent = line.length - line.trimLeft().length;
+            const content = line.trim();
+            
+            // Handle section changes based on indentation
+            while (indentStack.length > 1 && indent <= indentStack[indentStack.length - 1]) {
+                indentStack.pop();
+                sectionStack.pop();
+            }
+            currentSection = sectionStack[sectionStack.length - 1];
+            
+            if (content.includes(':')) {
+                const [key, ...valueParts] = content.split(':');
+                const value = valueParts.join(':').trim();
+                
+                if (value === '' || value === '|') {
+                    // This is a section header
+                    currentSection[key.trim()] = {};
+                    sectionStack.push(currentSection[key.trim()]);
+                    indentStack.push(indent);
+                } else {
+                    // This is a key-value pair
+                    let parsedValue = value.replace(/"/g, '');
+                    if (parsedValue === 'true') parsedValue = true;
+                    else if (parsedValue === 'false') parsedValue = false;
+                    else if (parsedValue.match(/^\d+$/)) parsedValue = parseInt(parsedValue);
+                    
+                    currentSection[key.trim()] = parsedValue;
+                }
+            }
+        }
+        
+        return result;
+    }
+
+    getDefaultConfig() {
+        return {
+            task_management: {
+                repository: 'adrianwedd/adrianwedd',
+                default_assignee: 'adrianwedd',
+                labels: {
+                    priority: {
+                        high: 'priority: high',
+                        medium: 'priority: medium',
+                        low: 'priority: low'
+                    },
+                    type: {
+                        task: 'type: task',
+                        enhancement: 'type: enhancement',
+                        bug: 'type: bug',
+                        documentation: 'type: documentation'
+                    },
+                    status: {
+                        in_progress: 'status: in-progress',
+                        blocked: 'status: blocked'
+                    },
+                    agent: {
+                        claude: 'agent: claude'
+                    }
+                }
+            },
+            automation: {
+                auto_create_from_todos: true,
+                sync_interval: '30m',
+                close_completed_tasks: true
+            },
+            integrations: {
+                terminal_commands: {
+                    create_task: 'task create',
+                    list_tasks: 'task list',
+                    update_task: 'task update',
+                    close_task: 'task close'
+                },
+                ai_assistant: {
+                    auto_categorize: true,
+                    suggest_labels: true,
+                    estimate_priority: true
+                }
+            }
+        };
+    }
+
     async init() {
         if (this.initialized) return true;
+        
+        // Load configuration first
+        await this.loadConfig();
         
         try {
             // Check if we can access GitHub API
@@ -102,7 +214,24 @@ class GitHubTaskManager {
         }
     }
 
-    formatIssueBody(body) {
+    formatIssueBody(body, type = 'task') {
+        const templates = this.config?.task_management?.templates || {};
+        const template = templates[type];
+        
+        if (template && template.body) {
+            // Simple template substitution
+            return template.body.replace('{description}', body)
+                                .replace('{criteria}', '')
+                                .replace('{notes}', '')
+                                .replace('{solution}', '')
+                                .replace('{benefits}', '')
+                                .replace('{steps}', '')
+                                .replace('{expected}', '')
+                                .replace('{actual}', '')
+                                .replace('{browser}', '')
+                                .replace('{os}', '');
+        }
+        
         const timestamp = new Date().toISOString();
         return `${body}
 
@@ -121,6 +250,46 @@ gh issue edit <issue-number> --remove-label "status: in-progress"
 # Close issue
 gh issue close <issue-number> --comment "Completed by Claude Code"
 \`\`\``;
+    }
+
+    // AI Assistant methods
+    categorizePriority(taskDescription) {
+        if (!this.config?.integrations?.ai_assistant?.estimate_priority) {
+            return 'medium';
+        }
+        
+        const urgent = /urgent|critical|asap|immediately|emergency|blocking/i;
+        const low = /nice to have|when possible|low priority|future|someday/i;
+        
+        if (urgent.test(taskDescription)) return 'high';
+        if (low.test(taskDescription)) return 'low';
+        return 'medium';
+    }
+
+    categorizeType(taskDescription) {
+        if (!this.config?.integrations?.ai_assistant?.auto_categorize) {
+            return 'task';
+        }
+        
+        const bug = /bug|error|broken|fail|issue|problem|fix/i;
+        const enhancement = /enhance|improve|feature|add|new|upgrade|better/i;
+        const docs = /document|readme|help|guide|wiki|doc/i;
+        
+        if (bug.test(taskDescription)) return 'bug';
+        if (enhancement.test(taskDescription)) return 'enhancement';
+        if (docs.test(taskDescription)) return 'documentation';
+        return 'task';
+    }
+
+    suggestLabels(taskDescription) {
+        if (!this.config?.integrations?.ai_assistant?.suggest_labels) {
+            return [];
+        }
+        
+        const priority = this.categorizePriority(taskDescription);
+        const type = this.categorizeType(taskDescription);
+        
+        return this.getLabelsForTask(priority, type);
     }
 
     async updateIssue(issueNumber, updates) {
