@@ -100,3 +100,264 @@ integrations:
     auto_categorize: true
     suggest_labels: true
     estimate_priority: true
+
+# Active Tasks - Test Coverage Implementation (>80% with pytest-cov)
+tasks:
+  # Phase 1: Infrastructure Setup
+  - id: "test-001"
+    title: "Set up pytest-cov test coverage infrastructure"
+    type: "task"
+    priority: "high"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: task", "priority: high", "agent: claude"]
+    description: |
+      Install and configure pytest-cov for comprehensive test coverage tracking.
+      Set up coverage configuration files and reporting mechanisms.
+    acceptance_criteria:
+      - pytest-cov installed and configured
+      - .coveragerc configuration file created
+      - Coverage reporting integrated into test suite
+      - Baseline coverage measurement established
+    
+  - id: "test-002"
+    title: "Create comprehensive test strategy and coverage targets"
+    type: "documentation"
+    priority: "high"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: documentation", "priority: high", "agent: claude"]
+    description: |
+      Define test coverage strategy, identify critical code paths, and establish
+      coverage targets for different components of the terminal interface.
+    acceptance_criteria:
+      - Test strategy document created
+      - Coverage targets defined per module (>80% overall)
+      - Critical code paths identified and prioritized
+      - Test categories defined (unit, integration, e2e)
+
+  # Phase 2: Core Module Testing
+  - id: "test-003"
+    title: "Implement comprehensive tests for terminal.js core functionality"
+    type: "task"
+    priority: "high"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: task", "priority: high", "agent: claude"]
+    description: |
+      Create comprehensive unit tests for terminal.js covering command execution,
+      input handling, output formatting, and core terminal operations.
+    acceptance_criteria:
+      - Command execution pipeline tested (>90% coverage)
+      - Input validation and sanitization tested
+      - Output formatting methods tested
+      - Error handling paths covered
+      - History management tested
+      
+  - id: "test-004"
+    title: "Add comprehensive tests for GitHubTaskManager class"
+    type: "task"
+    priority: "high"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: task", "priority: high", "agent: claude"]
+    description: |
+      Test all methods in GitHubTaskManager including config loading, YAML parsing,
+      AI categorization, and GitHub CLI command generation.
+    acceptance_criteria:
+      - Config loading and parsing tested (>95% coverage)
+      - AI categorization algorithms tested
+      - Command generation tested with mocked inputs
+      - Error handling for API failures tested
+      - Template formatting tested
+
+  - id: "test-005"
+    title: "Create tests for AI service integration and caching"
+    type: "task"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: task", "priority: medium", "agent: claude"]
+    description: |
+      Test AI service class functionality including prompt caching, token management,
+      request handling, and response processing.
+    acceptance_criteria:
+      - Prompt caching logic tested (>85% coverage)
+      - Token counting and tracking tested
+      - API request/response handling tested
+      - Cache hit/miss scenarios covered
+      - Error handling for AI service failures tested
+
+  # Phase 3: Feature-Specific Testing
+  - id: "test-006"
+    title: "Implement tests for voice interface functionality"
+    type: "task"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: task", "priority: medium", "agent: claude"]
+    description: |
+      Test voice interface including wake word detection, speech recognition,
+      text-to-speech synthesis, and voice command processing.
+    acceptance_criteria:
+      - Wake word detection logic tested
+      - Speech recognition event handling tested
+      - TTS synthesis parameter handling tested
+      - Voice command mapping tested (>80% coverage)
+      - Browser compatibility fallbacks tested
+
+  - id: "test-007"
+    title: "Add tests for music player and audio visualization"
+    type: "task"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: task", "priority: medium", "agent: claude"]
+    description: |
+      Test music player functionality, WebGL visualizations, audio synthesis,
+      and particle effects systems.
+    acceptance_criteria:
+      - Music player controls tested (play, stop, volume)
+      - Audio track switching tested
+      - WebGL shader initialization tested
+      - Particle effect systems tested (>75% coverage)
+      - Performance optimization paths tested
+
+  - id: "test-008"
+    title: "Create tests for theme system and visual effects"
+    type: "task"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: task", "priority: medium", "agent: claude"]
+    description: |
+      Test theme switching, CSS custom property management, visual effects,
+      and responsive design components.
+    acceptance_criteria:
+      - Theme switching logic tested (>85% coverage)
+      - CSS property management tested
+      - Local storage persistence tested
+      - Visual effect toggles tested
+      - Responsive design breakpoints tested
+
+  # Phase 4: Integration and System Testing
+  - id: "test-009"
+    title: "Implement system monitor integration tests"
+    type: "task"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: task", "priority: medium", "agent: claude"]
+    description: |
+      Test system monitor functionality including GitHub Actions integration,
+      weather API calls, and real-time data updates.
+    acceptance_criteria:
+      - GitHub Actions API integration tested
+      - Weather API integration tested
+      - Real-time data refresh tested
+      - Monitor mode switching tested (>80% coverage)
+      - Error handling for API failures tested
+
+  - id: "test-010"
+    title: "Add tests for command history and autocomplete"
+    type: "task"
+    priority: "low"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: task", "priority: low", "agent: claude"]
+    description: |
+      Test command history management, fuzzy autocomplete matching,
+      and keyboard navigation functionality.
+    acceptance_criteria:
+      - History storage and retrieval tested
+      - Fuzzy matching algorithms tested
+      - Keyboard event handling tested (>85% coverage)
+      - Tab completion cycling tested
+      - History search functionality tested
+
+  # Phase 5: Coverage Analysis and Optimization
+  - id: "test-011"
+    title: "Analyze coverage gaps and implement targeted tests"
+    type: "task"
+    priority: "high"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: task", "priority: high", "agent: claude"]
+    description: |
+      Run coverage analysis, identify uncovered code paths, and implement
+      targeted tests to achieve >80% overall coverage.
+    acceptance_criteria:
+      - Coverage report generated and analyzed
+      - Uncovered code paths identified and prioritized
+      - Targeted tests implemented for coverage gaps
+      - Overall coverage >80% achieved
+      - Coverage CI/CD integration configured
+
+  - id: "test-012"
+    title: "Set up automated coverage reporting and CI integration"
+    type: "enhancement"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: medium", "agent: claude"]
+    description: |
+      Integrate coverage reporting into CI/CD pipeline with automated
+      coverage badges, trend tracking, and pull request reporting.
+    acceptance_criteria:
+      - Coverage reports generated on each CI run
+      - Coverage badges added to README
+      - Coverage trend tracking implemented
+      - PR coverage reports automated
+      - Coverage thresholds enforced in CI
+
+  # Phase 6: Performance and Edge Case Testing
+  - id: "test-013"
+    title: "Implement performance tests and benchmarks"
+    type: "task"
+    priority: "low"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: task", "priority: low", "agent: claude"]
+    description: |
+      Create performance tests for critical code paths, memory usage monitoring,
+      and benchmark comparisons for optimization tracking.
+    acceptance_criteria:
+      - Performance test suite created
+      - Memory usage tests implemented
+      - Benchmark baseline established
+      - Performance regression detection configured
+      - Load testing for concurrent operations
+
+  - id: "test-014"
+    title: "Add comprehensive error handling and edge case tests"
+    type: "task"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: task", "priority: medium", "agent: claude"]
+    description: |
+      Test error handling paths, edge cases, malformed inputs, and
+      graceful degradation scenarios across all components.
+    acceptance_criteria:
+      - Error handling paths tested (>90% coverage)
+      - Malformed input handling tested
+      - Network failure scenarios tested
+      - Browser compatibility edge cases covered
+      - Graceful degradation verified
+
+  - id: "test-015"
+    title: "Create test utilities and mock frameworks"
+    type: "task"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: task", "priority: medium", "agent: claude"]
+    description: |
+      Build reusable test utilities, mock objects, and fixtures to support
+      comprehensive testing across all modules and reduce test duplication.
+    acceptance_criteria:
+      - Test utility library created
+      - Mock frameworks for external APIs implemented
+      - Reusable test fixtures established
+      - Test data generators created
+      - Documentation for test utilities added
