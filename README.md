@@ -2,22 +2,42 @@
 <h3 align="center">🧠 Recursive Systems Architect · ⚙️ Agentic AI Engineer · 🏕 Off-Grid Permanaut</h3>
 
 <p align="center">
-  <a href="https://github.adrianwedd.com/">🖥️ **Interactive Terminal Interface**</a> | 
   <img src="https://komarev.com/ghpvc/?username=adrianwedd&label=Profile%20views&color=0e75b6&style=flat" alt="adrianwedd" />
 </p>
 
 ---
 
-## 🖥️ **New: Interactive Terminal Experience**
+## 🖥️ **Interactive Terminal Interface**
 
-Experience my digital ecosystem through an authentic terminal interface at **[github.adrianwedd.com](https://github.adrianwedd.com/)**
-
-**Features:**
-- 🖥️ **Dark Matrix Terminal** - Authentic terminal emulation with 15+ interactive commands
-- 🤖 **Real-time AI Chat** - Live conversations with my AI persona powered by Claude via GitHub Actions
-- ⚡ **Command Explorer** - Type `help` to discover commands like `projects`, `homestead`, `veritas`
-- 🎨 **Matrix Rain Effect** - Toggle with `matrix` command for full cyberpunk immersion
-- 📊 **Live Telemetry** - Real homestead and system data integration
+<div align="center">
+  <iframe 
+    src="https://github.adrianwedd.com/" 
+    width="100%" 
+    height="600" 
+    frameborder="0" 
+    style="border: 2px solid #00ff41; border-radius: 8px; background: #000; max-width: 1200px;"
+    title="Adrian Wedd Interactive Terminal">
+  </iframe>
+  
+  <p><em>🖥️ Live terminal interface - Type <code>help</code> to get started!</em></p>
+  
+  <details>
+  <summary><strong>📱 Can't see the terminal? Click here</strong></summary>
+  <br>
+  <p>Visit the full interactive experience at: <strong><a href="https://github.adrianwedd.com/">github.adrianwedd.com</a></strong></p>
+  
+  <p><strong>Features:</strong></p>
+  <ul align="left">
+    <li>🖥️ <strong>Authentic Terminal</strong> - 15+ interactive commands</li>
+    <li>🤖 <strong>Real-time AI Chat</strong> - Live conversations with Claude</li>
+    <li>⚡ <strong>Command Explorer</strong> - <code>help</code>, <code>projects</code>, <code>homestead</code>, <code>veritas</code></li>
+    <li>🎨 <strong>Matrix Rain Effect</strong> - Toggle with <code>matrix</code> command</li>
+    <li>📊 <strong>Live Telemetry</strong> - Real homestead and system data</li>
+    <li>🎵 <strong>Retro Music</strong> - Synthwave beats with <code>music cyberpunk</code></li>
+    <li>🗣️ <strong>Voice Interface</strong> - Say "Adrian" to activate voice commands</li>
+  </ul>
+  </details>
+</div>
 
 ---
 

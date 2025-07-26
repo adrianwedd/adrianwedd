@@ -3,7 +3,7 @@ class SystemMonitor {
         this.isActive = false;
         this.updateInterval = null;
         this.ciData = [];
-        this.homesteadData = {};
+        this.homeData = {};
         this.systemStats = {
             load: 0.42,
             memory: { used: 1.2, total: 16 },
@@ -11,7 +11,19 @@ class SystemMonitor {
         };
         
         // Initialize AI service for token tracking
-        this.aiService = new AIService();
+        try {
+            this.aiService = new AIService();
+        } catch (error) {
+            console.warn('Failed to initialize AI service for system monitor:', error);
+            this.aiService = { getTokenStats: () => ({
+                totalTokens: 0,
+                cachedTokens: 0,
+                totalRequests: 0,
+                tokensPerRequest: 0,
+                cacheSize: 0,
+                sessionDuration: 0
+            })};
+        }
     }
 
     async enterMonitorMode() {
@@ -29,7 +41,9 @@ class SystemMonitor {
         this.updateTime();
         
         // Initial data load
+        console.log('System monitor entering mode, loading initial data...');
         await this.updateAllData();
+        console.log('System monitor initial data load complete');
     }
 
     handleMonitorKeydown(event) {
@@ -88,13 +102,13 @@ class SystemMonitor {
     async updateAllData() {
         // Update refresh indicators
         this.pulseRefreshIndicator('ciRefresh');
-        this.pulseRefreshIndicator('homesteadRefresh');
+        this.pulseRefreshIndicator('homeRefresh');
         this.pulseRefreshIndicator('aiRefresh');
 
         try {
             await Promise.all([
                 this.updateCIData(),
-                this.updateHomesteadData(),
+                this.updateHomeData(),
                 this.updateAIData()
             ]);
         } catch (error) {
@@ -162,6 +176,10 @@ class SystemMonitor {
 
     renderCIData() {
         const container = document.getElementById('ciContent');
+        if (!container) {
+            console.warn('CI content container not found');
+            return;
+        }
         
         const html = this.ciData.map(run => {
             let statusClass = 'success';
@@ -187,7 +205,7 @@ class SystemMonitor {
                     </div>
                     <div class="ci-details">
                         Run #${run.run_number} • ${run.head_branch} • ${duration} ago
-                        <br>Event: ${run.event} • Commit: ${run.head_sha?.substring(0, 7) || 'a1b2c3d'}
+                        <br>Event: ${run.event} • Commit: ${run.head_sha ? run.head_sha.substring(0, 7) : 'a1b2c3d'}
                     </div>
                 </div>
             `;
@@ -196,42 +214,83 @@ class SystemMonitor {
         container.innerHTML = html;
     }
 
-    async updateHomesteadData() {
-        // Generate realistic homestead telemetry data
-        this.homesteadData = {
-            solar: {
-                production: 2.3 + Math.random() * 1.2,
-                battery: 78 + Math.random() * 15,
-                consumption: 1.8 + Math.random() * 0.8
-            },
-            weather: {
-                temperature: 18 + Math.random() * 8,
-                humidity: 65 + Math.random() * 20,
-                windSpeed: 5 + Math.random() * 10,
-                rainfall: Math.random() * 5
-            },
-            network: {
-                starlink: 98 + Math.random() * 2,
-                latency: 25 + Math.random() * 15,
-                bandwidth: 85 + Math.random() * 30
-            },
-            systems: {
-                waterTank: 85 + Math.random() * 10,
-                greenhouse: 22 + Math.random() * 3,
-                backup: Math.random() > 0.9 ? 'ACTIVE' : 'STANDBY'
+    async updateHomeData() {
+        // Get real weather data for Tasmania
+        try {
+            const response = await fetch('http://reg.bom.gov.au/fwo/IDT60901/IDT60901.94967.json');
+            if (response.ok) {
+                const bomData = await response.json();
+                const latest = bomData.observations?.data?.[0];
+                
+                this.homeData = {
+                    weather: {
+                        temperature: latest?.air_temp || 18,
+                        humidity: latest?.rel_hum || 65,
+                        windSpeed: latest?.wind_spd_kmh || 5,
+                        rainfall: latest?.rain_trace || 0,
+                        condition: latest?.weather || 'Clear'
+                    },
+                    solar: {
+                        production: 2.3 + Math.random() * 1.2,
+                        battery: 78 + Math.random() * 15,
+                        consumption: 1.8 + Math.random() * 0.8
+                    },
+                    network: {
+                        starlink: 98 + Math.random() * 2,
+                        latency: 25 + Math.random() * 15,
+                        bandwidth: 85 + Math.random() * 30
+                    },
+                    systems: {
+                        waterTank: 85 + Math.random() * 10,
+                        greenhouse: 22 + Math.random() * 3,
+                        backup: Math.random() > 0.9 ? 'ACTIVE' : 'STANDBY'
+                    }
+                };
+            } else {
+                throw new Error('BOM API failed');
             }
-        };
+        } catch (error) {
+            console.warn('Failed to fetch real weather data, using simulated data:', error);
+            this.homeData = {
+                weather: {
+                    temperature: 18 + Math.random() * 8,
+                    humidity: 65 + Math.random() * 20,
+                    windSpeed: 5 + Math.random() * 10,
+                    rainfall: Math.random() * 5,
+                    condition: 'Partly Cloudy'
+                },
+                solar: {
+                    production: 2.3 + Math.random() * 1.2,
+                    battery: 78 + Math.random() * 15,
+                    consumption: 1.8 + Math.random() * 0.8
+                },
+                network: {
+                    starlink: 98 + Math.random() * 2,
+                    latency: 25 + Math.random() * 15,
+                    bandwidth: 85 + Math.random() * 30
+                },
+                systems: {
+                    waterTank: 85 + Math.random() * 10,
+                    greenhouse: 22 + Math.random() * 3,
+                    backup: Math.random() > 0.9 ? 'ACTIVE' : 'STANDBY'
+                }
+            };
+        }
         
-        this.renderHomesteadData();
+        this.renderHomeData();
     }
 
-    renderHomesteadData() {
-        const container = document.getElementById('homesteadContent');
-        const data = this.homesteadData;
+    renderHomeData() {
+        const container = document.getElementById('homeContent');
+        if (!container) {
+            console.warn('Home content container not found');
+            return;
+        }
+        const data = this.homeData;
         
         const html = `
             <div class="metric-section">
-                <div class="homestead-metric">
+                <div class="home-metric">
                     <span class="metric-name">Solar Production</span>
                     <span class="metric-value">${data.solar.production.toFixed(1)} kW</span>
                 </div>
@@ -239,7 +298,7 @@ class SystemMonitor {
                     <div class="progress-fill" style="width: ${Math.min(data.solar.production * 20, 100)}%"></div>
                 </div>
                 
-                <div class="homestead-metric">
+                <div class="home-metric">
                     <span class="metric-name">Battery Level</span>
                     <span class="metric-value ${data.solar.battery < 30 ? 'metric-critical' : data.solar.battery < 60 ? 'metric-warning' : ''}">${data.solar.battery.toFixed(0)}%</span>
                 </div>
@@ -247,36 +306,36 @@ class SystemMonitor {
                     <div class="progress-fill ${data.solar.battery < 30 ? 'critical' : data.solar.battery < 60 ? 'warning' : ''}" style="width: ${data.solar.battery}%"></div>
                 </div>
                 
-                <div class="homestead-metric">
+                <div class="home-metric">
                     <span class="metric-name">Power Consumption</span>
                     <span class="metric-value">${data.solar.consumption.toFixed(1)} kW</span>
                 </div>
             </div>
             
             <div class="metric-section" style="margin-top: 16px;">
-                <div class="homestead-metric">
+                <div class="home-metric">
                     <span class="metric-name">Temperature</span>
                     <span class="metric-value">${data.weather.temperature.toFixed(1)}°C</span>
                 </div>
                 
-                <div class="homestead-metric">
+                <div class="home-metric">
                     <span class="metric-name">Humidity</span>
                     <span class="metric-value">${data.weather.humidity.toFixed(0)}%</span>
                 </div>
                 
-                <div class="homestead-metric">
+                <div class="home-metric">
                     <span class="metric-name">Wind Speed</span>
                     <span class="metric-value">${data.weather.windSpeed.toFixed(1)} km/h</span>
                 </div>
                 
-                <div class="homestead-metric">
+                <div class="home-metric">
                     <span class="metric-name">Starlink Signal</span>
                     <span class="metric-value ${data.network.starlink < 85 ? 'metric-warning' : ''}">${data.network.starlink.toFixed(0)}%</span>
                 </div>
             </div>
             
             <div class="metric-section" style="margin-top: 16px;">
-                <div class="homestead-metric">
+                <div class="home-metric">
                     <span class="metric-name">Water Tank</span>
                     <span class="metric-value">${data.systems.waterTank.toFixed(0)}%</span>
                 </div>
@@ -284,12 +343,12 @@ class SystemMonitor {
                     <div class="progress-fill ${data.systems.waterTank < 20 ? 'critical' : data.systems.waterTank < 40 ? 'warning' : ''}" style="width: ${data.systems.waterTank}%"></div>
                 </div>
                 
-                <div class="homestead-metric">
+                <div class="home-metric">
                     <span class="metric-name">Greenhouse Temp</span>
                     <span class="metric-value">${data.systems.greenhouse.toFixed(1)}°C</span>
                 </div>
                 
-                <div class="homestead-metric">
+                <div class="home-metric">
                     <span class="metric-name">Backup Generator</span>
                     <span class="metric-value ${data.systems.backup === 'ACTIVE' ? 'metric-warning' : ''}">${data.systems.backup}</span>
                 </div>
@@ -307,13 +366,16 @@ class SystemMonitor {
 
     renderAIData(stats) {
         const container = document.getElementById('aiContent');
+        if (!container) {
+            console.warn('AI content container not found');
+            return;
+        }
         
         // Calculate efficiency metrics
         const tokenSavings = stats.cachedTokens > 0 ? 
             ((stats.cachedTokens / (stats.totalTokens + stats.cachedTokens)) * 100).toFixed(1) : '0.0';
         
-        const avgLatency = stats.totalRequests > 0 ? 
-            (85 + Math.random() * 30).toFixed(0) : '0'; // Mock latency
+        const avgLatency = stats.avgLatency || '0';
         
         const sessionTime = this.formatDuration(stats.sessionDuration);
         

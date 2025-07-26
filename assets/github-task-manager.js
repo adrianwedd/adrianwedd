@@ -3,6 +3,17 @@ class GitHubTaskManager {
         this.config = null;
         this.cache = new Map();
         this.initialized = false;
+        
+        // Default labels mapping (fallback if initialization fails)
+        this.labels = {
+            high: 'priority: high',
+            medium: 'priority: medium', 
+            low: 'priority: low',
+            task: 'type: task',
+            enhancement: 'type: enhancement',
+            bug: 'type: bug',
+            documentation: 'type: documentation'
+        };
     }
 
     async loadConfig() {
@@ -162,6 +173,17 @@ class GitHubTaskManager {
             { name: 'status: blocked', color: '888888', description: 'Blocked waiting for something' }
         ];
 
+        // Initialize labels lookup object
+        this.labels = {
+            high: 'priority: high',
+            medium: 'priority: medium', 
+            low: 'priority: low',
+            task: 'type: task',
+            enhancement: 'type: enhancement',
+            bug: 'type: bug',
+            documentation: 'type: documentation'
+        };
+
         for (const labelConfig of labelConfigs) {
             try {
                 await this.createLabelIfNotExists(labelConfig);
@@ -182,9 +204,28 @@ class GitHubTaskManager {
             throw new Error('GitHub integration not available');
         }
 
+        // Validate inputs
+        if (!title || typeof title !== 'string') {
+            throw new Error('Title is required and must be a string');
+        }
+
+        // Ensure labels object exists
+        if (!this.labels) {
+            console.warn('Labels not initialized, using defaults');
+            this.labels = {
+                high: 'priority: high',
+                medium: 'priority: medium', 
+                low: 'priority: low',
+                task: 'type: task',
+                enhancement: 'type: enhancement',
+                bug: 'type: bug',
+                documentation: 'type: documentation'
+            };
+        }
+
         const labels = [
-            this.labels[priority],
-            this.labels[type],
+            this.labels[priority] || `priority: ${priority}`,
+            this.labels[type] || `type: ${type}`,
             'agent: claude'
         ].filter(Boolean);
 
@@ -329,17 +370,58 @@ gh issue close <issue-number> --comment "Completed by Claude Code"
             throw new Error('GitHub integration not available');
         }
 
-        let command = `gh issue list --repo "${this.repo}" --state ${state}`;
-        
-        if (labels) {
-            const labelFilter = labels.join(',');
-            command += ` --label "${labelFilter}"`;
-        }
+        try {
+            // Try direct API access for read-only operations (no auth required for public repos)
+            let apiUrl = `${this.apiBase}/repos/${this.repo}/issues?state=${state}&per_page=20`;
+            
+            if (labels && labels.length > 0) {
+                const labelFilter = labels.join(',');
+                apiUrl += `&labels=${encodeURIComponent(labelFilter)}`;
+            }
 
-        return {
-            command,
-            message: 'Use GitHub CLI to list issues'
-        };
+            const response = await fetch(apiUrl, {
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'Adrian-Terminal-Interface'
+                }
+            });
+
+            if (response.ok) {
+                const issues = await response.json();
+                return {
+                    success: true,
+                    issues: issues.map(issue => ({
+                        number: issue.number,
+                        title: issue.title,
+                        state: issue.state,
+                        labels: issue.labels.map(l => l.name),
+                        created_at: issue.created_at,
+                        updated_at: issue.updated_at,
+                        assignees: issue.assignees.map(a => a.login),
+                        url: issue.html_url
+                    })),
+                    message: `Found ${issues.length} ${state} issues`
+                };
+            } else {
+                throw new Error(`GitHub API returned ${response.status}`);
+            }
+        } catch (error) {
+            console.warn('Direct GitHub API access failed, falling back to CLI:', error);
+            
+            // Fallback to CLI command
+            let command = `gh issue list --repo "${this.repo}" --state ${state}`;
+            
+            if (labels) {
+                const labelFilter = labels.join(',');
+                command += ` --label "${labelFilter}"`;
+            }
+
+            return {
+                success: false,
+                command,
+                message: 'GitHub CLI command (direct API access failed)'
+            };
+        }
     }
 
     async syncTodosWithIssues(todos) {

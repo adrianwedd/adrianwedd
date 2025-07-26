@@ -240,6 +240,78 @@ input, textarea, select {
     transition: var(--theme-transition);
 }
 
+.debug-panel {
+    position: absolute;
+    bottom: 80px; /* Above the prompt line */
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 120px; /* Fixed height for the panel */
+    background: rgba(0, 0, 0, 0.8);
+    border-top: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    line-height: 1.3;
+    overflow: hidden;
+    z-index: 9; /* Below prompt line */
+    transition: all 0.3s ease-in-out;
+}
+
+.debug-header {
+    padding: 8px 15px;
+    background: #1a1a1a;
+    border-bottom: 1px solid #333;
+    color: #0fa;
+    font-weight: bold;
+}
+
+.debug-content {
+    flex: 1;
+    padding: 8px 15px;
+    overflow-y: auto;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.debug-line {
+    margin-bottom: 2px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+}
+
+/* Color coding for debug lines */
+.debug-line.github { color: #0096ff; }
+.debug-line.music { color: #ff006e; }
+.debug-line.ai { color: #00ff41; }
+.debug-line.error { color: #f44; }
+.debug-line.info { color: #0cc; }
+.debug-line.warning { color: #fa0; }
+
+/* Fade out old debug lines */
+.debug-line.fade-out {
+    opacity: 0.3;
+}
+
+/* Scrollbar for debug content */
+.debug-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.debug-content::-webkit-scrollbar-track {
+    background: #111;
+}
+
+.debug-content::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 2px;
+}
+
+.debug-content::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}
+
 .prompt {
     color: var(--primary-color);
     margin-right: 10px;
@@ -290,6 +362,17 @@ input, textarea, select {
     color: var(--accent-color);
     font-weight: bold;
     transition: var(--theme-transition);
+}
+
+.clickable-command {
+    cursor: pointer;
+    text-decoration: underline;
+    color: var(--accent-color); /* Or another suitable color */
+}
+
+.clickable-command:hover {
+    color: var(--primary-color); /* Highlight on hover */
+    text-shadow: 0 0 5px var(--primary-color);
 }
 
 .ai-highlight {
@@ -438,7 +521,7 @@ input, textarea, select {
 
 /* Terminal Content Area (consolidated) */
 
-.terminal-output {
+.commandOutput {
     flex: 1;
     overflow: hidden;
 }
@@ -1282,6 +1365,7 @@ input, textarea, select {
     color: #666;
     font-size: 12px;
     writing-mode: vertical-rl;
+    -webkit-user-select: none;
     user-select: none;
 }
 
@@ -1292,7 +1376,7 @@ input, textarea, select {
     overflow: hidden;
 }
 
-.terminal-output-split {
+.commandOutput-split {
     flex: 1;
     padding: 12px;
     overflow-y: auto;
@@ -1419,7 +1503,7 @@ input, textarea, select {
         padding: 6px 8px;
     }
     
-    .terminal-output-split {
+    .commandOutput-split {
         font-size: 12px;
         padding: 8px;
     }

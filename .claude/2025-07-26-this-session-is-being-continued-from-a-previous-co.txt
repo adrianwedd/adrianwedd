@@ -718,8 +718,8 @@
 ⏺ Update(tests/e2e/ai-chat.spec.js)
   ⎿  Error: Found 96 matches of the string to replace, but replace_all is false. To replace all occurrences, set replace_all to true. To replace only one occurrence, please provide more context to uniquely identify the instance.
      String:   test('API error handling for 400 Bad Request', async ({ page }) => {
-         const terminalInput = page.locator('#terminal-input');
-         const terminalOutput = page.locator('#terminal-output');
+         const terminalInput = page.locator('#commandInput');
+         const terminalOutput = page.locator('#commandOutput');
 
          await terminalInput.fill('chat');
          await terminalInput.press('Enter');
@@ -739,7 +739,7 @@
          await page.waitForLoadState('networkidle');
        });
        test('Basic chat command functionality', async ({ page }) => {
-         const terminalInput = page.locator('#terminal-input');
+         const terminalInput = page.locator('#commandInput');
      … +194 lines (ctrl+r to expand)
 
 ⏺ Now let me replace the old file with the fixed version:
@@ -811,7 +811,7 @@
          await page.goto('/'); // Assuming baseURL is configured in playwright.config.js
        });
        test('Monitor mode activation (htop/btop style)', async ({ page }) => {
-         const terminalInput = page.locator('#terminal-input');
+         const terminalInput = page.locator('#commandInput');
      … +211 lines (ctrl+r to expand)
 
 ⏺ Bash(mv /Users/adrian/repos/adrianwedd/tests/e2e/system-monitor-fixed.spec.js /Users/adrian/repos/adrianwedd/tests/e2e/system-monitor.spec.js)

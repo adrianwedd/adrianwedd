@@ -55,6 +55,12 @@
                 <input type="text" id="commandInput" class="command-input" autofocus>
                 <span class="cursor">█</span>
             </div>
+            <div id="debugPanel" class="debug-panel" style="display: none;">
+              <div class="debug-header">📊 SYSTEM DEBUG LOG</div>
+              <div class="debug-content" id="debugContent">
+                <!-- Debug lines will be appended here -->
+              </div>
+            </div>
         </div>
         
         <!-- Split Screen Layout Container -->
@@ -68,7 +74,7 @@
                     </div>
                 </div>
                 <div class="split-terminal-content">
-                    <div class="terminal-output-split" id="terminalOutputSplit">
+                    <div class="commandOutput-split" id="terminalOutputSplit">
                         <!-- Terminal output mirrored here -->
                     </div>
                     <div class="prompt-line-split">

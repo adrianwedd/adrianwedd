@@ -43,23 +43,43 @@ class RetroMusicPlayer {
     }
 
     async playTrack(trackName) {
+        console.log(`Attempting to play track: ${trackName}`);
+        
         if (!this.audioContext) {
+            console.log('No audio context, initializing...');
             const initialized = await this.init();
-            if (!initialized) return false;
+            if (!initialized) {
+                console.error('Failed to initialize audio context');
+                return false;
+            }
         }
 
         // Resume context if suspended (required for user interaction)
         if (this.audioContext.state === 'suspended') {
+            console.log('Resuming suspended audio context...');
             await this.audioContext.resume();
         }
 
+        console.log(`Audio context state: ${this.audioContext.state}`);
         this.stopTrack();
+        
+        console.log(`Available tracks:`, Object.keys(this.tracks));
+        console.log(`Looking for track: ${trackName}`);
         
         if (this.tracks[trackName]) {
             this.currentTrack = trackName;
             this.time = 0;
-            this.tracks[trackName]();
-            this.isPlaying = true;
+            this.isPlaying = true;  // Set this BEFORE calling the track method
+            try {
+                console.log(`Calling track method for: ${trackName}`);
+                this.tracks[trackName]();
+                console.log(`Track ${trackName} started successfully`);
+            } catch (error) {
+                console.error(`Error playing track "${trackName}":`, error);
+                this.isPlaying = false;
+                this.currentTrack = null;
+                return false;
+            }
             
             // Start visualizer with appropriate shader
             if (this.visualizer) {
@@ -77,6 +97,8 @@ class RetroMusicPlayer {
             }
             
             return true;
+        } else {
+            console.error(`Track "${trackName}" not found in available tracks:`, Object.keys(this.tracks));
         }
         return false;
     }
@@ -104,8 +126,9 @@ class RetroMusicPlayer {
     }
 
     createOscillator(frequency, type = 'sine', duration = null) {
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
+        try {
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
         
         oscillator.type = type;
         oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
@@ -128,10 +151,15 @@ class RetroMusicPlayer {
         this.oscillators.push(oscillator);
         this.gainNodes.push(gainNode);
         
-        return { oscillator, gainNode };
+            return { oscillator, gainNode };
+        } catch (error) {
+            console.error('Error creating oscillator:', error);
+            throw error;
+        }
     }
 
     createCyberpunkTrack() {
+        console.log('Creating cyberpunk track...');
         const startTime = this.audioContext.currentTime;
         
         // Dark bass line with distortion

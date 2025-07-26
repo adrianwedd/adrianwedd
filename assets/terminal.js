@@ -18,6 +18,7 @@ class Terminal {
         this.aiResponses = null;
         this.terminalLines = [];
         this.maxLines = 50; // Maximum lines to keep in terminal
+        this.debugPanelVisible = false; // New property for debug panel visibility
         
         // Initialize AI service for advanced prompt caching
         this.aiService = new AIService();
@@ -58,7 +59,7 @@ class Terminal {
             'about', 'actions', 'adrian', 'boot', 'cache', 'cat', 'chat', 'clear', 'edit', 'effects', 'exec', 'gemini', 'gh-create', 'gh-list', 'gh-sync', 'grep', 'help', 'history', 'home', 'ls', 'magic', 'matrix',
             'monitor', 'music', 'neofetch', 'particles', 'projects', 'ps', 'pwd', 'reboot', 'research', 'runs', 'script',
             'skills', 'speak', 'split', 'stop', 'tail', 'tokens', 'trigger', 'uptime', 'veritas', 'voice',
-            'volume', 'weather', 'whoami', 'theme'
+            'volume', 'weather', 'whoami', 'theme', 'debug'
         ];
         this.completionIndex = -1;
         this.lastInput = '';
@@ -66,6 +67,7 @@ class Terminal {
         
         this.init();
         this.loadHistoryFromStorage();
+        this.addDebugLog('Terminal initialized', 'info', 'system');
     }
 
     init() {
@@ -156,35 +158,45 @@ class Terminal {
     }
 
     executeCommand(command) {
+        this.addDebugLog(`Executing command: ${command}`, 'info', 'command');
         const parts = command.split(' ');
         const cmd = parts[0].toLowerCase();
         const args = parts.slice(1);
 
-        this.addOutput(`$ ${command}`, 'prompt');
+        const formattedCommand = `<span class="clickable-command" onclick="window.terminal.executeClickedCommand('${command.replace(/\'/g, '\'')}')">$ ${command}</span>`;
+        this.addOutput(formattedCommand, 'prompt', true);
 
         switch (cmd) {
             case 'help':
+                this.addDebugLog('Showing help', 'info', 'command');
                 this.showHelp();
                 break;
             case 'about':
+                this.addDebugLog('Showing about content', 'info', 'command');
                 this.showMarkdownContent('about');
                 break;
             case 'projects':
+                this.addDebugLog('Showing projects content', 'info', 'command');
                 this.showMarkdownContent('projects');
                 break;
             case 'skills':
+                this.addDebugLog('Showing skills content', 'info', 'command');
                 this.showMarkdownContent('skills');
                 break;
             case 'home':
+                this.addDebugLog('Showing home content', 'info', 'command');
                 this.showMarkdownContent('home');
                 break;
             case 'veritas':
+                this.addDebugLog('Showing VERITAS content', 'info', 'command');
                 this.showMarkdownContent('veritas');
                 break;
             case 'chat':
+                this.addDebugLog('Entering chat mode', 'info', 'command');
                 this.openChat();
                 break;
             case 'matrix':
+                this.addDebugLog('Toggling matrix rain', 'info', 'command');
                 this.toggleMatrixRain();
                 break;
             case 'clear':
@@ -310,6 +322,9 @@ class Terminal {
             case 'task':
                 this.handleTaskCommand(args);
                 break;
+            case 'debug':
+                this.toggleDebugPanel(args);
+                break;
             case 'sudo':
                 this.addOutput('adrian is not in the sudoers file. This incident will be reported.', 'error');
                 break;
@@ -318,6 +333,23 @@ class Terminal {
         }
 
         this.scrollToBottom();
+    }
+
+    executeClickedCommand(commandText) {
+        const input = document.getElementById('commandInput');
+        if (input) {
+            input.value = commandText;
+            // Simulate Enter key press
+            const event = new KeyboardEvent('keydown', {
+                key: 'Enter',
+                code: 'Enter',
+                keyCode: 13,
+                which: 13,
+                bubbles: true,
+                cancelable: true,
+            });
+            input.dispatchEvent(event);
+        }
     }
 
     addOutput(text, className = '', allowHTML = false) {
@@ -361,6 +393,31 @@ class Terminal {
         
         // Animate the scroll effect
         this.animateTerminalScroll();
+    }
+
+    addDebugLog(message, type = 'info', source = 'system') {
+        if (!this.debugPanelVisible) return;
+
+        const debugContent = document.getElementById('debugContent');
+        if (!debugContent) return;
+
+        const timestamp = new Date().toLocaleTimeString();
+        const logLine = document.createElement('div');
+        logLine.className = `debug-line ${type} ${source}`;
+        logLine.textContent = `${timestamp} | ${source.padEnd(8)} | ${message}`;
+
+        debugContent.appendChild(logLine);
+        debugContent.scrollTop = debugContent.scrollHeight;
+
+        // Optional: fade out old lines if too many
+        if (debugContent.children.length > 50) {
+            debugContent.firstChild.classList.add('fade-out');
+            setTimeout(() => {
+                if (debugContent.firstChild) {
+                    debugContent.removeChild(debugContent.firstChild);
+                }
+            }, 500);
+        }
     }
 
     animateTerminalScroll() {
@@ -1988,6 +2045,29 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         }
     }
 
+    toggleDebugPanel(args) {
+        const debugPanel = document.getElementById('debugPanel');
+        if (!debugPanel) {
+            this.addOutput('❌ Debug panel element not found.', 'error');
+            return;
+        }
+
+        if (args.length === 0) {
+            this.debugPanelVisible = !this.debugPanelVisible;
+        } else if (args[0].toLowerCase() === 'on') {
+            this.debugPanelVisible = true;
+        } else if (args[0].toLowerCase() === 'off') {
+            this.debugPanelVisible = false;
+        } else {
+            this.addOutput('❌ Usage: debug [on|off]', 'error');
+            return;
+        }
+
+        debugPanel.style.display = this.debugPanelVisible ? 'flex' : 'none';
+        this.addOutput(`📊 Debug panel ${this.debugPanelVisible ? 'enabled' : 'disabled'}.`, 'info');
+        this.scrollToBottom();
+    }
+
     async displayChatResponse(response) {
         // Create output element for streaming
         const terminal = document.getElementById('terminal');
@@ -3452,13 +3532,42 @@ ____/\\\\\\\\\\\\\\\\______________/\\\\\\\\\\\\\\\\\\\\\\\\______/\\\\\\\\\\\\\
         const labels = args.slice(1);
 
         try {
+            this.addOutput('🔄 Fetching GitHub issues...', 'info');
             const result = await this.githubTaskManager.listIssues(state, labels);
             
-            this.addOutput('📋 GitHub Issues List Command:', 'success');
-            this.addOutput('', 'info');
-            this.addOutput(result.command, 'command');
-            this.addOutput('', 'info');
-            this.addOutput('💡 Run this command in your terminal to list GitHub issues', 'feature-highlight');
+            if (result.success && result.issues) {
+                // Display issues directly
+                this.addOutput('', 'info');
+                this.addOutput(`📋 GitHub Issues (${state})`, 'success');
+                this.addOutput('', 'info');
+                
+                if (result.issues.length === 0) {
+                    this.addOutput(`No ${state} issues found${labels.length ? ` with labels: ${labels.join(', ')}` : ''}`, 'info');
+                } else {
+                    result.issues.forEach((issue, index) => {
+                        const labelsText = issue.labels.length > 0 ? ` [${issue.labels.join(', ')}]` : '';
+                        const assigneeText = issue.assignees.length > 0 ? ` @${issue.assignees.join(', @')}` : '';
+                        
+                        this.addOutput(`#${issue.number} ${issue.title}${labelsText}${assigneeText}`, 'feature-highlight');
+                        this.addOutput(`   Created: ${new Date(issue.created_at).toLocaleDateString()}   URL: ${issue.url}`, 'info');
+                        
+                        if (index < result.issues.length - 1) {
+                            this.addOutput('', 'info');
+                        }
+                    });
+                }
+                
+                this.addOutput('', 'info');
+                this.addOutput('💡 Use "task show <number>" for detailed issue information', 'feature-highlight');
+                
+            } else {
+                // Fallback to CLI command
+                this.addOutput('📋 GitHub Issues List Command:', 'success');
+                this.addOutput('', 'info');
+                this.addOutput(result.command, 'command');
+                this.addOutput('', 'info');
+                this.addOutput(`💡 ${result.message}`, 'feature-highlight');
+            }
             
         } catch (error) {
             this.addOutput(`❌ Error listing tasks: ${error.message}`, 'error');
