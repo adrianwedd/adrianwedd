@@ -834,11 +834,13 @@ Current focus: Deep work mode - VERITAS research
     }
 
     async showDailyMagic() {
+        this.addDebugLog('Attempting to show daily magic', 'info', 'magic');
         try {
             // Try to load today's magic from the daily magic file
             const response = await fetch('./assets/daily-magic.json');
             if (response.ok) {
                 const magic = await response.json();
+                this.addDebugLog('Daily magic data loaded', 'success', 'magic');
                 const date = new Date(magic.timestamp);
                 const isToday = date.toDateString() === new Date().toDateString();
                 
@@ -872,6 +874,7 @@ Current focus: Deep work mode - VERITAS research
                     const statsResponse = await fetch('./magic/stats.json');
                     if (statsResponse.ok) {
                         const stats = await statsResponse.json();
+                        this.addDebugLog('Magic stats loaded', 'success', 'magic');
                         this.addOutput('', 'info');
                         this.addOutput('📈 Total Magic Stats:', 'feature-highlight');
                         this.addOutput(`   Days of Magic: ${stats.total_days}`, 'info');
@@ -879,10 +882,12 @@ Current focus: Deep work mode - VERITAS research
                         this.addOutput(`   Token Range: ${stats.min_tokens}-${stats.max_tokens}`, 'info');
                     }
                 } catch (_e) {
+                    this.addDebugLog('Magic stats not available', 'warning', 'magic');
                     // Stats not available yet
                 }
                 
             } else {
+                this.addDebugLog('No daily magic file found', 'warning', 'magic');
                 // No magic file exists yet
                 this.addOutput('', 'info');
                 this.addOutput('✨ DAILY CLAUDE MAGIC', 'success');
@@ -905,10 +910,12 @@ Current focus: Deep work mode - VERITAS research
         } catch (_error) {
             this.addOutput('❌ Could not load daily magic data', 'error');
             this.addOutput('The Daily Claude Magic system may not be initialized yet.', 'info');
+            this.addDebugLog(`Failed to load daily magic data: ${_error.message}`, 'error', 'magic');
         }
     }
 
     async handleActionsCommand(args) {
+        this.addDebugLog(`Handling GitHub Actions command with args: ${args.join(' ')}`, 'info', 'github');
         try {
             await this.githubActionsManager.init();
             const commands = this.githubActionsManager.getTerminalCommands();
@@ -928,13 +935,16 @@ Current focus: Deep work mode - VERITAS research
                     this.addOutput(line, 'info');
                 }
             });
+            this.addDebugLog('GitHub Actions command executed successfully', 'success', 'github');
         } catch (_error) {
             this.addOutput('❌ GitHub Actions integration not available', 'error');
             this.addOutput('Make sure you are authenticated with GitHub CLI (gh auth login)', 'info');
+            this.addDebugLog(`GitHub Actions command failed: ${_error.message}`, 'error', 'github');
         }
     }
 
     async handleTriggerCommand(args) {
+        this.addDebugLog(`Handling trigger command with args: ${args.join(' ')}`, 'info', 'github');
         try {
             await this.githubActionsManager.init();
             const commands = this.githubActionsManager.getTerminalCommands();
@@ -958,13 +968,16 @@ Current focus: Deep work mode - VERITAS research
             // Show helpful tip
             this.addOutput('', 'info');
             this.addOutput('💡 Copy and run the command above in your terminal to trigger the workflow!', 'philosophy');
+            this.addDebugLog('GitHub Actions trigger command executed successfully', 'success', 'github');
         } catch (_error) {
             this.addOutput('❌ Could not trigger workflow', 'error');
             this.addOutput('Make sure you are authenticated with GitHub CLI', 'info');
+            this.addDebugLog(`GitHub Actions trigger command failed: ${_error.message}`, 'error', 'github');
         }
     }
 
     async handleRunsCommand(args) {
+        this.addDebugLog(`Handling runs command with args: ${args.join(' ')}`, 'info', 'github');
         try {
             await this.githubActionsManager.init();
             const commands = this.githubActionsManager.getTerminalCommands();
@@ -984,13 +997,16 @@ Current focus: Deep work mode - VERITAS research
                     this.addOutput(line, 'info');
                 }
             });
+            this.addDebugLog('GitHub Actions runs command executed successfully', 'success', 'github');
         } catch (_error) {
             this.addOutput('❌ Could not fetch workflow runs', 'error');
             this.addOutput('GitHub Actions integration may not be available', 'info');
+            this.addDebugLog(`GitHub Actions runs command failed: ${_error.message}`, 'error', 'github');
         }
     }
 
     handleParticleEffects(args) {
+        this.addDebugLog(`Handling particle effects command with args: ${args.join(' ')}`, 'info', 'effects');
         if (args.length === 0) {
             this.addOutput('🎨 PARTICLE EFFECTS SYSTEM', 'success');
             this.addOutput('', 'info');
@@ -1015,12 +1031,14 @@ Current focus: Deep work mode - VERITAS research
             this.addOutput('   effects stars rain         - Multiple effects', 'ai-highlight');
             this.addOutput('   effects opacity 0.3        - Set to 30% opacity', 'ai-highlight');
             
+            this.addDebugLog('Displayed particle effects help', 'info', 'effects');
             return;
         }
 
         const command = args[0].toLowerCase();
         
         if (command === 'clear' || command === 'stop') {
+            this.addDebugLog('Clearing all particle effects', 'info', 'effects');
             this.particleEffects.getAvailableEffects().forEach(effect => {
                 this.particleEffects.stopEffect(effect);
             });
@@ -1032,11 +1050,13 @@ Current focus: Deep work mode - VERITAS research
             const opacity = parseFloat(args[1]);
             if (isNaN(opacity) || opacity < 0 || opacity > 1) {
                 this.addOutput('❌ Invalid opacity value. Use 0.0 to 1.0', 'error');
+                this.addDebugLog(`Invalid opacity value: ${args[1]}`, 'error', 'effects');
                 return;
             }
             
             this.particleEffects.setOpacity(opacity);
             this.addOutput(`🎨 Effects opacity set to ${Math.round(opacity * 100)}%`, 'success');
+            this.addDebugLog(`Opacity set to ${opacity}`, 'success', 'effects');
             return;
         }
         
@@ -1052,17 +1072,20 @@ Current focus: Deep work mode - VERITAS research
                 if (isToggleOff) {
                     this.particleEffects.stopEffect(effectName);
                     this.addOutput(`❌ ${effectName} effect stopped`, 'info');
+                    this.addDebugLog(`Stopped effect: ${effectName}`, 'info', 'effects');
                 } else if (isToggleOn || args.length === 1) {
                     // Set effect-specific options
                     const options = this.getEffectOptions(effectName);
                     this.particleEffects.startEffect(effectName, options);
                     this.addOutput(`✨ ${effectName} effect started`, 'success');
+                    this.addDebugLog(`Started effect: ${effectName}`, 'success', 'effects');
                 } else {
                     // Toggle effect
                     this.particleEffects.toggleEffect(effectName);
                     const isActive = this.particleEffects.effects[effectName].active;
                     this.addOutput(`${isActive ? '✨' : '❌'} ${effectName} effect ${isActive ? 'started' : 'stopped'}`, 
                                  isActive ? 'success' : 'info');
+                    this.addDebugLog(`Toggled effect: ${effectName} to ${isActive ? 'active' : 'inactive'}`, 'info', 'effects');
                 }
             }
         }
@@ -1076,6 +1099,7 @@ Current focus: Deep work mode - VERITAS research
         if (unknownEffects.length > 0) {
             this.addOutput(`❌ Unknown effects: ${unknownEffects.join(', ')}`, 'error');
             this.addOutput(`Available: ${availableEffects.join(', ')}`, 'info');
+            this.addDebugLog(`Unknown effects provided: ${unknownEffects.join(', ')}`, 'error', 'effects');
         }
     }
 
@@ -1107,6 +1131,7 @@ Current focus: Deep work mode - VERITAS research
     }
 
     showHistory(args) {
+        this.addDebugLog(`Showing history with args: ${args.join(' ')}`, 'info', 'history');
         const [command, ...params] = args;
         
         if (!command) {
@@ -1115,6 +1140,7 @@ Current focus: Deep work mode - VERITAS research
             
             if (this.commandHistory.length === 0) {
                 this.addOutput('No commands in history.', 'info');
+                this.addDebugLog('No commands in history', 'info', 'history');
                 return;
             }
             
@@ -1136,12 +1162,14 @@ Current focus: Deep work mode - VERITAS research
                 this.historyIndex = -1;
                 this.saveHistoryToStorage();
                 this.addOutput('✨ Command history cleared', 'success');
+                this.addDebugLog('History cleared', 'info', 'history');
                 break;
                 
             case 'search': {
                 const searchTerm = params.join(' ');
                 if (!searchTerm) {
                     this.addOutput('❌ Please provide a search term', 'error');
+                    this.addDebugLog('History search: no search term provided', 'error', 'history');
                     return;
                 }
                 
@@ -1151,6 +1179,7 @@ Current focus: Deep work mode - VERITAS research
                 
                 if (matches.length === 0) {
                     this.addOutput(`🔍 No commands found containing: ${searchTerm}`, 'info');
+                    this.addDebugLog(`No history matches for: ${searchTerm}`, 'info', 'history');
                 } else {
                     this.addOutput(`🔍 Found ${matches.length} commands containing: ${searchTerm}`, 'success');
                     this.addOutput('', 'info');
@@ -1158,6 +1187,7 @@ Current focus: Deep work mode - VERITAS research
                         const index = this.commandHistory.lastIndexOf(cmd);
                         this.addOutput(`${String(index + 1).padStart(4)}: ${cmd}`, 'ai-highlight');
                     });
+                    this.addDebugLog(`Found ${matches.length} history matches for: ${searchTerm}`, 'success', 'history');
                 }
                 break;
             }
@@ -1165,6 +1195,7 @@ Current focus: Deep work mode - VERITAS research
             default:
                 this.addOutput('❌ Unknown history command', 'error');
                 this.addOutput('Available: clear, search <term>', 'info');
+                this.addDebugLog(`Unknown history subcommand: ${command}`, 'error', 'history');
         }
     }
 
@@ -1601,7 +1632,9 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     }
 
     generateAIResponse(userMessage) {
+        this.addDebugLog(`Generating AI response for: ${userMessage.substring(0, 50)}...`, 'info', 'ai');
         if (!this.aiResponses) {
+            this.addDebugLog('AI responses not loaded, returning placeholder', 'warning', 'ai');
             return 'AI responses loading... Please try again.';
         }
 
@@ -1612,6 +1645,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         for (const keyword in this.aiResponses) {
             if (keyword !== 'default' && message.includes(keyword)) {
                 responses = this.aiResponses[keyword];
+                this.addDebugLog(`Found keyword match: ${keyword}`, 'info', 'ai');
                 break;
             }
         }
@@ -1619,10 +1653,13 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         // Use default if no match
         if (!responses) {
             responses = this.aiResponses.default || ['Processing query...'];
+            this.addDebugLog('No keyword match, using default response', 'info', 'ai');
         }
 
         // Return random response from array
-        return responses[Math.floor(Math.random() * responses.length)];
+        const response = responses[Math.floor(Math.random() * responses.length)];
+        this.addDebugLog(`Generated response: ${response.substring(0, 50)}...`, 'info', 'ai');
+        return response;
     }
 
     // Music Player Methods
@@ -1700,7 +1737,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         this.addDebugLog('Entering monitor mode', 'info', 'system');
         this.addOutput('', 'info');
         this.addOutput('🖥️  Entering system monitor mode...', 'success');
-        this.addOutput('Press 'q' to return to terminal', 'info');
+        this.addOutput('Press \'q\' to return to terminal', 'info');
         await this.systemMonitor.enterMonitorMode();
         this.addDebugLog('System monitor entered', 'success', 'system');
     }
