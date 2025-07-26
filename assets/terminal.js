@@ -291,6 +291,9 @@ class Terminal {
             case 'adrian':
                 this.showAdrianLogo();
                 break;
+            case 'task':
+                this.handleTaskCommand(args);
+                break;
             case 'sudo':
                 this.addOutput('adrian is not in the sudoers file. This incident will be reported.', 'error');
                 break;
@@ -441,6 +444,15 @@ class Terminal {
             '    runs         show recent workflow runs',
             '    trigger      trigger GitHub Actions workflow',
             '',
+            'TASK MANAGEMENT 📋',
+            '    task         GitHub task/issue management system',
+            '    task create  create new GitHub issue with AI categorization',
+            '    task list    list GitHub issues [state] [labels]',
+            '    task update  update issue status/priority/comments',
+            '    task close   close issue with completion comment',
+            '    task show    display detailed issue information',
+            '    task sync    sync todo system with GitHub issues',
+            '',
             'ADVANCED FEATURES',
             '    research     stream research papers [personal|global]',
             '    theme        change terminal theme [default|cyberpunk|matrix]',
@@ -497,6 +509,8 @@ class Terminal {
             '    history search git       - Search command history',
             '    cache stats              - Show prompt cache info',
             '    monitor                  - Enter system monitor',
+            '    task create "Fix bug" high bug - Create high-priority bug issue',
+            '    task list open "priority: high" - List high-priority open issues',
             '',
             'DEVELOPER INFO',
             '    Repository:   github.com/adrianwedd/adrianwedd',
@@ -3316,6 +3330,229 @@ ____/\\\\\\\\\\\\\\\\______________/\\\\\\\\\\\\\\\\\\\\\\\\______/\\\\\\\\\\\\\
         this.addOutput('🚀 >ADRIAN - Recursive Systems Architect & Off-Grid Permanaut', 'feature-highlight');
         this.addOutput('   Building intelligent systems from Tasmania\'s wilderness', 'info');
         this.addOutput('', 'info');
+    }
+
+    // Task Management System
+    async handleTaskCommand(args) {
+        if (!this.githubTaskManager) {
+            this.githubTaskManager = new GitHubTaskManager();
+            await this.githubTaskManager.init();
+        }
+
+        if (args.length === 0) {
+            this.showTaskHelp();
+            return;
+        }
+
+        const subCommand = args[0].toLowerCase();
+        const subArgs = args.slice(1);
+
+        switch (subCommand) {
+            case 'create':
+                await this.handleTaskCreate(subArgs);
+                break;
+            case 'list':
+                await this.handleTaskList(subArgs);
+                break;
+            case 'update':
+                await this.handleTaskUpdate(subArgs);
+                break;
+            case 'close':
+                await this.handleTaskClose(subArgs);
+                break;
+            case 'show':
+                await this.handleTaskShow(subArgs);
+                break;
+            case 'sync':
+                await this.handleTaskSync(subArgs);
+                break;
+            default:
+                this.addOutput(`Unknown task command: ${subCommand}`, 'error');
+                this.showTaskHelp();
+        }
+    }
+
+    showTaskHelp() {
+        this.addOutput('📋 TASK MANAGEMENT SYSTEM', 'success');
+        this.addOutput('', 'info');
+        this.addOutput('<span class="command-name">task create</span> <title> [priority] [type] - Create a new GitHub issue', 'feature-highlight', true);
+        this.addOutput('<span class="command-name">task list</span> [state] [labels]          - List GitHub issues', 'feature-highlight', true);
+        this.addOutput('<span class="command-name">task update</span> <number> <field> <value> - Update an issue', 'feature-highlight', true);
+        this.addOutput('<span class="command-name">task close</span> <number> [comment]       - Close an issue', 'feature-highlight', true);
+        this.addOutput('<span class="command-name">task show</span> <number>                  - Show issue details', 'feature-highlight', true);
+        this.addOutput('<span class="command-name">task sync</span>                           - Sync todos with GitHub', 'feature-highlight', true);
+        this.addOutput('', 'info');
+        this.addOutput('Examples:', 'success');
+        this.addOutput('  task create "Fix terminal theme bug" high bug', 'info');
+        this.addOutput('  task list open "priority: high"', 'info');
+        this.addOutput('  task close 42 "Task completed successfully"', 'info');
+        this.addOutput('', 'info');
+    }
+
+    async handleTaskCreate(args) {
+        if (args.length === 0) {
+            this.addOutput('Usage: task create <title> [priority] [type]', 'error');
+            this.addOutput('Priority: high, medium, low (default: medium)', 'info');
+            this.addOutput('Type: task, bug, enhancement, documentation (default: task)', 'info');
+            return;
+        }
+
+        const title = args[0];
+        const priority = args[1] || 'medium';
+        const type = args[2] || 'task';
+
+        // Use AI to suggest priority and type if not specified
+        if (args.length === 1 && this.githubTaskManager.config?.integrations?.ai_assistant) {
+            const suggestedPriority = this.githubTaskManager.categorizePriority(title);
+            const suggestedType = this.githubTaskManager.categorizeType(title);
+            
+            this.addOutput(`🤖 AI Suggestions:`, 'feature-highlight');
+            this.addOutput(`   Priority: ${suggestedPriority}`, 'info');
+            this.addOutput(`   Type: ${suggestedType}`, 'info');
+            this.addOutput('', 'info');
+        }
+
+        try {
+            this.addOutput('🔄 Creating GitHub issue...', 'info');
+            
+            const result = await this.githubTaskManager.createIssue(title, title, priority, type);
+            
+            this.addOutput('✅ Issue creation command generated:', 'success');
+            this.addOutput('', 'info');
+            this.addOutput(result.command, 'command');
+            this.addOutput('', 'info');
+            this.addOutput('💡 Run this command in your terminal to create the GitHub issue', 'feature-highlight');
+
+            // Show suggested labels
+            const labels = this.githubTaskManager.suggestLabels(title);
+            if (labels.length > 0) {
+                this.addOutput('', 'info');
+                this.addOutput('🏷️  Suggested labels:', 'success');
+                labels.forEach(label => {
+                    this.addOutput(`   • ${label}`, 'info');
+                });
+            }
+
+        } catch (error) {
+            this.addOutput(`❌ Error creating task: ${error.message}`, 'error');
+        }
+    }
+
+    async handleTaskList(args) {
+        const state = args[0] || 'open';
+        const labels = args.slice(1);
+
+        try {
+            const result = await this.githubTaskManager.listIssues(state, labels);
+            
+            this.addOutput('📋 GitHub Issues List Command:', 'success');
+            this.addOutput('', 'info');
+            this.addOutput(result.command, 'command');
+            this.addOutput('', 'info');
+            this.addOutput('💡 Run this command in your terminal to list GitHub issues', 'feature-highlight');
+            
+        } catch (error) {
+            this.addOutput(`❌ Error listing tasks: ${error.message}`, 'error');
+        }
+    }
+
+    async handleTaskUpdate(args) {
+        if (args.length < 3) {
+            this.addOutput('Usage: task update <issue-number> <field> <value>', 'error');
+            this.addOutput('Fields: status, priority, comment', 'info');
+            this.addOutput('Example: task update 42 status in-progress', 'info');
+            return;
+        }
+
+        const issueNumber = args[0];
+        const field = args[1];
+        const value = args.slice(2).join(' ');
+
+        const updates = {};
+        if (field === 'status') updates.status = value;
+        else if (field === 'priority') updates.priority = value;
+        else if (field === 'comment') updates.comment = value;
+        else {
+            this.addOutput(`Unknown field: ${field}`, 'error');
+            return;
+        }
+
+        try {
+            const result = await this.githubTaskManager.updateIssue(issueNumber, updates);
+            
+            this.addOutput(`🔄 Issue #${issueNumber} update commands:`, 'success');
+            this.addOutput('', 'info');
+            
+            result.commands.forEach(cmd => {
+                this.addOutput(cmd, 'command');
+            });
+            
+            this.addOutput('', 'info');
+            this.addOutput('💡 Run these commands in your terminal to update the issue', 'feature-highlight');
+            
+        } catch (error) {
+            this.addOutput(`❌ Error updating task: ${error.message}`, 'error');
+        }
+    }
+
+    async handleTaskClose(args) {
+        if (args.length === 0) {
+            this.addOutput('Usage: task close <issue-number> [comment]', 'error');
+            return;
+        }
+
+        const issueNumber = args[0];
+        const comment = args.slice(1).join(' ') || 'Task completed via Claude Code';
+
+        try {
+            const result = await this.githubTaskManager.updateIssue(issueNumber, {
+                close: true,
+                comment: comment
+            });
+            
+            this.addOutput(`✅ Issue #${issueNumber} close commands:`, 'success');
+            this.addOutput('', 'info');
+            
+            result.commands.forEach(cmd => {
+                this.addOutput(cmd, 'command');
+            });
+            
+            this.addOutput('', 'info');
+            this.addOutput('💡 Run these commands in your terminal to close the issue', 'feature-highlight');
+            
+        } catch (error) {
+            this.addOutput(`❌ Error closing task: ${error.message}`, 'error');
+        }
+    }
+
+    async handleTaskShow(args) {
+        if (args.length === 0) {
+            this.addOutput('Usage: task show <issue-number>', 'error');
+            return;
+        }
+
+        const issueNumber = args[0];
+        
+        this.addOutput(`📄 Issue #${issueNumber} Details Command:`, 'success');
+        this.addOutput('', 'info');
+        this.addOutput(`gh issue view ${issueNumber} --repo "${this.githubTaskManager.repo}"`, 'command');
+        this.addOutput('', 'info');
+        this.addOutput('💡 Run this command in your terminal to view the issue details', 'feature-highlight');
+    }
+
+    async handleTaskSync(args) {
+        this.addOutput('🔄 Task Sync Information:', 'success');
+        this.addOutput('', 'info');
+        this.addOutput('The task sync feature integrates with the todo system.', 'info');
+        this.addOutput('It automatically creates GitHub issues for pending todos', 'info');
+        this.addOutput('and closes issues when todos are marked as completed.', 'info');
+        this.addOutput('', 'info');
+        this.addOutput('🤖 AI-powered categorization is enabled:', 'feature-highlight');
+        this.addOutput('   • Automatic priority detection from keywords', 'info');
+        this.addOutput('   • Smart type categorization (bug/enhancement/task)', 'info');
+        this.addOutput('   • Label suggestions based on content', 'info');
+        this.addOutput('', 'info');
+        this.addOutput('💡 Use the TodoWrite tool to create tasks that can be synced', 'feature-highlight');
     }
 }
 
