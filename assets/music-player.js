@@ -1,40 +1,178 @@
 class RetroMusicPlayer {
     constructor() {
+        // Audio context will be initialized on-demand (lazy init)
         this.audioContext = null;
+        // Indicates if a track is currently playing
         this.isPlaying = false;
+        // The name of the currently playing track
         this.currentTrack = null;
+        // Default volume (0.0 to 1.0)
         this.volume = 0.3;
+        // Map of available track names to their generator functions
         this.tracks = {
-            'cyberpunk': this.createCyberpunkTrack.bind(this),
             'ambient': this.createAmbientTrack.bind(this),
+            'cyberpunk': this.createCyberpunkTrack.bind(this),
             'synthwave': this.createSynthwaveTrack.bind(this),
             'matrix': this.createMatrixTrack.bind(this),
             'mathematical': this.createMathematicalTrack.bind(this),
-            'procedural': this.createProceduralTrack.bind(this)
+            'procedural': this.createProceduralTrack.bind(this),
+            'basicchannel': this.createBasicChannelTrack.bind(this),
+            'purposemaker': this.createPurposeMakerTrack.bind(this),
+            'model500': this.createModel500Track.bind(this),
+            'kraftwerk': this.createKraftwerkTrack.bind(this),
+            'experimental': this.createExperimentalTrack.bind(this)
         };
+        // Arrays to keep track of active oscillators and gain nodes for cleanup
         this.oscillators = [];
         this.gainNodes = [];
+        // Visualizer instance if available
         this.visualizer = null;
+        // Master output gain node
         this.masterGainNode = null;
+        // Internal time counter (used for sequencing)
         this.time = 0;
+        // Default BPM for tracks
         this.bpm = 120;
+        // List of available tracks (library)
+        this.library = [];
+        // Playlists mapping playlist names to arrays of track names
+        this.playlists = {};
+        // Track metadata for tags and categorization
+        this.trackMetadata = {
+            'ambient': { tags: ['drone', 'harmonic', 'bell', 'slow'] },
+            'cyberpunk': { tags: ['industrial', 'bassline', 'distorted', 'berlin'] },
+            'synthwave': { tags: ['retro', 'melody', 'arpeggio'] },
+            'matrix': { tags: ['glitch', 'atonal', 'digital', 'detroit'] },
+            'mathematical': { tags: ['syncopated', 'modular', 'algorithmic', 'percussion'] },
+            'procedural': { tags: ['minimal', 'melodic', 'evolving'] },
+            'basicchannel': { tags: ['dub', 'minimal', 'delay', 'berlin'] },
+            'purposemaker': { tags: ['detroit', 'mills', 'techno', 'loop', 'rhythmic'] },
+            'model500': { tags: ['detroit', 'electro', 'syncopation', 'bleeps', 'FM'] },
+            'kraftwerk': { tags: ['minimal', 'melodic', 'robotic', 'synthetic', 'voice'] },
+            'experimental': { tags: ['glitch', 'noise', 'granular', 'vinyl', 'avant-garde'] }
+        };
+        // --- Playlist initialization and dev message ---
+        // Show developer tip in console
+        console.log("You can now call `player.generateDiversePlaylist()` to explore randomized synth textures.");
+        // Console tip for generative DJ
+        console.log("Try `player.generativeDJTrackSwitcher()` for continuous generative performance.");
+        // Populate library with all available tracks
+        this.library = Object.keys(this.tracks);
+        // Create an autoplay playlist containing all tracks
+        this.createPlaylist("autoplay", this.library);
+        // Start playing the autoplay playlist
+        this.playPlaylist("autoplay");
+    }
+    createPurposeMakerTrack() {
+        const beat = 60 / this.bpm;
+
+        // Pulsing kick
+        for (let i = 0; i < 16; i++) {
+            setTimeout(() => {
+                if (this.isPlaying) this.createKick();
+            }, i * beat * 1000);
+        }
+
+        // Hypnotic mono synth loop
+        const loopFreqs = [440, 466.16, 493.88, 523.25]; // A4 to C5
+
+        loopFreqs.forEach((freq, i) => {
+            setTimeout(() => {
+                if (!this.isPlaying) return;
+                const { oscillator, gainNode } = this.createOscillator(freq, 'sawtooth', 0.2, {
+                    gain: 0.12,
+                    stereoPan: 0
+                });
+
+                // Auto filter modulation
+                const filter = this.audioContext.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(300, this.audioContext.currentTime);
+                filter.frequency.exponentialRampToValueAtTime(1800, this.audioContext.currentTime + 1.5);
+
+                oscillator.connect(filter);
+                filter.connect(gainNode);
+            }, i * beat * 800 + 100);
+        });
+
+        // Clattering hats
+        const hatTimes = [1, 2.5, 3.5, 5.5, 6.5];
+        hatTimes.forEach(t => {
+            setTimeout(() => {
+                if (this.isPlaying) this.createHiHat();
+            }, t * beat * 1000);
+        });
+
+        // Dense stabs with distortion
+        setTimeout(() => {
+            if (!this.isPlaying) return;
+
+            const stabFreq = 987.77; // B5
+            const { oscillator, gainNode } = this.createOscillator(stabFreq, 'square', 0.2, {
+                gain: 0.25,
+                stereoPan: -0.5
+            });
+
+            const waveshaper = this.audioContext.createWaveShaper();
+            const curve = new Float32Array(2048);
+            for (let i = 0; i < 2048; i++) {
+                const x = (i * 2) / 2048 - 1;
+                curve[i] = x < 0 ? -Math.pow(-x, 0.5) : Math.pow(x, 0.5);
+            }
+            waveshaper.curve = curve;
+            waveshaper.oversample = '4x';
+
+            oscillator.disconnect();
+            oscillator.connect(waveshaper);
+            waveshaper.connect(gainNode);
+            oscillator.start();
+        }, 2000);
+
+        // Recursive loop
+        setTimeout(() => {
+            if (this.isPlaying && this.currentTrack === 'purposemaker') {
+                this.createPurposeMakerTrack();
+            }
+        }, 6000);
+    }
+        // (Optional, visible to devs)
+        console.log("You can now call `player.generateDiversePlaylist()` to explore randomized synth textures.");
+        // Populate library and autoplay playlist
+        this.library = Object.keys(this.tracks);
+        this.createPlaylist("autoplay", this.library);
+        this.playPlaylist("autoplay");
     }
 
     async init() {
         try {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
+
             // Create master gain node
             this.masterGainNode = this.audioContext.createGain();
             this.masterGainNode.gain.setValueAtTime(this.volume, this.audioContext.currentTime);
             this.masterGainNode.connect(this.audioContext.destination);
-            
+
+            // --- Reverb bus setup ---
+            this.reverbBus = this.audioContext.createConvolver();
+            const length = this.audioContext.sampleRate * 2;
+            const impulse = this.audioContext.createBuffer(2, length, this.audioContext.sampleRate);
+            for (let channel = 0; channel < 2; channel++) {
+                const channelData = impulse.getChannelData(channel);
+                for (let i = 0; i < length; i++) {
+                    channelData[i] = (Math.random() * 2 - 1) * (1 - i / length); // exponential decay
+                }
+            }
+            this.reverbBus.buffer = impulse;
+            this.reverbBus.connect(this.masterGainNode);
+
             // Initialize visualizer
             if (window.AudioVisualizer) {
                 this.visualizer = new AudioVisualizer();
                 await this.visualizer.init(this.audioContext);
             }
-            
+
+            // Preload other assets here if needed (e.g., samples)
+
             return true;
         } catch (error) {
             console.warn('Web Audio API not supported:', error);
@@ -69,8 +207,8 @@ class RetroMusicPlayer {
         if (this.tracks[trackName]) {
             this.currentTrack = trackName;
             this.time = 0;
-            this.isPlaying = true;  // Set this BEFORE calling the track method
             try {
+                this.isPlaying = true; // Set this only after ready to start
                 console.log(`Calling track method for: ${trackName}`);
                 this.tracks[trackName]();
                 console.log(`Track ${trackName} started successfully`);
@@ -83,15 +221,21 @@ class RetroMusicPlayer {
             
             // Start visualizer with appropriate shader
             if (this.visualizer) {
+                // Updated shader map for all 10 tracks + fallback
                 const shaderMap = {
-                    'cyberpunk': 'cyberpunk',
-                    'matrix': 'cyberpunk',
-                    'synthwave': 'spectrum',
                     'ambient': 'minimal',
+                    'cyberpunk': 'cyberpunk',
+                    'synthwave': 'spectrum',
+                    'matrix': 'cyberpunk',
                     'mathematical': 'waveform',
-                    'particles': 'particles',
-                    'procedural': 'procedural'
+                    'procedural': 'particles',
+                    'basicchannel': 'dub',
+                    'purposemaker': 'strobe',
+                    'model500': 'grid',
+                    'kraftwerk': 'robotic',
+                    'experimental': 'glitch'
                 };
+                // Fallback to 'spectrum' if not mapped
                 this.visualizer.switchShader(shaderMap[trackName] || 'spectrum');
                 this.visualizer.start();
             }
@@ -125,35 +269,64 @@ class RetroMusicPlayer {
         }
     }
 
-    createOscillator(frequency, type = 'sine', duration = null) {
+    createOscillator(frequency, type = 'sine', duration = null, options = {}) {
         try {
+            const {
+                detune = 0,
+                stereoPan = 0,
+                gain = this.volume,
+                modulation = null,
+                customWave = null
+            } = options;
+
             const oscillator = this.audioContext.createOscillator();
             const gainNode = this.audioContext.createGain();
-        
-        oscillator.type = type;
-        oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
-        
-        gainNode.gain.setValueAtTime(this.volume, this.audioContext.currentTime);
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(this.masterGainNode);
-        
-        // Connect to visualizer if available
-        if (this.visualizer && this.visualizer.analyser) {
-            gainNode.connect(this.visualizer.analyser);
-        }
-        
-        if (duration) {
-            gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
-            oscillator.stop(this.audioContext.currentTime + duration);
-        }
-        
-        this.oscillators.push(oscillator);
-        this.gainNodes.push(gainNode);
-        
+            const panNode = this.audioContext.createStereoPanner();
+
+            if (customWave) {
+                oscillator.setPeriodicWave(customWave);
+            } else {
+                oscillator.type = type;
+            }
+
+            oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+            oscillator.detune.setValueAtTime(detune, this.audioContext.currentTime);
+            gainNode.gain.setValueAtTime(gain, this.audioContext.currentTime);
+            panNode.pan.setValueAtTime(stereoPan, this.audioContext.currentTime);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(panNode);
+            panNode.connect(this.masterGainNode);
+
+            if (this.visualizer && this.visualizer.analyser) {
+                gainNode.connect(this.visualizer.analyser);
+            }
+
+            if (modulation && modulation.type === 'lfo') {
+                const lfo = this.audioContext.createOscillator();
+                const lfoGain = this.audioContext.createGain();
+                lfo.frequency.setValueAtTime(modulation.frequency || 1, this.audioContext.currentTime);
+                lfoGain.gain.setValueAtTime(modulation.depth || 10, this.audioContext.currentTime);
+                lfo.connect(lfoGain);
+                lfoGain.connect(oscillator.frequency);
+                lfo.start();
+                if (duration) lfo.stop(this.audioContext.currentTime + duration);
+            }
+
+            if (duration) {
+                gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+                oscillator.start();
+                oscillator.stop(this.audioContext.currentTime + duration);
+            } else {
+                oscillator.start();
+            }
+
+            this.oscillators.push(oscillator);
+            this.gainNodes.push(gainNode);
+
             return { oscillator, gainNode };
         } catch (error) {
-            console.error('Error creating oscillator:', error);
+            console.error('Enhanced oscillator creation failed:', error);
             throw error;
         }
     }
@@ -460,7 +633,7 @@ class RetroMusicPlayer {
     }
 
     createProceduralTrack() {
-        // Simple procedural track with evolving patterns
+        // Simple procedural track with evolving patterns, uses Karplus-Strong plucks
         const baseFreq = 110; // A2
         const scale = [0, 2, 4, 5, 7, 9, 11, 12]; // Major scale intervals
 
@@ -473,9 +646,8 @@ class RetroMusicPlayer {
             const interval = scale[currentNoteIndex];
             const freq = baseFreq * Math.pow(2, interval / 12);
 
-            const { oscillator, gainNode } = this.createOscillator(freq, 'sine', 0.5);
-            gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
-            oscillator.start();
+            // Use Karplus-Strong pluck instead of simple sine
+            this.createKarplusStrongPluck(freq, 0.7, 0.98);
 
             currentNoteIndex += direction;
             if (currentNoteIndex >= scale.length - 1 || currentNoteIndex <= 0) {
@@ -600,7 +772,406 @@ class RetroMusicPlayer {
             availableTracks: Object.keys(this.tracks)
         };
     }
+
+    addToLibrary(track) {
+        this.library.push(track);
+    }
+
+    createPlaylist(name, trackNames = []) {
+        this.playlists[name] = trackNames.filter(t => this.library.includes(t));
+    }
+
+    addToPlaylist(name, trackName) {
+        if (!this.playlists[name]) this.playlists[name] = [];
+        if (this.library.includes(trackName)) this.playlists[name].push(trackName);
+    }
+
+    removeFromPlaylist(name, trackName) {
+        if (!this.playlists[name]) return;
+        this.playlists[name] = this.playlists[name].filter(t => t !== trackName);
+    }
+
+    getPlaylists() {
+        return this.playlists;
+    }
+
+    getLibrary() {
+        return this.library;
+    }
+
+    playPlaylist(name) {
+        const playlist = this.playlists[name];
+        if (!playlist || playlist.length === 0) {
+            console.warn(`Playlist "${name}" is empty or does not exist.`);
+            return;
+        }
+
+        console.log(`Autoplaying playlist "${name}":`, playlist);
+
+        let index = 0;
+        const playNext = async () => {
+            if (index >= playlist.length) {
+                console.log(`Finished playlist: "${name}"`);
+                this.isPlaying = false;
+                return;
+            }
+            if (!this.isPlaying) return;
+
+            const success = await this.playTrack(playlist[index]);
+            if (success) {
+                setTimeout(() => {
+                    index++;
+                    playNext();
+                }, 5000); // average track duration
+            }
+        };
+
+        this.isPlaying = true;
+        playNext();
+    }
 }
 
 // Export for use in terminal
 window.RetroMusicPlayer = RetroMusicPlayer;
+    createDubDelay(delayTime = 0.375, feedbackGain = 0.4, tone = 1200) {
+        const delay = this.audioContext.createDelay();
+        delay.delayTime.setValueAtTime(delayTime, this.audioContext.currentTime);
+
+        const feedback = this.audioContext.createGain();
+        feedback.gain.setValueAtTime(feedbackGain, this.audioContext.currentTime);
+
+        const filter = this.audioContext.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(tone, this.audioContext.currentTime);
+
+        delay.connect(feedback);
+        feedback.connect(filter);
+        filter.connect(delay);
+
+        return { delay, input: delay, output: delay, feedback };
+    }
+
+    createBasicChannelTrack() {
+        const beat = 60 / this.bpm;
+
+        // Kick drum
+        for (let i = 0; i < 16; i++) {
+            setTimeout(() => {
+                if (this.isPlaying) this.createKick();
+            }, i * beat * 1000);
+        }
+
+        // Dub chord stabs with delay
+        const chordFreqs = [261.63, 329.63, 392.00]; // C4, E4, G4
+        const root = chordFreqs[0];
+
+        for (let step = 0; step < 8; step++) {
+            setTimeout(() => {
+                if (!this.isPlaying) return;
+
+                const now = this.audioContext.currentTime;
+                chordFreqs.forEach((freq, i) => {
+                    const { oscillator, gainNode } = this.createOscillator(freq, 'square', 0.25, {
+                        gain: 0.15 / (i + 1),
+                        stereoPan: (i - 1) * 0.5
+                    });
+
+                    // Add dub delay chain
+                    const { delay, output } = this.createDubDelay(0.4 + Math.random() * 0.05, 0.45, 1000 - i * 300);
+                    gainNode.connect(delay);
+                    output.connect(this.masterGainNode);
+                });
+            }, step * beat * 2000 + 500);
+        }
+
+        // Ambient drone pad
+        setTimeout(() => {
+            if (!this.isPlaying) return;
+
+            const droneFreq = root / 2;
+            const { oscillator, gainNode } = this.createOscillator(droneFreq, 'sawtooth', null, {
+                gain: 0.03
+            });
+
+            // Slow filter sweep
+            const filter = this.audioContext.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(400, this.audioContext.currentTime);
+            filter.frequency.linearRampToValueAtTime(3000, this.audioContext.currentTime + 16);
+
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+        }, 1000);
+
+        // Loop track
+        setTimeout(() => {
+            if (this.isPlaying && this.currentTrack === 'basicchannel') {
+                this.createBasicChannelTrack();
+            }
+        }, 8000);
+    }
+    /**
+     * Karplus-Strong pluck generator
+     * @param {number} frequency - Fundamental frequency of the pluck
+     * @param {number} duration - Duration in seconds (default 1.5)
+     * @param {number} decay - Decay factor (default 0.99)
+     */
+    createKarplusStrongPluck(frequency, duration = 1.5, decay = 0.99) {
+        const length = Math.floor(this.audioContext.sampleRate / frequency);
+        const buffer = this.audioContext.createBuffer(1, length, this.audioContext.sampleRate);
+        const data = buffer.getChannelData(0);
+
+        // Fill with noise
+        for (let i = 0; i < length; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        // Apply simple decay filter (Karplus-Strong)
+        for (let i = 1; i < length; i++) {
+            data[i] = (data[i] + data[i - 1]) * 0.5 * decay;
+        }
+
+        const source = this.audioContext.createBufferSource();
+        source.buffer = buffer;
+        const gainNode = this.audioContext.createGain();
+        gainNode.gain.setValueAtTime(0.2, this.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+
+        source.connect(gainNode);
+        gainNode.connect(this.masterGainNode);
+        source.start();
+    }
+
+    /**
+     * Play a sample-based accent (placeholder)
+     * @param {string} name - Name of the sample
+     */
+    playSample(name) {
+        console.warn(`Sample "${name}" not implemented. Use AudioBufferSourceNode to load and play samples.`);
+    }
+    // --- NEW TRACK GENERATORS ---
+    createModel500Track() {
+        // Detroit electro: tight syncopated beats, FM bleeps
+        const beat = 60 / (this.bpm + 10); // Slightly faster
+        // Syncopated electro kick/snare
+        const kickPattern = [1, 0, 0, 1, 0, 1, 0, 0];
+        const snarePattern = [0, 0, 1, 0, 1, 0, 0, 1];
+        kickPattern.forEach((hit, i) => {
+            if (hit) {
+                setTimeout(() => { if (this.isPlaying) this.createKick(); }, i * beat * 500);
+            }
+        });
+        snarePattern.forEach((hit, i) => {
+            if (hit) {
+                setTimeout(() => {
+                    if (!this.isPlaying) return;
+                    // Snare = filtered noise burst
+                    const bufferSize = this.audioContext.sampleRate * 0.08;
+                    const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+                    const output = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+                    const noise = this.audioContext.createBufferSource();
+                    noise.buffer = buffer;
+                    const filter = this.audioContext.createBiquadFilter();
+                    filter.type = 'highpass';
+                    filter.frequency.setValueAtTime(1800, this.audioContext.currentTime);
+                    const gain = this.audioContext.createGain();
+                    gain.gain.setValueAtTime(0.18, this.audioContext.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.08);
+                    noise.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.masterGainNode);
+                    noise.start();
+                    noise.stop(this.audioContext.currentTime + 0.08);
+                }, i * beat * 500);
+            }
+        });
+        // Electro hats (short metallic)
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => { if (this.isPlaying) this.createHiHat(); }, i * beat * 250 + 80);
+        }
+        // FM-style bleepy synth
+        for (let i = 0; i < 4; i++) {
+            setTimeout(() => {
+                if (!this.isPlaying) return;
+                // FM: modulate sine freq by another sine
+                const carrierFreq = 440 + i * 37;
+                const modFreq = 80 + i * 23;
+                const modIndex = 60 + 20 * Math.sin(i);
+                const carrier = this.audioContext.createOscillator();
+                carrier.type = 'sine';
+                carrier.frequency.setValueAtTime(carrierFreq, this.audioContext.currentTime);
+                const gain = this.audioContext.createGain();
+                gain.gain.setValueAtTime(0.09, this.audioContext.currentTime);
+                // Modulation
+                const modulator = this.audioContext.createOscillator();
+                modulator.type = 'sine';
+                modulator.frequency.setValueAtTime(modFreq, this.audioContext.currentTime);
+                const modGain = this.audioContext.createGain();
+                modGain.gain.setValueAtTime(modIndex, this.audioContext.currentTime);
+                modulator.connect(modGain);
+                modGain.connect(carrier.frequency);
+                carrier.connect(gain);
+                gain.connect(this.masterGainNode);
+                carrier.start();
+                modulator.start();
+                carrier.stop(this.audioContext.currentTime + 0.25);
+                modulator.stop(this.audioContext.currentTime + 0.25);
+            }, i * beat * 400 + 120);
+        }
+        // Recursive loop
+        setTimeout(() => {
+            if (this.isPlaying && this.currentTrack === 'model500') {
+                this.createModel500Track();
+            }
+        }, 4000);
+    }
+
+    createKraftwerkTrack() {
+        // Minimal melodic sequence, robotic rhythm, synthetic voices
+        const beat = 60 / (this.bpm - 8);
+        // Simple melodic sequence (pentatonic)
+        const melody = [392, 440, 523.25, 392, 659.25, 392, 392];
+        melody.forEach((freq, i) => {
+            setTimeout(() => {
+                if (!this.isPlaying) return;
+                // Minimal square wave with short envelope
+                const { oscillator, gainNode } = this.createOscillator(freq, 'square', 0.22, {
+                    gain: 0.11,
+                    stereoPan: (i % 2 === 0) ? -0.3 : 0.3
+                });
+                gainNode.gain.setValueAtTime(0.11, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.22);
+                oscillator.start();
+            }, i * beat * 700);
+        });
+        // Robotic rhythm: kick on 1, 3, clap on 2, 4
+        [0, 2].forEach(i => setTimeout(() => { if (this.isPlaying) this.createKick(); }, i * beat * 1000));
+        [1, 3].forEach(i => setTimeout(() => {
+            if (!this.isPlaying) return;
+            // Clap = filtered noise burst, wider
+            const bufferSize = this.audioContext.sampleRate * 0.13;
+            const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+            const output = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+            const noise = this.audioContext.createBufferSource();
+            noise.buffer = buffer;
+            const filter = this.audioContext.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1800, this.audioContext.currentTime);
+            const gain = this.audioContext.createGain();
+            gain.gain.setValueAtTime(0.13, this.audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.13);
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.masterGainNode);
+            noise.start();
+            noise.stop(this.audioContext.currentTime + 0.13);
+        }, i * beat * 1000));
+        // Synthetic "robot voice" (simple formant/vowel filter on saw)
+        setTimeout(() => {
+            if (!this.isPlaying) return;
+            const freq = 220;
+            const { oscillator, gainNode } = this.createOscillator(freq, 'sawtooth', 0.5, { gain: 0.09 });
+            // Formant filter (bandpass)
+            const filter = this.audioContext.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(800, this.audioContext.currentTime);
+            filter.Q.setValueAtTime(12, this.audioContext.currentTime);
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.gain.setValueAtTime(0.09, this.audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + 0.5);
+            oscillator.start();
+        }, 2000);
+        // Recursive loop
+        setTimeout(() => {
+            if (this.isPlaying && this.currentTrack === 'kraftwerk') {
+                this.createKraftwerkTrack();
+            }
+        }, 4200);
+    }
+
+    createExperimentalTrack() {
+        // Glitch bursts, vinyl noise, granular textures (placeholder structure)
+        // Vinyl noise layer
+        this.createVinylNoiseLayer(6.0);
+        // Random glitch bursts
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => {
+                if (this.isPlaying) this.createGlitchBurst();
+            }, i * 700 + Math.random() * 250);
+        }
+        // Granular: randomized short plucks
+        for (let i = 0; i < 6; i++) {
+            setTimeout(() => {
+                if (!this.isPlaying) return;
+                const freq = 220 + Math.random() * 800;
+                this.createKarplusStrongPluck(freq, 0.2 + Math.random() * 0.25, 0.96 + Math.random() * 0.03);
+            }, i * 900 + Math.random() * 200);
+        }
+        // Recursive loop
+        setTimeout(() => {
+            if (this.isPlaying && this.currentTrack === 'experimental') {
+                this.createExperimentalTrack();
+            }
+        }, 6500);
+    }
+
+    // --- SUPPORT LAYERS FOR EXPERIMENTAL ---
+    createVinylNoiseLayer(duration = 5.0) {
+        // Add vinyl crackle/noise for duration seconds
+        const bufferSize = this.audioContext.sampleRate * duration;
+        const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+        const output = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            // Random noise with occasional pops
+            let pop = (Math.random() > 0.9995) ? (Math.random() * 2 - 1) * 0.7 : 0;
+            output[i] = (Math.random() * 0.22 - 0.11) + pop;
+        }
+        const noise = this.audioContext.createBufferSource();
+        noise.buffer = buffer;
+        const gain = this.audioContext.createGain();
+        gain.gain.setValueAtTime(0.08, this.audioContext.currentTime);
+        gain.gain.linearRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+        noise.connect(gain);
+        gain.connect(this.masterGainNode);
+        noise.start();
+        noise.stop(this.audioContext.currentTime + duration);
+    }
+
+    createGlitchBurst() {
+        // Short burst of random noise, optionally bitcrushed
+        const burstLen = 0.07 + Math.random() * 0.07;
+        const bufferSize = Math.floor(this.audioContext.sampleRate * burstLen);
+        const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+        const output = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            // Quantize to simulate bitcrush
+            let val = Math.round((Math.random() * 2 - 1) * 8) / 8;
+            output[i] = val * (1 - i / bufferSize); // fade out
+        }
+        const noise = this.audioContext.createBufferSource();
+        noise.buffer = buffer;
+        const gain = this.audioContext.createGain();
+        gain.gain.setValueAtTime(0.16, this.audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + burstLen);
+        noise.connect(gain);
+        gain.connect(this.masterGainNode);
+        noise.start();
+        noise.stop(this.audioContext.currentTime + burstLen);
+    }
+    // --- Generative DJ Track Switcher ---
+    generativeDJTrackSwitcher(delay = 8000) {
+        const tracks = Object.keys(this.tracks);
+        let index = 0;
+        const playNext = async () => {
+            if (!this.isPlaying) return;
+            const nextTrack = tracks[index % tracks.length];
+            await this.playTrack(nextTrack);
+            index++;
+            setTimeout(playNext, delay + Math.random() * 2000);
+        };
+        this.isPlaying = true;
+        playNext();
+    }
