@@ -61,8 +61,8 @@ beforeAll(() => {
       const lines = yamlText.split('\n');
       const result = {};
       let currentSection = result;
-      let sectionStack = [result];
-      let indentStack = [0];
+      const sectionStack = [result];
+      const indentStack = [0];
       
       for (const line of lines) {
         if (line.trim() === '' || line.trim().startsWith('#')) continue;
