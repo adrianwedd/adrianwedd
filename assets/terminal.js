@@ -434,6 +434,20 @@ class Terminal {
         
         // Animate the scroll effect
         this.animateTerminalScroll();
+        
+        // Voice output for accessibility
+        if (window.voiceInterface && text && text.trim()) {
+            // Determine output type for voice context
+            let voiceType = 'output';
+            if (className.includes('error')) voiceType = 'error';
+            else if (className.includes('success')) voiceType = 'success';
+            else if (className.includes('warning')) voiceType = 'warning';
+            else if (className.includes('info')) voiceType = 'info';
+            else if (className.includes('prompt')) voiceType = 'command';
+            
+            // Speak the output for accessibility
+            window.voiceInterface.speakTerminalOutput(text, voiceType);
+        }
     }
 
     addDebugLog(message, type = 'info', source = 'system') {
@@ -1200,11 +1214,13 @@ Current focus: Deep work mode - VERITAS research
     }
 
     async showWeather() {
+        this.addDebugLog('Attempting to show weather data', 'info', 'weather');
         try {
             // Try to load current weather data
             const response = await fetch('./assets/current-weather.json');
             if (response.ok) {
                 const weather = await response.json();
+                this.addDebugLog('Weather data loaded successfully', 'success', 'weather');
                 const updateTime = new Date(weather.updated_at);
                 const isRecent = (Date.now() - updateTime.getTime()) < 4 * 60 * 60 * 1000; // 4 hours
                 
@@ -1214,8 +1230,10 @@ Current focus: Deep work mode - VERITAS research
                 
                 if (isRecent) {
                     this.addOutput(`📍 ${weather.station}`, 'feature-highlight');
+                    this.addDebugLog(`Weather data is recent for ${weather.station}`, 'info', 'weather');
                 } else {
                     this.addOutput(`📍 ${weather.station} (Data may be outdated)`, 'info');
+                    this.addDebugLog(`Weather data is outdated for ${weather.station}`, 'warning', 'weather');
                 }
                 
                 this.addOutput('', 'info');
@@ -1270,6 +1288,7 @@ Current focus: Deep work mode - VERITAS research
                 this.addOutput(`🔄 Auto-refreshed: ${updateTime.toLocaleString()}`, 'info');
                 
             } else {
+                this.addDebugLog('No weather data file found', 'warning', 'weather');
                 // No weather data available yet
                 this.addOutput('', 'info');
                 this.addOutput('🌤️ TASMANIA WEATHER', 'success');
@@ -1296,10 +1315,12 @@ Current focus: Deep work mode - VERITAS research
         } catch (_error) {
             this.addOutput('❌ Could not load weather data', 'error');
             this.addOutput('The weather system may not be initialized yet.', 'info');
+            this.addDebugLog(`Failed to load weather data: ${_error.message}`, 'error', 'weather');
         }
     }
 
     showProcesses() {
+        this.addDebugLog('Showing processes list', 'info', 'system');
         const processes = `
   PID  COMMAND                    CPU  MEM
   1337 veritas-research-daemon   2.1%  15%
@@ -1312,6 +1333,7 @@ Current focus: Deep work mode - VERITAS research
     }
 
     showNeofetch() {
+        this.addDebugLog('Showing neofetch output', 'info', 'system');
         const logoLines = [
             '',
             '    ╔═══════════════════════════════════╗',
@@ -1346,6 +1368,7 @@ Current focus: Deep work mode - VERITAS research
     }
 
     listDirectory() {
+        this.addDebugLog('Listing directory contents', 'info', 'system');
         const files = `
 drwxr-xr-x  adrian adrian  4096 Jul 24 13:37 projects/
 drwxr-xr-x  adrian adrian  4096 Jul 24 12:00 home/
@@ -1358,6 +1381,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     }
 
     toggleMatrixRain() {
+        this.addDebugLog('Toggling matrix rain effect', 'info', 'effects');
         const rain = document.querySelector('.matrix-rain');
         if (rain) {
             // Clear the interval and remove canvas
@@ -1367,13 +1391,16 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             }
             rain.remove();
             this.addOutput('Matrix rain disabled.', 'success');
+            this.addDebugLog('Matrix rain disabled', 'info', 'effects');
         } else {
             this.createMatrixRain();
             this.addOutput('Matrix rain enabled. Welcome to the real world.', 'success');
+            this.addDebugLog('Matrix rain enabled', 'info', 'effects');
         }
     }
 
     createMatrixRain() {
+        this.addDebugLog('Creating matrix rain canvas', 'info', 'effects');
         const canvas = document.createElement('canvas');
         canvas.className = 'matrix-rain';
         document.body.appendChild(canvas);
@@ -1406,6 +1433,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         }
         
         this.matrixInterval = setInterval(draw, 35);
+        this.addDebugLog('Matrix rain animation started', 'info', 'effects');
     }
 
     clearTerminal() {
@@ -1757,6 +1785,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     }
 
     initializeSplitScreen() {
+        this.addDebugLog('Initializing split screen interface', 'info', 'system');
         // Hide main terminal and monitor interfaces
         document.getElementById('terminal').style.display = 'none';
         document.getElementById('monitorInterface').style.display = 'none';
@@ -1764,6 +1793,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         // Show split screen container
         const splitContainer = document.getElementById('splitScreenContainer');
         splitContainer.style.display = 'flex';
+        this.addDebugLog('Main terminal and monitor hidden, split container shown', 'info', 'system');
         
         // Mirror current terminal output to split view
         this.mirrorTerminalToSplit();
@@ -1778,10 +1808,12 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         const splitInput = document.getElementById('commandInputSplit');
         if (splitInput) {
             splitInput.focus();
+            this.addDebugLog('Split terminal input focused', 'info', 'system');
         }
     }
 
     mirrorTerminalToSplit() {
+        this.addDebugLog('Mirroring main terminal output to split view', 'info', 'system');
         const mainOutput = document.getElementById('terminalOutput');
         const splitOutput = document.getElementById('terminalOutputSplit');
         
@@ -1791,47 +1823,60 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             
             // Scroll to bottom
             splitOutput.scrollTop = splitOutput.scrollHeight;
+            this.addDebugLog('Terminal output mirrored and scrolled', 'info', 'system');
+        } else {
+            this.addDebugLog('Failed to mirror terminal output (elements not found)', 'warning', 'system');
         }
     }
 
     async initializeSplitMonitor() {
+        this.addDebugLog('Initializing split system monitor', 'info', 'system');
         // Initialize mini system monitor for split view
         if (!this.splitSystemMonitor) {
             this.splitSystemMonitor = new SystemMonitor();
+            this.addDebugLog('New SystemMonitor instance created for split view', 'info', 'system');
         }
         
         // Start monitoring in split mode
         this.splitSystemMonitor.isActive = true;
         await this.splitSystemMonitor.updateAllData();
+        this.addDebugLog('Split system monitor started and data updated', 'info', 'system');
         
         // Set up split monitor update intervals
         this.splitMonitorInterval = setInterval(async () => {
             if (this.splitSystemMonitor && this.splitSystemMonitor.isActive) {
                 await this.splitSystemMonitor.updateAllData();
+                this.addDebugLog('Split monitor data auto-refreshed', 'info', 'system');
             }
         }, 10000);
+        this.addDebugLog('Split monitor auto-refresh interval set', 'info', 'system');
     }
 
     setupSplitEventHandlers() {
+        this.addDebugLog('Setting up split screen event handlers', 'info', 'system');
         // Split terminal input handler
         const splitInput = document.getElementById('commandInputSplit');
         if (splitInput) {
             splitInput.addEventListener('keydown', (event) => {
+                this.addDebugLog(`Split input keydown: ${event.key}`, 'info', 'input');
                 if (event.key === 'Enter') {
                     const command = splitInput.value.trim();
                     if (command) {
                         if (command.toLowerCase() === 'exit') {
                             this.exitSplitMode();
+                            this.addDebugLog('Exit split mode command received', 'info', 'command');
                             return;
                         }
                         
                         // Execute command in split context
                         this.executeSplitCommand(command);
                         splitInput.value = '';
+                        this.addDebugLog(`Executed split command: ${command}`, 'info', 'command');
                     }
                 } else if (event.key === 'Tab') {
                     event.preventDefault();
                     this.handleTabCompletion(splitInput);
+                    this.addDebugLog('Split input tab completion triggered', 'info', 'command');
                 }
             });
         }
@@ -1841,6 +1886,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         if (closeSplitBtn) {
             closeSplitBtn.addEventListener('click', () => {
                 this.exitSplitMode();
+                this.addDebugLog('Close split button clicked', 'info', 'system');
             });
         }
         
@@ -1851,6 +1897,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         if (focusTerminalBtn) {
             focusTerminalBtn.addEventListener('click', () => {
                 document.getElementById('commandInputSplit').focus();
+                this.addDebugLog('Focus terminal button clicked', 'info', 'system');
             });
         }
         
@@ -1860,6 +1907,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
                 const monitorContent = document.querySelector('.monitor-content-split');
                 if (monitorContent) {
                     monitorContent.scrollTop = 0;
+                    this.addDebugLog('Focus monitor button clicked, scrolled to top', 'info', 'system');
                 }
             });
         }
@@ -1870,12 +1918,14 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             refreshMonitorBtn.addEventListener('click', async () => {
                 if (this.splitSystemMonitor) {
                     await this.splitSystemMonitor.updateAllData();
+                    this.addDebugLog('Refresh monitor button clicked, data updated', 'info', 'system');
                 }
             });
         }
         
         // Draggable divider functionality
         this.setupSplitDividerResize();
+        this.addDebugLog('Split divider resize functionality setup', 'info', 'system');
     }
 
     setupSplitDividerResize() {
@@ -1925,6 +1975,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     }
 
     executeSplitCommand(command) {
+        this.addDebugLog(`Executing split command: ${command}`, 'info', 'command');
         // Add command to split terminal output
         this.addSplitOutput(`adrian@split:~$ ${command}`, 'command');
         
@@ -1941,11 +1992,16 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         // Also add to main terminal history for consistency
         this.commandHistory.push(command);
         this.historyIndex = this.commandHistory.length;
+        this.addDebugLog(`Split command executed, history updated`, 'info', 'command');
     }
 
     addSplitOutput(text, className = 'info') {
+        this.addDebugLog(`Adding split output: ${text.substring(0, 50)}... (class: ${className})`, 'info', 'output');
         const splitOutput = document.getElementById('terminalOutputSplit');
-        if (!splitOutput) return;
+        if (!splitOutput) {
+            this.addDebugLog('Split output element not found', 'error', 'output');
+            return;
+        }
         
         const line = document.createElement('div');
         line.className = `output-line ${className}`;
@@ -1953,6 +2009,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         
         splitOutput.appendChild(line);
         splitOutput.scrollTop = splitOutput.scrollHeight;
+        this.addDebugLog('Split output appended and scrolled', 'info', 'output');
         
         // Also add to main terminal for consistency
         const mainOutput = document.getElementById('terminalOutput');
@@ -1961,6 +2018,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             mainLine.className = `output-line ${className}`;
             mainLine.textContent = text;
             mainOutput.appendChild(mainLine);
+            this.addDebugLog('Main terminal output updated from split', 'info', 'output');
         }
     }
 

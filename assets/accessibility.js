@@ -3,6 +3,8 @@
  * WCAG 2.1 AA compliance with keyboard navigation and screen reader support
  */
 
+/* global MutationObserver, Node */
+
 class AccessibilityManager {
     constructor() {
         this.keyboardNavigationVisible = false;
@@ -62,11 +64,24 @@ class AccessibilityManager {
     // Arrow key navigation for terminal history and commands
     setupArrowKeyNavigation() {
         const commandInput = document.getElementById('commandInput');
+        const commandInputSplit = document.getElementById('commandInputSplit');
         
         if (commandInput) {
             commandInput.addEventListener('keydown', (e) => {
                 if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                     this.handleHistoryNavigation(e);
+                } else if (e.key === 'Tab' && !e.shiftKey) {
+                    this.handleTabCompletion(e);
+                }
+            });
+        }
+
+        if (commandInputSplit) {
+            commandInputSplit.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                    this.handleHistoryNavigation(e);
+                } else if (e.key === 'Tab' && !e.shiftKey) {
+                    this.handleTabCompletion(e);
                 }
             });
         }
@@ -79,9 +94,22 @@ class AccessibilityManager {
         });
     }
 
+    handleTabCompletion(e) {
+        const terminal = window.terminal;
+        if (terminal && terminal.handleTabCompletion) {
+            // Let terminal handle tab completion, announce result
+            setTimeout(() => {
+                const input = e.target;
+                if (input.value !== input.dataset.previousValue) {
+                    this.announce('Command completed', 'polite');
+                }
+                input.dataset.previousValue = input.value;
+            }, 100);
+        }
+    }
+
     handleHistoryNavigation(e) {
         // This will be integrated with terminal history
-        const input = e.target;
         const terminal = window.terminal;
         
         if (terminal && terminal.commandHistory) {
@@ -98,9 +126,6 @@ class AccessibilityManager {
     }
 
     handleMonitorNavigation(e) {
-        const monitorPanes = document.querySelectorAll('.monitor-pane');
-        const currentFocus = document.activeElement;
-        
         if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
             e.preventDefault();
             const direction = e.key === 'ArrowRight' ? 1 : -1;
@@ -362,6 +387,10 @@ class AccessibilityManager {
             if (!canvas.getAttribute('aria-label')) {
                 canvas.setAttribute('aria-label', 'Data visualization chart');
             }
+            // Make charts focusable for keyboard navigation
+            if (!canvas.hasAttribute('tabindex')) {
+                canvas.setAttribute('tabindex', '0');
+            }
         });
 
         // Enhance form labels
@@ -373,7 +402,58 @@ class AccessibilityManager {
             }
         });
 
+        // Add heading structure where missing
+        this.addMissingHeadings();
+        
+        // Enhance terminal output for screen readers
+        this.enhanceTerminalAccessibility();
+
         this.announce('Screen reader optimizations enabled', 'polite');
+    }
+
+    addMissingHeadings() {
+        // Convert pane titles to proper headings if not already
+        const paneTitles = document.querySelectorAll('.pane-title:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6)');
+        paneTitles.forEach((title) => {
+            if (title.tagName !== 'H2') {
+                const h2 = document.createElement('h2');
+                h2.className = title.className;
+                h2.id = title.id;
+                h2.innerHTML = title.innerHTML;
+                title.parentNode.replaceChild(h2, title);
+            }
+        });
+    }
+
+    enhanceTerminalAccessibility() {
+        // Add terminal output region with live updates
+        const terminal = document.getElementById('terminal');
+        if (terminal) {
+            terminal.setAttribute('role', 'log');
+            terminal.setAttribute('aria-label', 'Terminal output');
+            
+            // Monitor for new terminal output
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType === Node.ELEMENT_NODE && 
+                                (node.classList.contains('output-line') || 
+                                 node.classList.contains('command-line'))) {
+                                // Announce new terminal output to screen readers
+                                const text = node.textContent?.trim();
+                                if (text && text.length > 0) {
+                                    this.announce(`Terminal: ${text}`, 'polite');
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+            
+            observer.observe(terminal, { childList: true, subtree: true });
+            this.terminalObserver = observer;
+        }
     }
 
     // Utility methods for components
@@ -481,10 +561,82 @@ class AccessibilityManager {
             progressBar.classList.remove('sr-only');
         }
     }
+
+    // Dynamic content accessibility enhancement
+    enhanceDynamicContent() {
+        // Monitor for dynamic content changes and enhance accessibility
+        const contentObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            this.enhanceElement(node);
+                        }
+                    });
+                }
+            });
+        });
+
+        // Observe the entire document for changes
+        contentObserver.observe(document.body, { 
+            childList: true, 
+            subtree: true 
+        });
+        
+        this.contentObserver = contentObserver;
+    }
+
+    enhanceElement(element) {
+        // Add missing ARIA labels to buttons without them
+        const buttons = element.querySelectorAll ? element.querySelectorAll('button:not([aria-label])') : [];
+        buttons.forEach(button => {
+            const text = button.textContent?.trim() || button.getAttribute('title') || 'Button';
+            button.setAttribute('aria-label', text);
+        });
+
+        // Add role and labels to charts/canvases
+        const canvases = element.querySelectorAll ? element.querySelectorAll('canvas:not([role])') : [];
+        canvases.forEach(canvas => {
+            canvas.setAttribute('role', 'img');
+            if (!canvas.getAttribute('aria-label')) {
+                canvas.setAttribute('aria-label', 'Data visualization chart');
+            }
+            canvas.setAttribute('tabindex', '0');
+        });
+
+        // Enhance progress bars
+        const progressBars = element.querySelectorAll ? element.querySelectorAll('.progress-bar:not([role])') : [];
+        progressBars.forEach(bar => {
+            const parent = bar.parentElement;
+            if (parent && !parent.getAttribute('role')) {
+                parent.setAttribute('role', 'progressbar');
+                parent.setAttribute('aria-valuemin', '0');
+                parent.setAttribute('aria-valuemax', '100');
+            }
+        });
+    }
+
+    // Cleanup method for observers
+    cleanup() {
+        if (this.terminalObserver) {
+            this.terminalObserver.disconnect();
+        }
+        if (this.contentObserver) {
+            this.contentObserver.disconnect();
+        }
+    }
 }
 
 // Initialize accessibility manager
 const accessibilityManager = new AccessibilityManager();
 
+// Enhance dynamic content
+accessibilityManager.enhanceDynamicContent();
+
 // Export for use by other components
 window.accessibilityManager = accessibilityManager;
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    accessibilityManager.cleanup();
+});

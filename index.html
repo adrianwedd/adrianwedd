@@ -23,8 +23,9 @@
             <div class="title">adrian@home:~$ </div>
             <div class="voice-controls">
                 <div class="voice-indicator" id="voiceIndicator">🎤</div>
-                <div class="voice-status" id="voiceStatus">Voice ready</div>
-                <button class="voice-toggle" id="voiceToggle" onclick="window.terminal && window.terminal.toggleVoice()">Enable Voice</button>
+                <div class="voice-status" id="voiceStatus">Voice ready | Speech: ON</div>
+                <button class="voice-toggle" id="voiceToggle" onclick="window.terminal && window.terminal.toggleVoice()" aria-label="Toggle voice input on or off" aria-describedby="voiceStatus">Enable Voice</button>
+                <button class="speech-toggle" id="speechToggle" onclick="window.voiceInterface && window.voiceInterface.toggleSpeechOutput()" aria-label="Toggle voice output on or off" title="Toggle automatic speech output">🔊</button>
             </div>
         </div>
         
@@ -204,7 +205,7 @@
             </div>
         </div>
         
-    </div>
+    </main>
     
     <script src="assets/accessibility.js"></script>
     <script src="assets/script-engine.js"></script>
@@ -225,5 +226,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="assets/rich-effects.js"></script>
     <script src="assets/terminal.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
 </body>
 </html>

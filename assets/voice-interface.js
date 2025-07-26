@@ -4,6 +4,8 @@ class VoiceInterface {
         this.synthesis = null;
         this.isListening = false;
         this.isActive = false;
+        this.speechOutputEnabled = false; // Voice output state
+        this.autoSpeechEnabled = false; // Auto-speech for accessibility
         this.currentVoice = null;
         this.voiceSettings = {
             rate: 0.9,
@@ -66,6 +68,12 @@ class VoiceInterface {
                 if (speechSynthesis.onvoiceschanged !== undefined) {
                     speechSynthesis.onvoiceschanged = () => this.loadVoices();
                 }
+                
+                // Enable speech output by default for accessibility
+                this.enableSpeechOutput();
+                
+                // Check for accessibility preferences
+                this.detectAccessibilityNeeds();
             } else {
                 console.warn('Speech Synthesis not supported');
             }
@@ -75,6 +83,53 @@ class VoiceInterface {
             console.error('Voice interface initialization failed:', error);
             return false;
         }
+    }
+
+    // Enable speech output for better accessibility
+    enableSpeechOutput() {
+        this.speechOutputEnabled = true;
+        console.log('Voice output enabled for accessibility');
+        
+        // Announce that speech is available
+        setTimeout(() => {
+            this.speak('Voice output enabled. Terminal commands and responses will be spoken aloud.', {
+                priority: 'high',
+                interrupt: false
+            });
+        }, 1000);
+    }
+
+    // Detect accessibility needs and auto-enable features
+    detectAccessibilityNeeds() {
+        // Check for screen reader or high contrast mode
+        const hasScreenReader = this.isScreenReaderDetected();
+        const hasHighContrast = window.matchMedia('(prefers-contrast: high)').matches;
+        const hasReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        
+        if (hasScreenReader || hasHighContrast) {
+            this.autoSpeechEnabled = true;
+            this.voiceSettings.rate = 1.1; // Slightly faster for screen reader users
+            console.log('Accessibility needs detected - enhanced voice features enabled');
+        }
+    }
+
+    // Simple screen reader detection
+    isScreenReaderDetected() {
+        // Check for common screen reader patterns
+        const userAgent = navigator.userAgent.toLowerCase();
+        const hasScreenReaderUA = userAgent.includes('nvda') || 
+                                  userAgent.includes('jaws') || 
+                                  userAgent.includes('voiceover');
+        
+        // Check for accessibility APIs
+        const hasAccessibilityAPI = 'speechSynthesis' in window && 
+                                   window.speechSynthesis.getVoices().length > 0;
+        
+        // Check for reduced motion preference (often indicates accessibility needs)
+        const hasAccessibilityPreferences = window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+                                           window.matchMedia('(prefers-contrast: high)').matches;
+        
+        return hasScreenReaderUA || (hasAccessibilityAPI && hasAccessibilityPreferences);
     }
 
     loadVoices() {
@@ -337,26 +392,40 @@ class VoiceInterface {
     }
 
     speak(text, options = {}) {
+        // Only speak if speech output is enabled or it's a high priority message
+        if (!this.speechOutputEnabled && options.priority !== 'high') {
+            return;
+        }
+
         if (!this.synthesis || !this.currentVoice) {
             console.warn('Text-to-speech not available');
             return;
         }
 
-        // Cancel any ongoing speech
-        this.synthesis.cancel();
+        // Cancel any ongoing speech if this is higher priority
+        if (options.interrupt !== false) {
+            this.synthesis.cancel();
+        }
 
-        const utterance = new SpeechSynthesisUtterance(text);
+        // Clean text for better speech synthesis
+        const cleanText = this.cleanTextForSpeech(text);
+        
+        const utterance = new SpeechSynthesisUtterance(cleanText);
         utterance.voice = this.currentVoice;
         utterance.rate = options.rate || this.voiceSettings.rate;
         utterance.pitch = options.pitch || this.voiceSettings.pitch;
         utterance.volume = options.volume || this.voiceSettings.volume;
 
         utterance.onstart = () => {
-            this.updateVoiceIndicator('speaking', text);
+            this.updateVoiceIndicator('speaking', cleanText);
+            // Announce to accessibility manager
+            if (window.accessibilityManager) {
+                window.accessibilityManager.announce(`Speaking: ${cleanText.substring(0, 50)}...`, 'polite');
+            }
         };
 
         utterance.onend = () => {
-            this.updateVoiceIndicator('listening');
+            this.updateVoiceIndicator(this.isActive ? 'listening' : 'inactive');
         };
 
         utterance.onerror = (event) => {
@@ -365,6 +434,89 @@ class VoiceInterface {
         };
 
         this.synthesis.speak(utterance);
+    }
+
+    // Clean text for better speech synthesis
+    cleanTextForSpeech(text) {
+        return text
+            .replace(/🎤|🗣️|📊|🏗️|🌤️|🤖|❌|✅|⚠️/g, '') // Remove emojis
+            .replace(/\$\s*/g, 'dollar sign ') // Speak dollar signs
+            .replace(/adrian@home:~\$/g, 'Adrian at home prompt') // Terminal prompt
+            .replace(/\d+\.\d+\.\d+\.\d+/g, match => match.replace(/\./g, ' dot ')) // IP addresses
+            .replace(/([A-Z]{2,})/g, match => match.split('').join(' ')) // Spell out acronyms
+            .replace(/\s+/g, ' ') // Normalize whitespace
+            .trim();
+    }
+
+    // Method for terminal to automatically speak output
+    speakTerminalOutput(text, type = 'output') {
+        if (!this.speechOutputEnabled && !this.autoSpeechEnabled) {
+            return;
+        }
+
+        // Filter out certain types of output that shouldn't be spoken
+        if (this.shouldSkipSpeaking(text, type)) {
+            return;
+        }
+
+        // Add context for different types of output
+        let prefix = '';
+        switch (type) {
+            case 'command':
+                prefix = 'Command: ';
+                break;
+            case 'error':
+                prefix = 'Error: ';
+                break;
+            case 'success':
+                prefix = 'Success: ';
+                break;
+            case 'info':
+                prefix = 'Info: ';
+                break;
+            default:
+                prefix = '';
+        }
+
+        this.speak(prefix + text, { 
+            priority: type === 'error' ? 'high' : 'normal',
+            interrupt: type === 'error'
+        });
+    }
+
+    shouldSkipSpeaking(text, type) {
+        // Don't speak empty or very short text
+        if (!text || text.trim().length < 3) return true;
+        
+        // Don't speak pure ASCII art or repetitive characters
+        if (/^[^\w\s]*$/.test(text) || /(.)\1{10,}/.test(text)) return true;
+        
+        // Don't speak debug information
+        if (text.includes('Debug:') || text.includes('Trace:')) return true;
+        
+        // Don't speak certain command outputs
+        if (type === 'output' && (
+            text.includes('├─') || // Tree structures
+            text.includes('│') ||  // Box drawing
+            text.includes('▄') ||  // Block characters
+            text.includes('█')     // Full blocks
+        )) return true;
+        
+        return false;
+    }
+
+    // Toggle speech output
+    toggleSpeechOutput() {
+        this.speechOutputEnabled = !this.speechOutputEnabled;
+        const status = this.speechOutputEnabled ? 'enabled' : 'disabled';
+        
+        this.speak(`Voice output ${status}`, { priority: 'high' });
+        console.log(`Voice output ${status}`);
+        
+        // Update UI indicator
+        this.updateVoiceOutputIndicator(this.speechOutputEnabled);
+        
+        return this.speechOutputEnabled;
     }
 
     startListening() {
@@ -443,6 +595,21 @@ class VoiceInterface {
             };
             
             statusText.textContent = text || statusMessages[status] || 'Voice ready';
+        }
+    }
+
+    updateVoiceOutputIndicator(enabled) {
+        const statusText = document.getElementById('voiceStatus');
+        if (statusText) {
+            const baseText = statusText.textContent.replace(' | Speech: ON', '').replace(' | Speech: OFF', '');
+            const speechStatus = enabled ? ' | Speech: ON' : ' | Speech: OFF';
+            statusText.textContent = baseText + speechStatus;
+        }
+        
+        // Update button text
+        const button = document.getElementById('voiceToggle');
+        if (button && this.speechOutputEnabled) {
+            button.setAttribute('title', 'Voice input and output enabled. Click to configure.');
         }
     }
 
