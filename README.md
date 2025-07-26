@@ -51,7 +51,7 @@ Experience my digital ecosystem through an authentic terminal interface at **[gi
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. 🗣 Commented on [#40](https://github.com/adrianwedd/adrianwedd/issues/40#issuecomment-3120971957) in [adrianwedd/adrianwedd](https://github.com/adrianwedd/adrianwedd)
+1. 🔒 Closed issue [#35](https://github.com/adrianwedd/adrianwedd/issues/35) in [adrianwedd/adrianwedd](https://github.com/adrianwedd/adrianwedd)
 <!--END_SECTION:activity-->
 
 ---
