@@ -1,0 +1,254 @@
+name: 📊 Token Analytics Dashboard
+
+on:
+  schedule:
+    # Generate daily report at 23:30 AEST (13:30 UTC)
+    - cron: '30 13 * * *'
+  workflow_dispatch:
+    inputs:
+      report_type:
+        description: 'Type of analytics report'
+        required: false
+        default: 'daily'
+        type: choice
+        options:
+          - daily
+          - weekly
+          - monthly
+      generate_charts:
+        description: 'Generate visual charts'
+        required: false
+        default: 'true'
+        type: boolean
+
+jobs:
+  analytics:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📊 Generate Token Usage Analytics
+        id: analytics
+        run: |
+          USAGE_FILE=".github/data/token-usage.json"
+          REPORT_TYPE="${{ github.event.inputs.report_type || 'daily' }}"
+          REPORT_DATE=$(TZ='Australia/Sydney' date +'%Y-%m-%d')
+          
+          if [ ! -f "$USAGE_FILE" ]; then
+            echo "⚠️ No token usage data found"
+            echo "has_data=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "has_data=true" >> $GITHUB_OUTPUT
+          
+          # Generate comprehensive analytics
+          echo "📊 **Token Usage Analytics Report** - $REPORT_DATE" > analytics-report.md
+          echo "" >> analytics-report.md
+          
+          # Daily Summary
+          echo "## 📈 Daily Overview" >> analytics-report.md
+          echo "" >> analytics-report.md
+          
+          TOTAL_SESSIONS=$(jq '.session_usage | length' "$USAGE_FILE")
+          TOTAL_TOKENS=$(jq '.session_usage | map(.total_tokens) | add // 0' "$USAGE_FILE")
+          TOTAL_CACHED=$(jq '.session_usage | map(.cached_tokens) | add // 0' "$USAGE_FILE")
+          TOTAL_SAVINGS=$(jq '.session_usage | map(.token_savings) | add // 0' "$USAGE_FILE")
+          AVG_CACHE_RATIO=$(jq '.session_usage | map(.cache_hit_ratio) | add / length // 0' "$USAGE_FILE")
+          
+          echo "- **Total Sessions:** $TOTAL_SESSIONS/6" >> analytics-report.md
+          echo "- **Total Tokens Used:** $(printf "%'d" $TOTAL_TOKENS)" >> analytics-report.md
+          echo "- **Tokens Cached:** $(printf "%'d" $TOTAL_CACHED)" >> analytics-report.md
+          echo "- **Tokens Saved:** $(printf "%'d" $TOTAL_SAVINGS)" >> analytics-report.md
+          echo "- **Cache Hit Ratio:** $(echo "scale=1; $AVG_CACHE_RATIO * 100" | bc -l)%" >> analytics-report.md
+          echo "- **Cost Efficiency:** $(echo "scale=1; $TOTAL_SAVINGS * 100 / ($TOTAL_TOKENS + $TOTAL_SAVINGS)" | bc -l)%" >> analytics-report.md
+          echo "" >> analytics-report.md
+          
+          # Session Breakdown
+          echo "## 🕐 Session Breakdown" >> analytics-report.md
+          echo "" >> analytics-report.md
+          echo "| Session | Time (AEST) | Tokens | Cached | Savings | Issues | Outcome |" >> analytics-report.md
+          echo "|---------|-------------|--------|--------|---------|--------|---------|" >> analytics-report.md
+          
+          jq -r '.session_usage[] | 
+            "| #" + (.session_number | tostring) + 
+            " | " + .timestamp + 
+            " | " + (.total_tokens | tostring) + 
+            " | " + (.cached_tokens | tostring) + 
+            " | " + (.token_savings | tostring) + 
+            " | " + (.issues_processed | tostring) + 
+            " | " + .outcome + " |"' "$USAGE_FILE" >> analytics-report.md
+          
+          echo "" >> analytics-report.md
+          
+          # Hourly Distribution
+          echo "## ⏰ Hourly Token Distribution" >> analytics-report.md
+          echo "" >> analytics-report.md
+          
+          jq -r '.daily_usage | group_by(.hour) | map({
+            hour: .[0].hour,
+            total_tokens: (map(.total_tokens) | add),
+            cached_tokens: (map(.cached_tokens) | add),
+            token_savings: (map(.token_savings) | add)
+          }) | sort_by(.hour) | map(
+            "**" + (.hour | tostring) + ":00 AEST:** " + 
+            (.total_tokens | tostring) + " tokens (" + 
+            (.cached_tokens | tostring) + " cached, " + 
+            (.token_savings | tostring) + " saved)"
+          ) | join("\n")' "$USAGE_FILE" >> analytics-report.md
+          
+          echo "" >> analytics-report.md
+          
+          # Cache Efficiency Trends
+          echo "## 📈 Cache Efficiency Trends" >> analytics-report.md
+          echo "" >> analytics-report.md
+          
+          if [ "$(jq '.cache_efficiency | length' "$USAGE_FILE")" -gt 0 ]; then
+            echo "### Recent Cache Performance:" >> analytics-report.md
+            jq -r '.cache_efficiency | reverse | .[0:5] | map(
+              "- **" + (.timestamp | split("T")[1] | split(".")[0]) + ":** " +
+              ((.cache_hit_ratio * 100) | floor | tostring) + "% hit ratio, " +
+              (.tokens_saved | tostring) + " tokens saved (" +
+              ((.efficiency_score * 100) | floor | tostring) + "% efficiency)"
+            ) | join("\n")' "$USAGE_FILE" >> analytics-report.md
+          else
+            echo "No cache efficiency data available yet." >> analytics-report.md
+          fi
+          
+          echo "" >> analytics-report.md
+          
+          # Recommendations
+          echo "## 💡 Optimization Recommendations" >> analytics-report.md
+          echo "" >> analytics-report.md
+          
+          # Generate intelligent recommendations based on data
+          EFFICIENCY=$(echo "scale=2; $TOTAL_SAVINGS * 100 / ($TOTAL_TOKENS + $TOTAL_SAVINGS)" | bc -l)
+          
+          if (( $(echo "$EFFICIENCY < 20" | bc -l) )); then
+            echo "🔴 **Low Cache Efficiency** ($EFFICIENCY%)" >> analytics-report.md
+            echo "- Consider implementing more aggressive prompt caching" >> analytics-report.md
+            echo "- Review and optimize prompt patterns for better reuse" >> analytics-report.md
+          elif (( $(echo "$EFFICIENCY < 40" | bc -l) )); then
+            echo "🟡 **Moderate Cache Efficiency** ($EFFICIENCY%)" >> analytics-report.md
+            echo "- Good progress, but room for improvement in caching strategies" >> analytics-report.md
+          else
+            echo "🟢 **Excellent Cache Efficiency** ($EFFICIENCY%)" >> analytics-report.md
+            echo "- Outstanding cache performance, maintaining current strategies" >> analytics-report.md
+          fi
+          
+          echo "" >> analytics-report.md
+          
+          if [ "$TOTAL_SESSIONS" -lt 6 ]; then
+            echo "📅 **Session Utilization:** $(echo "scale=1; $TOTAL_SESSIONS * 100 / 6" | bc -l)%" >> analytics-report.md
+            echo "- Consider increasing task complexity or issue processing to utilize full capacity" >> analytics-report.md
+          fi
+          
+          echo "" >> analytics-report.md
+          echo "---" >> analytics-report.md
+          echo "*Generated automatically by Token Analytics Dashboard*" >> analytics-report.md
+          
+          echo "📊 Analytics report generated successfully"
+
+      - name: 📈 Generate Visual Charts (ASCII)
+        if: steps.analytics.outputs.has_data == 'true' && github.event.inputs.generate_charts != 'false'
+        run: |
+          USAGE_FILE=".github/data/token-usage.json"
+          
+          echo "" >> analytics-report.md
+          echo "## 📊 Visual Analytics" >> analytics-report.md
+          echo "" >> analytics-report.md
+          
+          # Generate ASCII bar chart for hourly usage
+          echo "### Hourly Token Usage Distribution" >> analytics-report.md
+          echo '```' >> analytics-report.md
+          
+          # Create hourly chart
+          jq -r '.daily_usage | group_by(.hour) | map({
+            hour: .[0].hour,
+            tokens: (map(.total_tokens) | add)
+          }) | sort_by(.hour) | map(
+            (.hour | tostring | rpad(2)) + ":00 |" + 
+            (range(0; (.tokens / 500) | floor) | "█") + 
+            " " + (.tokens | tostring)
+          ) | join("\n")' "$USAGE_FILE" >> analytics-report.md
+          
+          echo '```' >> analytics-report.md
+          echo "" >> analytics-report.md
+          
+          # Cache efficiency visualization
+          echo "### Cache Hit Ratio Trend" >> analytics-report.md
+          echo '```' >> analytics-report.md
+          echo "Session Cache Hit Ratio:" >> analytics-report.md
+          
+          jq -r '.session_usage | map(
+            "S" + (.session_number | tostring) + " |" +
+            (range(0; (.cache_hit_ratio * 20) | floor) | "▓") +
+            (range(0; (20 - (.cache_hit_ratio * 20) | floor)) | "░") +
+            " " + ((.cache_hit_ratio * 100) | floor | tostring) + "%"
+          ) | join("\n")' "$USAGE_FILE" >> analytics-report.md
+          
+          echo '```' >> analytics-report.md
+
+      - name: 📁 Archive Analytics Report
+        if: steps.analytics.outputs.has_data == 'true'
+        run: |
+          mkdir -p .github/analytics
+          REPORT_DATE=$(TZ='Australia/Sydney' date +'%Y-%m-%d')
+          cp analytics-report.md ".github/analytics/token-report-$REPORT_DATE.md"
+          
+          # Keep only last 30 days of reports
+          find .github/analytics -name "token-report-*.md" -type f -mtime +30 -delete || true
+
+      - name: 📝 Commit Analytics Data
+        if: steps.analytics.outputs.has_data == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Token Analytics Bot"
+          
+          git add .github/analytics/ .github/data/
+          
+          if ! git diff --cached --quiet; then
+            git commit -m "📊 Daily token analytics report - $(TZ='Australia/Sydney' date +'%Y-%m-%d')
+            
+            📈 Automated token usage analysis and optimization insights
+            🤖 Generated by Token Analytics Dashboard
+            
+            $(cat analytics-report.md | head -20 | tail -10 | sed 's/^/    /')"
+            
+            git push
+          else
+            echo "No changes to commit"
+          fi
+
+      - name: 🎯 Create Optimization Issue
+        if: steps.analytics.outputs.has_data == 'true' && github.event_name == 'schedule'
+        run: |
+          USAGE_FILE=".github/data/token-usage.json"
+          EFFICIENCY=$(jq '.token_savings | map(.savings_percentage) | add / length // 0' "$USAGE_FILE")
+          
+          # Only create issue if efficiency is below threshold
+          if (( $(echo "$EFFICIENCY < 30" | bc -l) )); then
+            gh issue create \
+              --title "🔧 Token Efficiency Optimization Needed - $(TZ='Australia/Sydney' date +'%Y-%m-%d')" \
+              --body "$(cat analytics-report.md)" \
+              --label "optimization,token-efficiency,automated" || echo "Issue creation failed or already exists"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📊 Summary Output
+        if: always()
+        run: |
+          if [ "${{ steps.analytics.outputs.has_data }}" = "true" ]; then
+            echo "✅ Token analytics report generated successfully"
+            echo "📁 Report archived to .github/analytics/"
+            echo "🔍 Check the analytics report for detailed insights"
+          else
+            echo "ℹ️ No token usage data available yet"
+            echo "🤖 Run some autonomous sessions to generate analytics data"
+          fi

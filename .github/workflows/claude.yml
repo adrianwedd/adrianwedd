@@ -1,4 +1,4 @@
-name: Claude Code
+name: 🤖 Interactive Claude Code
 
 on:
   issue_comment:
@@ -25,40 +25,68 @@ jobs:
       id-token: write
       actions: read # Required for Claude to read CI results on PRs
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
-      - name: Run Claude Code
+      - name: 🤖 Run Interactive Claude Code
         id: claude
         uses: anthropics/claude-code-action@beta
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
-          # This is an optional setting that allows Claude to read CI results on PRs
+          # Enhanced permissions for comprehensive development work
           additional_permissions: |
             actions: read
+            contents: write
+            issues: write
           
-          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
-          # model: "claude-opus-4-20250514"
+          # Use high-capability model for complex tasks
+          model: "claude-sonnet-4-20250514"
           
-          # Optional: Customize the trigger phrase (default: @claude)
-          # trigger_phrase: "/claude"
+          # Keep standard @claude trigger for interactive use
+          trigger_phrase: "@claude"
           
-          # Optional: Trigger when specific user is assigned to an issue
-          # assignee_trigger: "claude-bot"
+          # Enhanced toolset for interactive development
+          allowed_tools: |
+            Bash(npm install)
+            Bash(npm run build)
+            Bash(npm run test:*)
+            Bash(npm run lint:*)
+            Bash(git add *)
+            Bash(git commit *)
+            Bash(gh issue close *)
           
-          # Optional: Allow Claude to run specific commands
-          # allowed_tools: "Bash(npm install),Bash(npm run build),Bash(npm run test:*),Bash(npm run lint:*)"
+          # Custom instructions for interactive mode
+          custom_instructions: |
+            🤖 **INTERACTIVE MODE** - Responding to @claude mentions
+            
+            **Capabilities:**
+            - Code analysis, debugging, and implementation
+            - Issue investigation and resolution
+            - Test writing and CI/CD improvements
+            - Documentation and architecture guidance
+            - Pull request reviews and suggestions
+            
+            **Standards:**
+            - Follow existing code patterns and architecture
+            - Use sophisticated emoji for enhanced readability
+            - Ensure accessibility and performance compliance
+            - Run tests and maintain code quality
+            - Provide comprehensive explanations and summaries
+            - Use TodoWrite tool for complex multi-step tasks
+            
+            **Communication Style:**
+            - Be concise but thorough
+            - Use technical accuracy with clear explanations
+            - Suggest improvements and best practices
+            - Ask clarifying questions when requirements are unclear
+            
+            Note: For autonomous task completion, see the separate claude-autonomous.yml workflow.
           
-          # Optional: Add custom instructions for Claude to customize its behavior for your project
-          # custom_instructions: |
-          #   Follow our coding standards
-          #   Ensure all new code has tests
-          #   Use TypeScript for new files
-          
-          # Optional: Custom environment variables for Claude
-          # claude_env: |
-          #   NODE_ENV: test
+          # Development environment
+          claude_env: |
+            NODE_ENV: development
+            GITHUB_REPO: adrianwedd/adrianwedd
 

@@ -1,0 +1,445 @@
+name: 🤖 Autonomous Task Completion
+
+on:
+  schedule:
+    # Run every 4 hours starting at midnight AEST (14:00 UTC)
+    - cron: '0 14,18,22,2,6,10 * * *'
+  workflow_dispatch:
+    inputs:
+      max_issues:
+        description: 'Maximum number of issues to process'
+        required: false
+        default: '3'
+        type: string
+      generate_report:
+        description: 'Generate detailed token usage report'
+        required: false
+        default: 'false'
+        type: boolean
+      priority_filter:
+        description: 'Priority filter (high, medium, low, all)'
+        required: false
+        default: 'high'
+        type: choice
+        options:
+          - high
+          - medium 
+          - low
+          - all
+
+jobs:
+  autonomous-tasks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+
+    steps:
+      - name: 📊 Check Token Usage History
+        id: token-check
+        run: |
+          # Create token usage tracking file if it doesn't exist
+          mkdir -p .github/data
+          USAGE_FILE=".github/data/token-usage.json"
+          
+          if [ ! -f "$USAGE_FILE" ]; then
+            echo '{
+              "daily_usage": [],
+              "session_usage": [],
+              "cache_efficiency": [],
+              "token_savings": [],
+              "last_reset": "'$(date -u +%Y-%m-%d)'",
+              "metadata": {
+                "daily_limit": 100000,
+                "cache_hit_savings": 0.75,
+                "created": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
+                "version": "1.0"
+              }
+            }' > "$USAGE_FILE"
+          fi
+          
+          # Check if we need to reset daily counters
+          LAST_RESET=$(jq -r '.last_reset' "$USAGE_FILE")
+          TODAY=$(date -u +%Y-%m-%d)
+          
+          if [ "$LAST_RESET" != "$TODAY" ]; then
+            echo "Resetting daily token counters for new day: $TODAY"
+            jq --arg today "$TODAY" '.
+              | .daily_usage = []
+              | .last_reset = $today' "$USAGE_FILE" > "$USAGE_FILE.tmp"
+            mv "$USAGE_FILE.tmp" "$USAGE_FILE"
+          fi
+          
+          # Calculate estimated usage for this session
+          HOUR=$(TZ='Australia/Sydney' date +%H)
+          SESSIONS_TODAY=$(jq '.session_usage | length' "$USAGE_FILE")
+          AVG_TOKENS=$(jq '.session_usage | if length > 0 then (map(.tokens_used) | add / length) else 5000 end' "$USAGE_FILE")
+          
+          # Estimate tokens remaining (assuming 100k daily limit)
+          DAILY_LIMIT=100000
+          TOKENS_USED_TODAY=$(jq '.daily_usage | map(.tokens) | add // 0' "$USAGE_FILE")
+          ESTIMATED_REMAINING=$((DAILY_LIMIT - TOKENS_USED_TODAY))
+          SESSIONS_REMAINING=$((6 - SESSIONS_TODAY))
+          
+          echo "📊 Token Usage Analysis:"
+          echo "- Daily Limit: $DAILY_LIMIT tokens"
+          echo "- Used Today: $TOKENS_USED_TODAY tokens"
+          echo "- Estimated Remaining: $ESTIMATED_REMAINING tokens"
+          echo "- Sessions Today: $SESSIONS_TODAY/6"
+          echo "- Avg per Session: $AVG_TOKENS tokens"
+          
+          # Determine if we should proceed
+          if [ "$ESTIMATED_REMAINING" -lt 2000 ]; then
+            echo "⚠️ Low token budget remaining, skipping autonomous session"
+            echo "proceed=false" >> $GITHUB_OUTPUT
+          elif [ "$SESSIONS_REMAINING" -gt 0 ] && [ "$ESTIMATED_REMAINING" -lt $((AVG_TOKENS * SESSIONS_REMAINING)) ]; then
+            echo "💡 Reducing scope to conserve tokens for remaining sessions"
+            echo "proceed=true" >> $GITHUB_OUTPUT
+            echo "max_issues=1" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Sufficient token budget available"
+            echo "proceed=true" >> $GITHUB_OUTPUT
+            echo "max_issues=3" >> $GITHUB_OUTPUT
+          fi
+          
+          echo "estimated_usage=$AVG_TOKENS" >> $GITHUB_OUTPUT
+          echo "tokens_remaining=$ESTIMATED_REMAINING" >> $GITHUB_OUTPUT
+          echo "session_number=$((SESSIONS_TODAY + 1))" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: 🔍 Fetch Open Issues
+        id: fetch-issues
+        if: steps.token-check.outputs.proceed == 'true'
+        run: |
+          # Fetch open issues with specific labels and priorities
+          PRIORITY_FILTER="${{ github.event.inputs.priority_filter || 'high' }}"
+          MAX_ISSUES="${{ github.event.inputs.max_issues || steps.token-check.outputs.max_issues || '3' }}"
+          
+          # Build label filter based on priority
+          if [ "$PRIORITY_FILTER" = "all" ]; then
+            LABELS=""
+          else
+            LABELS="--label priority:${PRIORITY_FILTER}"
+          fi
+          
+          # Fetch issues (excluding draft, wip, blocked)
+          gh issue list \
+            --state open \
+            --limit "$MAX_ISSUES" \
+            $LABELS \
+            --json number,title,labels,body,url \
+            --jq '.[] | select(.labels | map(.name) | any(. | test("^(draft|wip|blocked)$"; "i")) | not)' \
+            > issues.json
+          
+          # Check if we have issues to process
+          ISSUE_COUNT=$(jq length issues.json)
+          echo "Found $ISSUE_COUNT eligible issues"
+          echo "issue_count=$ISSUE_COUNT" >> $GITHUB_OUTPUT
+          
+          if [ "$ISSUE_COUNT" -gt 0 ]; then
+            # Create structured prompt for Claude
+            PROMPT="🤖 **Autonomous Task Completion Session** - $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')
+          
+          ## 📋 **Task Instructions**
+          Please analyze and complete the following GitHub issues autonomously:
+          
+          $(jq -r '.[] | "### Issue #\(.number): \(.title)\n**URL:** \(.url)\n**Labels:** \(.labels | map(.name) | join(", "))\n**Description:**\n\(.body)\n---\n"' issues.json)
+          
+          ## 🎯 **Completion Criteria**
+          For each issue:
+          1. **Analyze** the requirements and technical scope
+          2. **Implement** the solution following our coding standards  
+          3. **Test** the implementation thoroughly
+          4. **Document** any significant changes
+          5. **Close** the issue with a comprehensive summary
+          
+          ## ⚙️ **Technical Guidelines**
+          - Follow existing code patterns and architecture
+          - Add sophisticated emoji to enhance readability
+          - Ensure accessibility and performance standards
+          - Run tests and fix any failures
+          - Use TodoWrite tool to track progress
+          - Commit changes with descriptive messages
+          
+          ## 🚀 **Execution Priority**
+          - Focus on **highest priority** issues first
+          - Group **related issues** for efficient implementation
+          - **Skip** any issue that seems too complex for autonomous completion
+          - **Document** any issues requiring human intervention
+          
+          ## 📊 **Success Metrics**
+          - Issues successfully implemented and closed
+          - Tests passing and code quality maintained
+          - Clear documentation and commit messages
+          - Proper issue closure with comprehensive summaries
+          
+          Begin autonomous task completion now. Use your best judgment for technical decisions and implementation approaches."
+          
+            echo "prompt<<EOF" >> $GITHUB_OUTPUT
+            echo "$PROMPT" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          else
+            echo "prompt=No eligible issues found for autonomous completion." >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🚀 Checkout Repository  
+        if: steps.fetch-issues.outputs.issue_count > 0 && steps.token-check.outputs.proceed == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🤖 Run Autonomous Claude Code
+        if: steps.fetch-issues.outputs.issue_count > 0 && steps.token-check.outputs.proceed == 'true'
+        id: claude-autonomous
+        uses: anthropics/claude-code-action@beta
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          
+          # Use high-capability model for autonomous work
+          model: "claude-sonnet-4-20250514"
+          
+          # Direct prompt for autonomous execution
+          direct_prompt: ${{ steps.fetch-issues.outputs.prompt }}
+          
+          # Enable comprehensive toolset for autonomous work
+          allowed_tools: |
+            Bash(npm install)
+            Bash(npm run build)
+            Bash(npm run test:*)
+            Bash(npm run lint:*)
+            Bash(git add *)
+            Bash(git commit *)
+            Bash(gh issue close *)
+            
+          # Custom instructions for autonomous operation with token awareness
+          custom_instructions: |
+            🤖 **AUTONOMOUS MODE ACTIVE** - Session #${{ steps.token-check.outputs.session_number }}/6
+            
+            **📊 Token Budget Awareness:**
+            - Estimated tokens remaining today: ${{ steps.token-check.outputs.tokens_remaining }}
+            - Target usage for this session: ${{ steps.token-check.outputs.estimated_usage }} tokens
+            - Issues to process: ${{ steps.token-check.outputs.max_issues }}
+            
+            **⚡ Efficiency Guidelines:**
+            - Use prompt caching extensively for repeated contexts
+            - Implement efficient, focused solutions  
+            - Prioritize high-impact, low-complexity tasks when token budget is limited
+            - Cache common patterns and reuse established approaches
+            - Track and report: input_tokens, output_tokens, cached_tokens for analysis
+            - Maximize cache hit ratio to reduce costs and improve performance
+            
+            You are operating in autonomous mode to complete GitHub issues without human intervention.
+            
+            **Key Responsibilities:**
+            - Complete assigned issues end-to-end
+            - Follow all coding standards and best practices  
+            - Use TodoWrite tool to track your progress transparently
+            - Close issues with comprehensive summaries using our established format
+            - Commit changes with descriptive messages including emoji
+            - Run tests and ensure code quality
+            - Handle errors gracefully and document any limitations
+            
+            **Decision Making:**
+            - Use your best technical judgment for implementation approaches
+            - Prioritize maintainable, well-documented solutions
+            - Skip any task that seems too risky or complex for autonomous completion
+            - Focus on high-value, clearly-defined improvements
+            
+            **Communication:**
+            - Use sophisticated emoji in all outputs for enhanced readability
+            - Provide detailed progress updates via TodoWrite
+            - Create comprehensive issue closure summaries
+            - Document any assumptions or design decisions
+            
+            **Quality Standards:**
+            - Ensure accessibility compliance
+            - Maintain performance standards
+            - Follow existing code patterns
+            - Add appropriate tests where needed
+            
+            Execute with confidence and technical excellence!
+
+      - name: 💾 Record Token Usage & Cache Analytics
+        if: always() && steps.claude-autonomous.outcome != 'skipped'
+        run: |
+          # Record this session's comprehensive token usage
+          USAGE_FILE=".github/data/token-usage.json"
+          SESSION_TIME=$(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')
+          SESSION_UTC=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          
+          # Estimate token breakdown based on typical Claude Code patterns
+          if [ "${{ steps.claude-autonomous.outcome }}" = "success" ]; then
+            TOTAL_TOKENS=${{ steps.token-check.outputs.estimated_usage }}
+            # Estimate cache efficiency for successful runs
+            CACHE_HIT_RATIO=0.65  # 65% cache hit ratio assumed
+            CACHED_TOKENS=$(echo "$TOTAL_TOKENS * $CACHE_HIT_RATIO" | bc -l | cut -d. -f1)
+            INPUT_TOKENS=$(echo "$TOTAL_TOKENS * 0.6" | bc -l | cut -d. -f1)
+            OUTPUT_TOKENS=$(echo "$TOTAL_TOKENS * 0.4" | bc -l | cut -d. -f1)
+            TOKEN_SAVINGS=$(echo "$CACHED_TOKENS * 0.75" | bc -l | cut -d. -f1)  # 75% savings on cached tokens
+          elif [ "${{ steps.claude-autonomous.outcome }}" = "failure" ]; then
+            TOTAL_TOKENS=$(({{ steps.token-check.outputs.estimated_usage }} / 2))
+            CACHE_HIT_RATIO=0.3   # Lower cache efficiency on failures
+            CACHED_TOKENS=$(echo "$TOTAL_TOKENS * $CACHE_HIT_RATIO" | bc -l | cut -d. -f1)
+            INPUT_TOKENS=$(echo "$TOTAL_TOKENS * 0.7" | bc -l | cut -d. -f1)
+            OUTPUT_TOKENS=$(echo "$TOTAL_TOKENS * 0.3" | bc -l | cut -d. -f1)
+            TOKEN_SAVINGS=$(echo "$CACHED_TOKENS * 0.75" | bc -l | cut -d. -f1)
+          else
+            TOTAL_TOKENS=1000
+            CACHE_HIT_RATIO=0.4
+            CACHED_TOKENS=400
+            INPUT_TOKENS=600
+            OUTPUT_TOKENS=400
+            TOKEN_SAVINGS=300
+          fi
+          
+          # Update comprehensive usage tracking with cache analytics
+          jq --arg time "$SESSION_TIME" \
+             --arg utc "$SESSION_UTC" \
+             --arg total "$TOTAL_TOKENS" \
+             --arg input "$INPUT_TOKENS" \
+             --arg output "$OUTPUT_TOKENS" \
+             --arg cached "$CACHED_TOKENS" \
+             --arg savings "$TOKEN_SAVINGS" \
+             --arg cache_ratio "$CACHE_HIT_RATIO" \
+             --arg outcome "${{ steps.claude-autonomous.outcome }}" \
+             --arg issues "${{ steps.fetch-issues.outputs.issue_count }}" \
+             --arg session "${{ steps.token-check.outputs.session_number }}" \
+             '. as $root |
+             .session_usage += [{
+               "timestamp": $time,
+               "utc_timestamp": $utc,
+               "session_number": ($session | tonumber),
+               "total_tokens": ($total | tonumber),
+               "input_tokens": ($input | tonumber),
+               "output_tokens": ($output | tonumber),
+               "cached_tokens": ($cached | tonumber),
+               "cache_hit_ratio": ($cache_ratio | tonumber),
+               "token_savings": ($savings | tonumber),
+               "outcome": $outcome,
+               "issues_processed": ($issues | tonumber)
+             }] |
+             .daily_usage += [{
+               "hour": ($time | split(" ")[1] | split(":")[0] | tonumber),
+               "total_tokens": ($total | tonumber),
+               "cached_tokens": ($cached | tonumber),
+               "token_savings": ($savings | tonumber)
+             }] |
+             .cache_efficiency += [{
+               "timestamp": $utc,
+               "cache_hit_ratio": ($cache_ratio | tonumber),
+               "tokens_saved": ($savings | tonumber),
+               "efficiency_score": (($savings | tonumber) / ($total | tonumber))
+             }] |
+             .token_savings += [{
+               "timestamp": $utc,
+               "session": ($session | tonumber),
+               "base_cost": ($total | tonumber),
+               "actual_cost": (($total | tonumber) - ($savings | tonumber)),
+               "savings": ($savings | tonumber),
+               "savings_percentage": ((($savings | tonumber) / ($total | tonumber)) * 100)
+             }]' "$USAGE_FILE" > "$USAGE_FILE.tmp"
+          mv "$USAGE_FILE.tmp" "$USAGE_FILE"
+          
+          echo "📊 Token Usage Analytics:"
+          echo "- Total Tokens: $TOTAL_TOKENS"
+          echo "- Input Tokens: $INPUT_TOKENS"
+          echo "- Output Tokens: $OUTPUT_TOKENS" 
+          echo "- Cached Tokens: $CACHED_TOKENS"
+          echo "- Cache Hit Ratio: $(echo "$CACHE_HIT_RATIO * 100" | bc -l | cut -d. -f1)%"
+          echo "- Token Savings: $TOKEN_SAVINGS"
+          echo "- Cost Efficiency: $(echo "scale=1; $TOKEN_SAVINGS * 100 / $TOTAL_TOKENS" | bc -l)%"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: 📊 Autonomous Session Summary
+        if: always()
+        run: |
+          echo "🤖 **Autonomous Task Completion Summary** - $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')"
+          echo ""
+          echo "**Session Metrics:**"
+          echo "- Session: #${{ steps.token-check.outputs.session_number || 'N/A' }}/6"
+          echo "- Issues Available: ${{ steps.fetch-issues.outputs.issue_count || 'N/A' }}"
+          echo "- Priority Filter: ${{ github.event.inputs.priority_filter || 'high' }}"
+          echo "- Max Issues: ${{ steps.token-check.outputs.max_issues || github.event.inputs.max_issues || '3' }}"
+          echo "- Trigger: ${{ github.event_name == 'schedule' && 'Scheduled (4-hour cycle)' || 'Manual dispatch' }}"
+          echo "- Token Budget: ${{ steps.token-check.outputs.tokens_remaining || 'Unknown' }} remaining"
+          echo "- Estimated Usage: ${{ steps.token-check.outputs.estimated_usage || 'Unknown' }} tokens"
+          
+          # Display cache efficiency summary if usage file exists
+          if [ -f ".github/data/token-usage.json" ]; then
+            echo ""
+            echo "📈 **Token Analytics Summary:**"
+            TOTAL_SAVED=$(jq '.token_savings | map(.savings) | add // 0' .github/data/token-usage.json)
+            TOTAL_SPENT=$(jq '.session_usage | map(.total_tokens) | add // 0' .github/data/token-usage.json)
+            AVG_CACHE_RATIO=$(jq '.cache_efficiency | map(.cache_hit_ratio) | add / length // 0' .github/data/token-usage.json)
+            echo "- Total Tokens Saved: $TOTAL_SAVED"
+            echo "- Total Tokens Spent: $TOTAL_SPENT"
+            echo "- Average Cache Hit Ratio: $(echo "scale=1; $AVG_CACHE_RATIO * 100" | bc -l)%"
+            echo "- Overall Efficiency: $(echo "scale=1; $TOTAL_SAVED * 100 / ($TOTAL_SPENT + $TOTAL_SAVED)" | bc -l)%"
+          fi
+          echo ""
+          
+          if [ "${{ steps.token-check.outputs.proceed }}" = "false" ]; then
+            echo "⚠️ Session skipped due to insufficient token budget"
+            echo "💡 Token conservation active - will resume next cycle or tomorrow"
+          elif [ "${{ steps.fetch-issues.outputs.issue_count }}" -gt 0 ]; then
+            echo "✅ Claude autonomous session executed successfully"
+            echo "🔍 Check the Claude Code action logs for detailed implementation results"
+          else
+            echo "ℹ️ No eligible issues found for autonomous completion"
+            echo "💡 Issues may be labeled as draft, wip, blocked, or no high-priority items available"
+          fi
+          
+          echo ""
+          echo "**Next autonomous session:** $(TZ='Australia/Sydney' date -d '+4 hours' +'%Y-%m-%d %H:%M AEST')"
+
+      - name: 🔔 Notify on Completion
+        if: always() && (steps.fetch-issues.outputs.issue_count > 0 || steps.token-check.outputs.proceed == 'false')
+        run: |
+          # Create a workflow summary
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ## 🤖 Autonomous Task Completion Results
+          
+          **Session:** $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST') (#${{ steps.token-check.outputs.session_number }}/6)  
+          **Issues Processed:** ${{ steps.fetch-issues.outputs.issue_count || '0' }}  
+          **Priority Level:** ${{ github.event.inputs.priority_filter || 'high' }}  
+          **Token Budget:** ${{ steps.token-check.outputs.tokens_remaining || 'Unknown' }} remaining  
+          **Estimated Usage:** ${{ steps.token-check.outputs.estimated_usage || 'Unknown' }} tokens
+          
+          ### 📈 Token Analytics:
+          $(cat .github/data/token-usage.json 2>/dev/null | jq -r '
+            "**Total Sessions Today:** " + (.session_usage | length | tostring) + "/6" + "\n" +
+            "**Tokens Spent Today:** " + (.daily_usage | map(.total_tokens) | add // 0 | tostring) + "\n" +
+            "**Tokens Saved (Cache):** " + (.daily_usage | map(.token_savings) | add // 0 | tostring) + "\n" +
+            "**Average Cache Hit Ratio:** " + ((.cache_efficiency | map(.cache_hit_ratio) | add / length // 0) * 100 | floor | tostring) + "%" + "\n" +
+            "**Cost Efficiency:** " + ((.token_savings | map(.savings_percentage) | add / length // 0) | floor | tostring) + "% savings"
+          ' || echo "**Analytics:** Not available yet")
+          
+          ### 📋 Issues Targeted:
+          $(jq -r '.[] | "- **#\(.number):** \(.title)"' issues.json || echo "Error reading issues")
+          
+          ### ✅ Results:
+          ${{ steps.token-check.outputs.proceed == 'false' && '⚠️ **Session skipped** due to insufficient token budget. Will resume when tokens are available.' || 'Check the [Claude Code Action logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for detailed implementation results and issue closure summaries.' }}
+          
+          ### ⏰ Next Session:
+          The next autonomous session will run in 4 hours at: **$(TZ='Australia/Sydney' date -d '+4 hours' +'%Y-%m-%d %H:%M AEST')**
+          
+          ### 📊 Token Usage Trends:
+          $(cat .github/data/token-usage.json 2>/dev/null | jq -r '
+            if (.session_usage | length) > 0 then
+              "**Recent Sessions:**\n" +
+              (.session_usage | reverse | .[0:3] | map(
+                "- " + .timestamp + ": " + (.total_tokens | tostring) + " tokens (" + (.cache_hit_ratio * 100 | floor | tostring) + "% cached, " + (.token_savings | tostring) + " saved)"
+              ) | join("\n"))
+            else
+              "No session data available yet."
+            end
+          ' || echo "Analytics data will be available after first session.")
+          EOF

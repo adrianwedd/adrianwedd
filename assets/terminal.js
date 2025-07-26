@@ -110,6 +110,7 @@ class Terminal {
 
     handleKeydown(event) {
         const input = event.target;
+        this.addDebugLog(`Keydown: ${event.key}`, 'info', 'input');
         
         // Handle Ctrl+C to exit chat mode
         if (event.ctrlKey && event.key === 'c') {
@@ -216,45 +217,58 @@ class Terminal {
                 this.addOutput(`/home/adrian/tasmania${this.currentPath}`, 'info');
                 break;
             case 'uptime':
+                this.addDebugLog('Showing system uptime', 'info', 'command');
                 this.showUptime();
                 break;
             case 'magic':
+                this.addDebugLog('Showing daily magic', 'info', 'command');
                 this.showDailyMagic();
                 break;
             case 'weather':
+                this.addDebugLog('Showing weather data', 'info', 'command');
                 this.showWeather();
                 break;
             case 'theme':
+                this.addDebugLog(`Handling theme command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleThemeCommand(args);
                 break;
             case 'effects':
             case 'particles':
+                this.addDebugLog(`Handling particle effects with args: ${parts.slice(1).join(' ')}`, 'info', 'command');
                 this.handleParticleEffects(parts.slice(1));
                 break;
             case 'history':
+                this.addDebugLog(`Handling history command with args: ${parts.slice(1).join(' ')}`, 'info', 'command');
                 this.showHistory(parts.slice(1));
                 break;
             case 'actions':
+                this.addDebugLog(`Handling actions command with args: ${parts.slice(1).join(' ')}`, 'info', 'command');
                 this.handleActionsCommand(parts.slice(1));
                 break;
             case 'trigger':
+                this.addDebugLog(`Handling trigger command with args: ${parts.slice(1).join(' ')}`, 'info', 'command');
                 this.handleTriggerCommand(parts.slice(1));
                 break;
             case 'runs':
+                this.addDebugLog(`Handling runs command with args: ${parts.slice(1).join(' ')}`, 'info', 'command');
                 this.handleRunsCommand(parts.slice(1));
                 break;
             case 'ps':
+                this.addDebugLog('Showing processes', 'info', 'command');
                 this.showProcesses();
                 break;
             case 'neofetch':
+                this.addDebugLog('Showing neofetch info', 'info', 'command');
                 this.showNeofetch();
                 break;
             case 'monitor':
             case 'htop':
             case 'btop':
+                this.addDebugLog('Entering monitor mode', 'info', 'command');
                 this.enterMonitorMode();
                 break;
             case 'split':
+                this.addDebugLog(`Handling split command with args: ${args.join(' ')}`, 'info', 'command');
                 // Check if user is on mobile device
                 if (window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
                     this.addOutput('⚠ Split screen is disabled on mobile devices for better experience', 'warning');
@@ -265,6 +279,7 @@ class Terminal {
                 break;
             case 'boot':
             case 'reboot':
+                this.addDebugLog('Restarting system', 'info', 'command');
                 this.addOutput('🔄 Restarting system...', 'info');
                 this.addOutput('', 'info');
                 setTimeout(() => {
@@ -273,66 +288,86 @@ class Terminal {
                 break;
             case 'music':
             case 'play':
+                this.addDebugLog(`Handling music command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleMusicCommand(args);
                 break;
             case 'stop':
+                this.addDebugLog('Stopping music', 'info', 'command');
                 this.stopMusic();
                 break;
             case 'volume':
+                this.addDebugLog(`Setting volume to ${args[0]}`, 'info', 'command');
                 this.setVolume(args[0]);
                 break;
             case 'shader':
+                this.addDebugLog(`Setting shader to ${args[0]}`, 'info', 'command');
                 this.setShader(args[0]);
                 break;
             case 'tokens':
+                this.addDebugLog('Showing token stats', 'info', 'command');
                 this.showTokenStats();
                 break;
             case 'cache':
+                this.addDebugLog(`Handling cache command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleCacheCommand(args);
                 break;
             case 'voice':
+                this.addDebugLog(`Handling voice command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleVoiceCommand(args);
                 break;
             case 'speak':
+                this.addDebugLog(`Handling speak command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleSpeakCommand(args);
                 break;
             case 'research':
+                this.addDebugLog(`Handling research command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleResearchCommand(args);
                 break;
             case 'script':
+                this.addDebugLog(`Handling script command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleScriptCommand(args);
                 break;
             case 'edit':
+                this.addDebugLog(`Handling edit command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleEditCommand(args);
                 break;
             case 'exec':
+                this.addDebugLog(`Handling exec command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleExecCommand(args);
                 break;
             case 'grep':
+                this.addDebugLog(`Handling grep command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleGrepCommand(args);
                 break;
             case 'tail':
+                this.addDebugLog(`Handling tail command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleTailCommand(args);
                 break;
             case 'cat':
+                this.addDebugLog(`Handling cat command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleCatCommand(args);
                 break;
             case 'gemini':
+                this.addDebugLog('Showing Gemini logo', 'info', 'command');
                 this.showGeminiLogo();
                 break;
             case 'adrian':
+                this.addDebugLog('Showing Adrian logo', 'info', 'command');
                 this.showAdrianLogo();
                 break;
             case 'task':
+                this.addDebugLog(`Handling task command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleTaskCommand(args);
                 break;
             case 'debug':
                 this.toggleDebugPanel(args);
                 break;
             case 'sudo':
+                this.addDebugLog('Attempting sudo command', 'warning', 'command');
                 this.addOutput('adrian is not in the sudoers file. This incident will be reported.', 'error');
                 break;
             default:
+                this.addDebugLog(`Unknown command: ${cmd}`, 'error', 'command');
                 this.addOutput(`Command not found: ${cmd}. Type 'help' for available commands.`, 'error');
         }
 
@@ -357,6 +392,7 @@ class Terminal {
     }
 
     addOutput(text, className = '', allowHTML = false) {
+        this.addDebugLog(`Adding output: ${text.substring(0, 50)}... (class: ${className})`, 'info', 'output');
         const terminal = document.getElementById('terminal');
         const output = document.createElement('div');
         output.className = `output-line ${className}`;
@@ -383,6 +419,7 @@ class Terminal {
             const removedLine = this.terminalLines.shift();
             if (removedLine.element && removedLine.element.parentNode) {
                 removedLine.element.remove();
+                this.addDebugLog('Removed old output line', 'info', 'output');
             }
         }
         
@@ -1341,6 +1378,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     }
 
     clearTerminal() {
+        this.addDebugLog('Clearing terminal content', 'info', 'system');
         const terminal = document.getElementById('terminal');
         const terminalContent = terminal.querySelector('.terminal-content');
         // const promptLine = terminal.querySelector('.prompt-line'); // Unused variable
@@ -1352,19 +1390,23 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         if (terminalContent) {
             const outputs = terminalContent.querySelectorAll('.output-line');
             outputs.forEach(output => output.remove());
+            this.addDebugLog(`Removed ${outputs.length} output lines`, 'info', 'system');
         } else {
             // Fallback: remove all output lines from terminal
             const outputs = terminal.querySelectorAll('.output-line');
             outputs.forEach(output => output.remove());
+            this.addDebugLog(`Removed ${outputs.length} output lines (fallback)`, 'info', 'system');
         }
     }
 
     scrollToBottom() {
+        this.addDebugLog('Scrolling to bottom', 'info', 'system');
         const terminal = document.getElementById('terminal');
         terminal.scrollTop = terminal.scrollHeight;
     }
 
     scrollToTop() {
+        this.addDebugLog('Scrolling to top', 'info', 'system');
         const terminal = document.getElementById('terminal');
         terminal.scrollTop = 0;
         // Also scroll the window to top
@@ -1372,6 +1414,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     }
 
     handleChatKeydown(event) {
+        this.addDebugLog(`Chat keydown: ${event.key}`, 'info', 'chat');
         if (event.key === 'Enter') {
             this.sendMessage();
         }
@@ -1380,7 +1423,10 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     async sendMessage() {
         const input = document.getElementById('chatInput');
         const message = input.value.trim();
-        if (!message) return;
+        if (!message) {
+            this.addDebugLog('Attempted to send empty chat message', 'warning', 'chat');
+            return;
+        }
 
         this.addChatMessage(message, 'user');
         input.value = '';
@@ -1390,6 +1436,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
         // Show thinking indicator
         this.addChatMessage('🤖 Connecting to neural pathways...', 'ai', true);
+        this.addDebugLog('Sending LLM request', 'info', 'ai');
 
         try {
             // Try real LLM response first
@@ -1419,6 +1466,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     }
 
     async sendLLMRequest(message, sessionId) {
+        this.addDebugLog(`Sending LLM request to API. Session: ${sessionId}`, 'info', 'ai');
         // Try different API endpoints (adjust for your deployment)
         const apiEndpoints = [
             '/api/chat',  // Vercel/Netlify
@@ -1428,6 +1476,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
         for (const endpoint of apiEndpoints) {
             try {
+                this.addDebugLog(`Attempting API endpoint: ${endpoint}`, 'info', 'network');
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: {
@@ -1440,21 +1489,26 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
                 });
 
                 if (response.ok) {
+                    this.addDebugLog(`API endpoint ${endpoint} successful`, 'success', 'network');
                     return await response.json();
                 }
             } catch (error) {
                 console.warn(`API endpoint ${endpoint} failed:`, error);
+                this.addDebugLog(`API endpoint ${endpoint} failed: ${error.message}`, 'error', 'network');
                 continue;
             }
         }
 
+        this.addDebugLog('All API endpoints failed', 'error', 'network');
         throw new Error('All API endpoints failed');
     }
 
     async pollForResponse(sessionId, attempts = 0, maxAttempts = 20) {
+        this.addDebugLog(`Polling for response (attempt ${attempts + 1}/${maxAttempts})`, 'info', 'ai');
         if (attempts >= maxAttempts) {
             this.removeChatMessage();
             this.addChatMessage('⏰ AI response timed out. The neural networks may be overloaded.', 'ai');
+            this.addDebugLog('AI polling timed out', 'error', 'ai');
             return;
         }
 
@@ -1463,17 +1517,20 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             
             if (response.ok) {
                 const data = await response.json();
+                this.addDebugLog(`Polling response: status=${data.status}`, 'info', 'ai');
                 
                 if (data.status === 'completed') {
                     this.removeChatMessage();
                     // Format the response with rich formatting
                     const formattedResponse = this.formatLLMResponse(data.response);
                     this.addChatMessage(formattedResponse, 'ai');
+                    this.addDebugLog('AI response received', 'success', 'ai');
                     return;
                 }
             }
         } catch (error) {
             console.warn('Polling error:', error);
+            this.addDebugLog(`Polling error: ${error.message}`, 'error', 'ai');
         }
 
         // Continue polling every 3 seconds
@@ -1494,6 +1551,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     }
 
     addChatMessage(message, sender, isTyping = false) {
+        this.addDebugLog(`Adding chat message (sender: ${sender}, typing: ${isTyping})`, 'info', 'chat');
         const chatMessages = document.getElementById('chatMessages');
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${sender}-message${isTyping ? ' typing-indicator' : ''}`;
@@ -1510,22 +1568,27 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     }
 
     removeChatMessage() {
+        this.addDebugLog('Removing last chat message', 'info', 'chat');
         const chatMessages = document.getElementById('chatMessages');
         const lastMessage = chatMessages.lastElementChild;
         if (lastMessage && lastMessage.classList.contains('typing-indicator')) {
             lastMessage.remove();
+            this.addDebugLog('Removed typing indicator', 'info', 'chat');
         }
     }
 
     async loadAIResponses() {
+        this.addDebugLog('Loading AI responses from GitHub', 'info', 'ai');
         try {
             const response = await fetch('https://raw.githubusercontent.com/adrianwedd/adrianwedd/main/ai-responses/responses.json');
             if (response.ok) {
                 const data = await response.json();
                 this.aiResponses = data.responses;
+                this.addDebugLog('AI responses loaded successfully', 'success', 'ai');
             }
         } catch (error) {
             console.warn('Could not load AI responses from GitHub:', error);
+            this.addDebugLog(`Failed to load AI responses: ${error.message}`, 'error', 'ai');
             // Fallback to local responses
             this.aiResponses = {
                 'hello': ['Greetings. System online and ready for interaction.'],
@@ -1533,6 +1596,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
                 'ai': ['AI should amplify human creativity through recursive collaboration.'],
                 'default': ['Interesting query. Tell me more about your perspective.']
             };
+            this.addDebugLog('Using fallback AI responses', 'warning', 'ai');
         }
     }
 
@@ -1563,6 +1627,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
     // Music Player Methods
     async handleMusicCommand(args) {
+        this.addDebugLog(`Handling music command with args: ${args.join(' ')}`, 'info', 'music');
         if (args.length === 0) {
             const status = this.musicPlayer.getStatus();
             this.addOutput('🎵 Retro Music Player', 'success');
@@ -1576,6 +1641,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         const track = args[0].toLowerCase();
         if (track === 'stop') {
             this.stopMusic();
+            this.addDebugLog('Music stop command received', 'info', 'music');
             return;
         }
 
@@ -1583,52 +1649,65 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         if (success) {
             this.addOutput(`🎵 Now playing: ${track} (retro synth)`, 'success');
             this.addOutput('Use "stop" to stop music or "volume <0.0-1.0>" to adjust volume', 'info');
+            this.addDebugLog(`Playing track: ${track}`, 'success', 'music');
         } else {
             this.addOutput(`❌ Track "${track}" not found`, 'error');
             this.addOutput('Available: cyberpunk, ambient, synthwave, matrix', 'info');
+            this.addDebugLog(`Failed to play track: ${track}`, 'error', 'music');
         }
     }
 
     stopMusic() {
         this.musicPlayer.stopTrack();
         this.addOutput('🔇 Music stopped', 'info');
+        this.addDebugLog('Music stopped', 'info', 'music');
     }
 
     setVolume(volumeStr) {
+        this.addDebugLog(`Attempting to set volume to: ${volumeStr}`, 'info', 'music');
         if (!volumeStr) {
             this.addOutput('Usage: volume <0.0-1.0>', 'error');
+            this.addDebugLog('Invalid volume command: no argument', 'error', 'music');
             return;
         }
 
         const volume = parseFloat(volumeStr);
         if (isNaN(volume) || volume < 0 || volume > 1) {
             this.addOutput('Volume must be between 0.0 and 1.0', 'error');
+            this.addDebugLog(`Invalid volume value: ${volumeStr}`, 'error', 'music');
             return;
         }
 
         this.musicPlayer.setVolume(volume);
         this.addOutput(`🔊 Volume set to ${Math.round(volume * 100)}%`, 'success');
+        this.addDebugLog(`Volume set to ${volume}`, 'success', 'music');
     }
 
     setShader(shaderName) {
+        this.addDebugLog(`Attempting to set shader to: ${shaderName}`, 'info', 'music');
         if (!shaderName) {
             this.addOutput('Usage: shader <spectrum|waveform|cyberpunk|minimal|particles>', 'error');
+            this.addDebugLog('Invalid shader command: no argument', 'error', 'music');
             return;
         }
         this.musicPlayer.visualizer.switchShader(shaderName);
         this.addOutput(`🎨 Switched shader to: ${shaderName}`, 'success');
+        this.addDebugLog(`Shader set to: ${shaderName}`, 'success', 'music');
     }
 
     // System Monitor Methods
     async enterMonitorMode() {
+        this.addDebugLog('Entering monitor mode', 'info', 'system');
         this.addOutput('', 'info');
         this.addOutput('🖥️  Entering system monitor mode...', 'success');
-        this.addOutput('Press \'q\' to return to terminal', 'info');
+        this.addOutput('Press 'q' to return to terminal', 'info');
         await this.systemMonitor.enterMonitorMode();
+        this.addDebugLog('System monitor entered', 'success', 'system');
     }
 
     // Split Screen Mode Methods
     async enterSplitMode() {
+        this.addDebugLog('Entering split screen mode', 'info', 'system');
         this.addOutput('', 'info');
         this.addOutput('🔗 Entering split screen mode...', 'success');
         this.addOutput('Terminal + Monitor side-by-side view', 'info');
@@ -1637,6 +1716,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         
         // Initialize split screen
         this.initializeSplitScreen();
+        this.addDebugLog('Split screen initialized', 'info', 'system');
     }
 
     initializeSplitScreen() {
@@ -1848,6 +1928,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     }
 
     exitSplitMode() {
+        this.addDebugLog('Exiting split screen mode', 'info', 'system');
         // Hide split screen container
         const splitContainer = document.getElementById('splitScreenContainer');
         splitContainer.style.display = 'none';
@@ -1858,10 +1939,12 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         // Clean up split monitor
         if (this.splitSystemMonitor) {
             this.splitSystemMonitor.isActive = false;
+            this.addDebugLog('Split system monitor deactivated', 'info', 'system');
         }
         
         if (this.splitMonitorInterval) {
             clearInterval(this.splitMonitorInterval);
+            this.addDebugLog('Split monitor interval cleared', 'info', 'system');
         }
         
         // Focus main terminal input
@@ -1869,15 +1952,21 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         
         this.addOutput('', 'info');
         this.addOutput('🔗 Exited split screen mode', 'success');
+        this.addDebugLog('Successfully exited split screen mode', 'success', 'system');
     }
 
     // Boot Sequence Methods
     startBootSequence() {
+        this.addDebugLog('Starting boot sequence', 'info', 'system');
         const bootContainer = document.getElementById('bootSequence');
-        if (!bootContainer) return;
+        if (!bootContainer) {
+            this.addDebugLog('Boot sequence container not found', 'error', 'system');
+            return;
+        }
         
         // Clear any existing content
         bootContainer.innerHTML = '';
+        this.addDebugLog('Boot sequence container cleared', 'info', 'system');
         
         // Define realistic boot sequence messages
         const bootMessages = [
@@ -1918,13 +2007,16 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         ];
         
         this.typeBootMessages(bootMessages, 0);
+        this.addDebugLog('Boot messages started typing', 'info', 'system');
     }
     
     typeBootMessages(messages, index) {
+        this.addDebugLog(`Typing boot message: ${messages[index].substring(0, 50)}...`, 'info', 'system');
         if (index >= messages.length) {
             // Boot complete - show ready prompt
             setTimeout(() => {
                 this.showBootComplete();
+                this.addDebugLog('Boot sequence complete', 'success', 'system');
             }, 500);
             return;
         }
@@ -1938,6 +2030,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             line.className = 'boot-line';
             line.innerHTML = '&nbsp;';
             bootContainer.appendChild(line);
+            this.addDebugLog('Added empty boot line', 'info', 'system');
             
             setTimeout(() => {
                 this.typeBootMessages(messages, index + 1);
@@ -1961,6 +2054,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             } else {
                 // Line complete - scroll and continue to next
                 bootContainer.scrollTop = bootContainer.scrollHeight;
+                this.addDebugLog(`Finished typing line: ${message.substring(0, 50)}...`, 'info', 'system');
                 
                 // Short delay before next line (50-150ms)
                 setTimeout(() => {
@@ -1973,6 +2067,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     }
     
     showBootComplete() {
+        this.addDebugLog('Boot sequence completed, showing prompt', 'success', 'system');
         const bootContainer = document.getElementById('bootSequence');
         
         // Add final status line
@@ -1985,6 +2080,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         const commandInput = document.getElementById('commandInput');
         if (commandInput) {
             commandInput.focus();
+            this.addDebugLog('Command input focused', 'info', 'system');
         }
         
         // Optional: Add subtle completion effect
@@ -1998,6 +2094,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
     // Inline Chat Methods
     async handleChatMessage(message) {
+        this.addDebugLog(`Chat message sent: ${message}`, 'info', 'chat');
         // Check for exit commands
         if (message.toLowerCase() === 'exit' || message.toLowerCase() === 'quit') {
             this.exitChatMode();

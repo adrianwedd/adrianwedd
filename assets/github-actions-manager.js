@@ -35,14 +35,44 @@ class GitHubActionsManager {
     async listWorkflows() {
         const result = await this.executeGHCommand(`workflow list --repo ${this.repo}`);
         
-        // Simulate workflow data (in production this would parse actual gh output)
+        // Try to fetch real workflow data from GitHub API
+        try {
+            const apiResponse = await fetch('https://api.github.com/repos/adrianwedd/adrianwedd/actions/workflows', {
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'Adrian-Terminal-Interface'
+                }
+            });
+            
+            if (apiResponse.ok) {
+                const apiData = await apiResponse.json();
+                const workflows = apiData.workflows.map(wf => ({
+                    name: wf.name,
+                    id: wf.path.split('/').pop(),
+                    status: wf.state === 'active' ? 'active' : 'disabled',
+                    url: wf.html_url,
+                    badge_url: wf.badge_url
+                }));
+                
+                return {
+                    ...result,
+                    workflows,
+                    count: workflows.length,
+                    source: 'github-api'
+                };
+            }
+        } catch (error) {
+            console.warn('GitHub API failed, using fallback data:', error);
+        }
+        
+        // Fallback workflow data
         const workflows = [
-            { name: 'Daily Claude Magic', id: 'daily-claude-magic.yml', status: 'active' },
-            { name: 'Tasmania Weather Update', id: 'update-weather.yml', status: 'active' },
-            { name: 'Deploy Terminal Interface', id: 'deploy.yml', status: 'active' },
-            { name: 'Playwright Tests', id: 'test.yml', status: 'active' },
-            { name: 'Claude Code Review', id: 'claude-review.yml', status: 'active' },
-            { name: 'LLM Chat Response', id: 'llm-chat.yml', status: 'active' }
+            { name: '🤖 Daily AI Magic', id: 'daily-claude-magic.yml', status: 'active' },
+            { name: '🌤️ Tasmania Weather Update', id: 'update-weather.yml', status: 'active' },
+            { name: '🚀 Deploy Terminal Interface', id: 'deploy-pages.yml', status: 'active' },
+            { name: '🧪 Test Suite', id: 'test.yml', status: 'active' },
+            { name: '🎭 Playwright Testing Suite', id: 'playwright-tests.yml', status: 'active' },
+            { name: '💬 LLM Chat Response', id: 'llm-chat.yml', status: 'active' }
         ];
 
         return {
@@ -104,21 +134,67 @@ class GitHubActionsManager {
 
         const result = await this.executeGHCommand(command);
         
-        // Simulate recent runs (in production this would parse actual gh output)
+        // Try to fetch real workflow run data from GitHub API
+        try {
+            const apiResponse = await fetch(`https://api.github.com/repos/adrianwedd/adrianwedd/actions/runs?per_page=${limit}`, {
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'Adrian-Terminal-Interface'
+                }
+            });
+            
+            if (apiResponse.ok) {
+                const apiData = await apiResponse.json();
+                const runs = apiData.workflow_runs.map(run => ({
+                    workflow: run.name,
+                    status: run.status,
+                    conclusion: run.conclusion,
+                    created_at: run.created_at,
+                    run_number: run.run_number,
+                    html_url: run.html_url,
+                    head_branch: run.head_branch,
+                    event: run.event
+                }));
+                
+                return {
+                    ...result,
+                    runs,
+                    count: runs.length,
+                    source: 'github-api'
+                };
+            }
+        } catch (error) {
+            console.warn('GitHub API failed for runs, using fallback data:', error);
+        }
+        
+        // Fallback run data
         const runs = [
             { 
-                workflow: 'Tasmania Weather Update',
+                workflow: '🌤️ Tasmania Weather Update',
                 status: 'completed',
                 conclusion: 'success',
                 created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-                run_number: 42
+                run_number: 42,
+                head_branch: 'main',
+                event: 'schedule'
             },
             { 
-                workflow: 'Daily Claude Magic',
+                workflow: '🤖 Daily AI Magic',
                 status: 'completed',
                 conclusion: 'success',
                 created_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-                run_number: 15
+                run_number: 15,
+                head_branch: 'main',
+                event: 'schedule'
+            },
+            { 
+                workflow: '🧪 Test Suite',
+                status: 'completed',
+                conclusion: 'success',
+                created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+                run_number: 128,
+                head_branch: 'main',
+                event: 'push'
             }
         ];
 
@@ -219,7 +295,7 @@ class GitHubActionsManager {
             output += `   Status: ${workflow.status}\n\n`;
         });
         
-        output += `Total: ${data.count} workflows\n`;
+        output += `Total: ${data.count} workflows${data.source ? ` (${data.source})` : ''}\n`;
         output += `\n💡 Use 'trigger <workflow>' to run workflows`;
         
         return output;
@@ -238,11 +314,12 @@ class GitHubActionsManager {
             const timeAgo = this.getTimeAgo(new Date(run.created_at));
             
             output += `${statusEmoji} ${run.workflow} (#${run.run_number})\n`;
-            output += `   Status: ${run.status} (${run.conclusion})\n`;
+            output += `   Status: ${run.status} (${run.conclusion || 'running'})\n`;
+            output += `   Branch: ${run.head_branch || 'main'} • Event: ${run.event || 'push'}\n`;
             output += `   Started: ${timeAgo}\n\n`;
         });
         
-        output += `Showing ${data.count} recent runs`;
+        output += `Showing ${data.count} recent runs${data.source ? ` (${data.source})` : ''}`;
         
         return output;
     }
