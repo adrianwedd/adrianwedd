@@ -200,15 +200,19 @@ class Terminal {
                 this.toggleMatrixRain();
                 break;
             case 'clear':
+                this.addDebugLog('Clearing terminal', 'info', 'command');
                 this.clearTerminal();
                 break;
             case 'ls':
+                this.addDebugLog('Listing directory', 'info', 'command');
                 this.listDirectory();
                 break;
             case 'whoami':
+                this.addDebugLog('Showing user info', 'info', 'command');
                 this.addOutput('adrian - Recursive Systems Architect & Off-Grid Permanaut', 'success');
                 break;
             case 'pwd':
+                this.addDebugLog('Showing current directory', 'info', 'command');
                 this.addOutput(`/home/adrian/tasmania${this.currentPath}`, 'info');
                 break;
             case 'uptime':
