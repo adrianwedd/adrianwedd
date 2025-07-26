@@ -361,3 +361,353 @@ tasks:
       - Reusable test fixtures established
       - Test data generators created
       - Documentation for test utilities added
+
+# Logical Enhancement Tasks - Feature Improvements and Extensions
+enhancements:
+  # Terminal Core Enhancements
+  - id: "enhance-001"
+    title: "Implement advanced command history with search and filtering"
+    type: "enhancement"
+    priority: "high"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: high", "agent: claude"]
+    description: |
+      Enhance command history with advanced search, filtering, timestamps,
+      and contextual suggestions based on usage patterns.
+    acceptance_criteria:
+      - History search with regex and fuzzy matching
+      - Command frequency analysis and suggestions
+      - History filtering by date, command type, success/failure
+      - Export/import history functionality
+      - Session-based history grouping
+
+  - id: "enhance-002"
+    title: "Add intelligent command completion with context awareness"
+    type: "enhancement"
+    priority: "high"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: high", "agent: claude"]
+    description: |
+      Implement context-aware tab completion that suggests relevant options
+      based on current state, command history, and available resources.
+    acceptance_criteria:
+      - Dynamic completion based on terminal state
+      - Command parameter completion for complex commands
+      - File/directory completion for applicable commands
+      - Smart suggestions based on usage patterns
+      - Multi-level completion (command → subcommand → parameters)
+
+  - id: "enhance-003"
+    title: "Implement terminal session management and persistence"
+    type: "enhancement"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: medium", "agent: claude"]
+    description: |
+      Add session management capabilities including session saving/restoring,
+      multiple session support, and persistent state across browser sessions.
+    acceptance_criteria:
+      - Session save/restore functionality
+      - Multiple named sessions support
+      - Persistent state across browser restarts
+      - Session sharing via URLs
+      - Session history and metadata tracking
+
+  # AI and Chat Enhancements
+  - id: "enhance-004"
+    title: "Implement advanced AI conversation context management"
+    type: "enhancement"
+    priority: "high"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: high", "agent: claude"]
+    description: |
+      Enhance AI chat system with better context management, conversation
+      branching, and intelligent memory of previous interactions.
+    acceptance_criteria:
+      - Conversation context persistence across sessions
+      - Conversation branching and threading
+      - Intelligent context summarization
+      - Related conversation suggestions
+      - Context-aware response optimization
+
+  - id: "enhance-005"
+    title: "Add AI-powered command suggestions and error correction"
+    type: "enhancement"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: medium", "agent: claude"]
+    description: |
+      Implement AI-powered features for command suggestion, typo correction,
+      and intelligent help based on user intent and context.
+    acceptance_criteria:
+      - Typo detection and correction suggestions
+      - Intent-based command suggestions
+      - Natural language to command translation
+      - Context-aware help generation
+      - Learning from user correction patterns
+
+  - id: "enhance-006"
+    title: "Implement advanced prompt caching with intelligent invalidation"
+    type: "enhancement"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: medium", "agent: claude"]
+    description: |
+      Enhance prompt caching system with intelligent cache invalidation,
+      cache warming, and performance optimization strategies.
+    acceptance_criteria:
+      - Intelligent cache invalidation based on context changes
+      - Predictive cache warming for frequently used prompts
+      - Cache performance analytics and optimization
+      - Distributed caching support for multiple sessions
+      - Cache compression and storage optimization
+
+  # Voice Interface Enhancements
+  - id: "enhance-007"
+    title: "Add advanced voice command processing with NLP"
+    type: "enhancement"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: medium", "agent: claude"]
+    description: |
+      Enhance voice interface with natural language processing for more
+      intuitive voice commands and conversational interactions.
+    acceptance_criteria:
+      - Natural language command interpretation
+      - Voice command templates and variations
+      - Contextual voice responses
+      - Voice command learning and adaptation
+      - Multi-step voice workflows
+
+  - id: "enhance-008"
+    title: "Implement voice profile management and personalization"
+    type: "enhancement"
+    priority: "low"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: low", "agent: claude"]
+    description: |
+      Add voice profile management for personalized voice recognition,
+      custom wake words, and voice-specific preferences.
+    acceptance_criteria:
+      - User voice profile creation and training
+      - Custom wake word configuration
+      - Voice-specific command preferences
+      - Voice recognition accuracy improvements
+      - Multi-user voice support
+
+  # Music and Audio Enhancements
+  - id: "enhance-009"
+    title: "Add advanced audio visualization with real-time analysis"
+    type: "enhancement"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: medium", "agent: claude"]
+    description: |
+      Enhance audio visualization system with advanced FFT analysis,
+      spectral visualization, and interactive audio controls.
+    acceptance_criteria:
+      - Real-time spectral analysis and visualization
+      - Interactive audio waveform controls
+      - Advanced shader effects based on audio data
+      - Audio-reactive particle systems
+      - Customizable visualization themes
+
+  - id: "enhance-010"
+    title: "Implement music library and playlist management"
+    type: "enhancement"
+    priority: "low"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: low", "agent: claude"]
+    description: |
+      Add music library management with playlist creation, music discovery,
+      and integration with external music services.
+    acceptance_criteria:
+      - Local music library management
+      - Playlist creation and management
+      - Music metadata and tagging
+      - Integration with music streaming APIs
+      - Smart playlist generation based on preferences
+
+  # Theme and Visual Enhancements
+  - id: "enhance-011"
+    title: "Add dynamic theme creation and customization tools"
+    type: "enhancement"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: medium", "agent: claude"]
+    description: |
+      Implement dynamic theme creation tools allowing users to create
+      and share custom terminal themes with live preview capabilities.
+    acceptance_criteria:
+      - Visual theme editor with live preview
+      - Color palette generation and suggestions
+      - Theme sharing and import/export
+      - Community theme gallery
+      - Accessibility validation for custom themes
+
+  - id: "enhance-012"
+    title: "Implement advanced particle effects and animations"
+    type: "enhancement"
+    priority: "low"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: low", "agent: claude"]
+    description: |
+      Enhance particle effects system with physics simulation, interactive
+      particles, and performance-optimized rendering.
+    acceptance_criteria:
+      - Physics-based particle simulation
+      - Interactive particle systems responding to user input
+      - Performance optimization for complex effects
+      - Particle effect presets and customization
+      - WebGL shader optimization and effects library
+
+  # System Integration Enhancements
+  - id: "enhance-013"
+    title: "Add comprehensive GitHub Actions workflow management"
+    type: "enhancement"
+    priority: "high"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: high", "agent: claude"]
+    description: |
+      Enhance GitHub Actions integration with workflow creation, editing,
+      and advanced monitoring capabilities from the terminal.
+    acceptance_criteria:
+      - Visual workflow editor integrated in terminal
+      - Workflow template library and suggestions
+      - Real-time workflow execution monitoring
+      - Workflow performance analytics
+      - Integration with repository management
+
+  - id: "enhance-014"
+    title: "Implement advanced system monitoring with performance metrics"
+    type: "enhancement"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: medium", "agent: claude"]
+    description: |
+      Enhance system monitor with detailed performance metrics, historical
+      data tracking, and predictive analytics for system health.
+    acceptance_criteria:
+      - Detailed performance metrics collection
+      - Historical data visualization and trends
+      - Performance anomaly detection
+      - Predictive analytics for resource usage
+      - Custom metric dashboards and alerts
+
+  - id: "enhance-015"
+    title: "Add multi-API integration hub with unified interface"
+    type: "enhancement"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: medium", "agent: claude"]
+    description: |
+      Create unified API integration hub for managing multiple external
+      services and data sources from the terminal interface.
+    acceptance_criteria:
+      - Unified API management interface
+      - API key and credential management
+      - API response caching and optimization
+      - Multi-service data aggregation
+      - Custom API integration wizard
+
+  # Productivity and Workflow Enhancements
+  - id: "enhance-016"
+    title: "Implement terminal scripting and automation framework"
+    type: "enhancement"
+    priority: "high"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: high", "agent: claude"]
+    description: |
+      Add scripting capabilities to automate complex workflows and create
+      custom commands using a built-in scripting framework.
+    acceptance_criteria:
+      - Built-in scripting language support
+      - Script editor with syntax highlighting
+      - Script library and sharing system
+      - Automated workflow execution
+      - Script debugging and error handling
+
+  - id: "enhance-017"
+    title: "Add collaborative features and session sharing"
+    type: "enhancement"
+    priority: "low"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: low", "agent: claude"]
+    description: |
+      Implement collaborative features allowing multiple users to share
+      terminal sessions and work together on projects.
+    acceptance_criteria:
+      - Real-time session sharing
+      - Collaborative command execution
+      - User presence and activity indicators
+      - Permission-based access control
+      - Session recording and playback
+
+  - id: "enhance-018"
+    title: "Implement advanced search and content indexing"
+    type: "enhancement"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: medium", "agent: claude"]
+    description: |
+      Add comprehensive search capabilities across all terminal content,
+      history, and integrated services with intelligent indexing.
+    acceptance_criteria:
+      - Full-text search across all terminal content
+      - Intelligent content categorization and tagging
+      - Search result ranking and relevance scoring
+      - Saved searches and search history
+      - Cross-service search integration
+
+  # Mobile and Accessibility Enhancements
+  - id: "enhance-019"
+    title: "Enhance mobile experience with touch-optimized interface"
+    type: "enhancement"
+    priority: "medium"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: medium", "agent: claude"]
+    description: |
+      Optimize terminal interface for mobile devices with touch-friendly
+      controls, gesture support, and mobile-specific features.
+    acceptance_criteria:
+      - Touch-optimized command input and navigation
+      - Gesture support for common actions
+      - Mobile-specific command shortcuts
+      - Adaptive UI for different screen sizes
+      - Mobile performance optimization
+
+  - id: "enhance-020"
+    title: "Implement comprehensive accessibility improvements"
+    type: "enhancement"
+    priority: "high"
+    status: "pending"
+    assignee: "adrianwedd"
+    labels: ["type: enhancement", "priority: high", "agent: claude"]
+    description: |
+      Enhance accessibility features including screen reader support,
+      keyboard navigation, and assistive technology integration.
+    acceptance_criteria:
+      - Full screen reader compatibility
+      - Comprehensive keyboard navigation
+      - High contrast and accessible color schemes
+      - Voice control for accessibility
+      - Assistive technology integration and testing
