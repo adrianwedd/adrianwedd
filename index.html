@@ -13,7 +13,7 @@
 </head>
 <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <div class="container" role="main" id="main-content">
+    <main class="container" id="main-content">
         <div class="header">
             <div class="window-controls">
                 <span class="control close"></span>
@@ -29,10 +29,11 @@
             </div>
         </div>
         
-        <div class="terminal" id="terminal">
-            <div class="terminal-content">
+        <div class="terminal" id="terminal" role="log" aria-live="polite" aria-label="Terminal output" tabindex="0">
+            <div class="terminal-content" aria-label="Terminal content area">
                 <div class="retro-header">
-                    <pre class="retro-3d-logo">
+                    <h1 class="sr-only">Adrian Wedd - Terminal Interface</h1>
+                    <pre class="retro-3d-logo" aria-label="Adrian ASCII art logo">
  █████╗ ██████╗ ██████╗ ██╗ █████╗ ███╗   ██╗
 ██╔══██╗██╔══██╗██╔══██╗██║██╔══██╗████╗  ██║
 ███████║██║  ██║██████╔╝██║███████║██╔██╗ ██║
@@ -53,10 +54,11 @@
             
             <div class="prompt-line">
                 <span class="prompt">adrian@home:~$</span>
-                <input type="text" id="commandInput" class="command-input" autofocus>
+                <label for="commandInput" class="sr-only">Enter terminal command</label>
+                <input type="text" id="commandInput" class="command-input" autofocus aria-label="Terminal command input" placeholder="Type commands here...">
                 <span class="cursor">█</span>
             </div>
-            <div id="debugPanel" class="debug-panel" style="display: none;">
+            <div id="debugPanel" class="debug-panel" style="display: none;" role="region" aria-label="Debug information">
               <div class="debug-header">📊 SYSTEM DEBUG LOG</div>
               <div class="debug-content" id="debugContent">
                 <!-- Debug lines will be appended here -->
@@ -70,8 +72,8 @@
                 <div class="split-header">
                     <span class="split-title">🖥️ TERMINAL</span>
                     <div class="split-controls">
-                        <button class="split-btn" id="focusTerminal">Focus</button>
-                        <button class="split-btn" id="closeSplit">✕</button>
+                        <button class="split-btn" id="focusTerminal" aria-label="Focus terminal pane">Focus</button>
+                        <button class="split-btn" id="closeSplit" aria-label="Close split screen">✕</button>
                     </div>
                 </div>
                 <div class="split-terminal-content">
@@ -80,7 +82,8 @@
                     </div>
                     <div class="prompt-line-split">
                         <span class="prompt">adrian@split:~$</span>
-                        <input type="text" id="commandInputSplit" class="command-input" placeholder="Type commands here...">
+                        <label for="commandInputSplit" class="sr-only">Enter split terminal command</label>
+                        <input type="text" id="commandInputSplit" class="command-input" placeholder="Type commands here..." aria-label="Split terminal command input">
                         <span class="cursor">█</span>
                     </div>
                 </div>
@@ -94,44 +97,44 @@
                 <div class="split-header">
                     <span class="split-title">📊 SYSTEM MONITOR</span>
                     <div class="split-controls">
-                        <button class="split-btn" id="focusMonitor">Focus</button>
-                        <button class="split-btn" id="refreshMonitor">↻</button>
+                        <button class="split-btn" id="focusMonitor" aria-label="Focus monitor pane">Focus</button>
+                        <button class="split-btn" id="refreshMonitor" aria-label="Refresh monitor data">↻</button>
                     </div>
                 </div>
                 <div class="split-monitor-content">
                     <div class="monitor-content-split">
-                        <div class="monitor-pane-split left-pane">
+                        <div class="monitor-pane-split left-pane" role="region" aria-labelledby="ci-split-heading">
                             <div class="pane-header">
-                                <span class="pane-title">🏗️ CI/CD STATUS</span>
+                                <h2 id="ci-split-heading" class="pane-title">🏗️ CI/CD STATUS</h2>
                                 <span class="pane-refresh" id="ciRefreshSplit">●</span>
                             </div>
                             <div class="pane-content" id="ciContentSplit">
                                 <div class="chart-container">
-                                    <canvas id="ciChartSplit" width="300" height="150"></canvas>
+                                    <canvas id="ciChartSplit" width="300" height="150" role="img" aria-label="CI/CD pipeline status chart" tabindex="0"></canvas>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="monitor-pane-split right-pane">
+                        <div class="monitor-pane-split right-pane" role="region" aria-labelledby="weather-split-heading">
                             <div class="pane-header">
-                                <span class="pane-title">🌤️ WEATHER & SYSTEMS</span>
+                                <h2 id="weather-split-heading" class="pane-title">🌤️ WEATHER & SYSTEMS</h2>
                                 <span class="pane-refresh" id="homesteadRefreshSplit">●</span>
                             </div>
                             <div class="pane-content" id="homeContentSplit">
                                 <div class="chart-container">
-                                    <canvas id="weatherChartSplit" width="300" height="150"></canvas>
+                                    <canvas id="weatherChartSplit" width="300" height="150" role="img" aria-label="Weather and systems data chart" tabindex="0"></canvas>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="monitor-pane-split bottom-pane">
+                        <div class="monitor-pane-split bottom-pane" role="region" aria-labelledby="ai-split-heading">
                             <div class="pane-header">
-                                <span class="pane-title">🤖 AI ANALYTICS</span>
+                                <h2 id="ai-split-heading" class="pane-title">🤖 AI ANALYTICS</h2>
                                 <span class="pane-refresh" id="aiRefreshSplit">●</span>
                             </div>
                             <div class="pane-content" id="aiContentSplit">
                                 <div class="chart-container">
-                                    <canvas id="aiChartSplit" width="300" height="150"></canvas>
+                                    <canvas id="aiChartSplit" width="300" height="150" role="img" aria-label="AI analytics chart" tabindex="0"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -151,45 +154,45 @@
             </div>
             
             <div class="monitor-content">
-                <div class="monitor-pane left-pane">
+                <div class="monitor-pane left-pane" role="region" aria-labelledby="ci-heading">
                     <div class="pane-header">
-                        <span class="pane-title">🏗️ CI/CD PIPELINE STATUS</span>
+                        <h2 id="ci-heading" class="pane-title">🏗️ CI/CD PIPELINE STATUS</h2>
                         <span class="pane-refresh" id="ciRefresh">●</span>
                     </div>
                     <div class="pane-content" id="ciContent">
                         <!-- CI/CD data will be populated here -->
                         <div class="chart-container">
-                            <canvas id="ciChart" width="400" height="200"></canvas>
+                            <canvas id="ciChart" width="400" height="200" role="img" aria-label="CI/CD pipeline detailed chart" tabindex="0"></canvas>
                         </div>
                     </div>
                 </div>
                 
                 <div class="monitor-divider">│</div>
                 
-                <div class="monitor-pane middle-pane">
+                <div class="monitor-pane middle-pane" role="region" aria-labelledby="ai-heading">
                     <div class="pane-header">
-                        <span class="pane-title">🧠 AI TOKEN ANALYTICS</span>
+                        <h2 id="ai-heading" class="pane-title">🧠 AI TOKEN ANALYTICS</h2>
                         <span class="pane-refresh" id="aiRefresh">●</span>
                     </div>
                     <div class="pane-content" id="aiContent">
                         <!-- AI token data will be populated here -->
                         <div class="chart-container">
-                            <canvas id="aiChart" width="400" height="200"></canvas>
+                            <canvas id="aiChart" width="400" height="200" role="img" aria-label="AI token analytics detailed chart" tabindex="0"></canvas>
                         </div>
                     </div>
                 </div>
                 
                 <div class="monitor-divider">│</div>
                 
-                <div class="monitor-pane right-pane">
+                <div class="monitor-pane right-pane" role="region" aria-labelledby="weather-heading">
                     <div class="pane-header">
-                        <span class="pane-title">🌤️ WEATHER & SYSTEMS</span>
+                        <h2 id="weather-heading" class="pane-title">🌤️ WEATHER & SYSTEMS</h2>
                         <span class="pane-refresh" id="homeRefresh">●</span>
                     </div>
                     <div class="pane-content" id="homeContent">
                         <!-- Weather & systems data will be populated here -->
                         <div class="chart-container">
-                            <canvas id="weatherChart" width="400" height="200"></canvas>
+                            <canvas id="weatherChart" width="400" height="200" role="img" aria-label="Weather and systems detailed chart" tabindex="0"></canvas>
                         </div>
                     </div>
                 </div>
