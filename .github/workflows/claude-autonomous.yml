@@ -150,6 +150,11 @@ jobs:
           ISSUE_COUNT=$(jq length issues.json)
           echo "📊 Found $ISSUE_COUNT issues with priority:${PRIORITY_FILTER}"
           
+          # Ensure ISSUE_COUNT is a valid integer
+          if [ -z "$ISSUE_COUNT" ] || ! [[ "$ISSUE_COUNT" =~ ^[0-9]+$ ]]; then
+            ISSUE_COUNT="0"
+          fi
+          
           # If no high priority issues found, try medium priority
           if [ "$ISSUE_COUNT" -eq 0 ] && [ "$PRIORITY_FILTER" = "high" ]; then
             echo "⬇️ No high priority issues found, falling back to medium priority..."
@@ -437,7 +442,7 @@ jobs:
           if [ "${{ steps.token-check.outputs.proceed }}" = "false" ]; then
             echo "⚠️ Session skipped due to insufficient token budget"
             echo "💡 Token conservation active - will resume next cycle or tomorrow"
-          elif [ "${{ steps.fetch-issues.outputs.issue_count }}" -gt 0 ]; then
+          elif [ "${{ steps.fetch-issues.outputs.issue_count || '0' }}" -gt 0 ]; then
             echo "✅ Claude autonomous session executed successfully"
             echo "🔍 Check the Claude Code action logs for detailed implementation results"
           else
