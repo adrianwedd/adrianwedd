@@ -234,8 +234,8 @@ describe('ScriptEngine Tests', () => {
             const result = await scriptEngine.executeScript('simple');
             expect(result).toBe('Hello World');
             
-            const script = scriptEngine.getScript('simple');
-            expect(script.executions).toBe(1);
+            const simpleScript = scriptEngine.getScript('simple');
+            expect(simpleScript.executions).toBe(1);
         });
 
         test('should handle script arguments', async () => {
@@ -296,8 +296,8 @@ describe('ScriptEngine Tests', () => {
             freshEngine.createScript('script2', 'echo "test2"');
             
             // Simulate executions
-            const script1 = freshEngine.getScript('script1');
-            script1.executions = 5;
+            const simpleScript = freshEngine.getScript('script1');
+            simpleScript.executions = 5;
             const script2 = freshEngine.getScript('script2');
             script2.executions = 3;
             
@@ -310,9 +310,8 @@ describe('ScriptEngine Tests', () => {
 
     describe('Import/Export', () => {
         test('should export script', () => {
-            const script = scriptEngine.createScript('exportable', 'echo "export me"', 'Test export');
-            
             const exported = scriptEngine.exportScript('exportable');
+            
             expect(exported.name).toBe('exportable');
             expect(exported.content).toBe('echo "export me"');
             expect(exported.description).toBe('Test export');

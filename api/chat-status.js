@@ -62,7 +62,7 @@ export default async function handler(req, res) {
                     message: 'AI persona is still thinking...'
                 });
             }
-        } catch (fetchError) {
+        } catch {
             // File doesn't exist or other fetch error
             return res.status(200).json({
                 status: 'processing',

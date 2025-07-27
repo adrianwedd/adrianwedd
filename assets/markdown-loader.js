@@ -115,7 +115,7 @@ class MarkdownLoader {
         html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
         
         // Links
-        html = html.replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2" target="_blank" class="markdown-link">$1</a>');
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="markdown-link">$1</a>');
         
         // Lists
         html = html.replace(/^\* (.*$)/gim, '<li>$1</li>');
@@ -229,7 +229,7 @@ class MarkdownLoader {
 
     // Check if content exists
     hasContent(key) {
-        return this.contentMap.hasOwnProperty(key);
+        return Object.prototype.hasOwnProperty.call(this.contentMap, key);
     }
 
     // Get available content keys

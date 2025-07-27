@@ -703,7 +703,8 @@ Current focus: Deep work mode - VERITAS research
                 
                 if (isToday) {
                     this.addOutput('🌅 Today\'s Magic:', 'feature-highlight');
-                } else {
+                }
+                else {
                     this.addOutput(`🕰️  Last Magic (${date.toLocaleDateString()}):`, 'info');
                 }
                 
@@ -734,12 +735,13 @@ Current focus: Deep work mode - VERITAS research
                         this.addOutput(`   Average Tokens: ${stats.average_tokens}`, 'info');
                         this.addOutput(`   Token Range: ${stats.min_tokens}-${stats.max_tokens}`, 'info');
                     }
-                } catch (_e) {
+                } catch {
                     this.addDebugLog('Magic stats not available', 'warning', 'magic');
                     // Stats not available yet
                 }
                 
-            } else {
+            }
+            else {
                 this.addDebugLog('No daily magic file found', 'warning', 'magic');
                 // No magic file exists yet
                 this.addOutput('', 'info');
@@ -760,7 +762,8 @@ Current focus: Deep work mode - VERITAS research
                 this.addOutput('', 'info');
                 this.addOutput('🎯 Philosophy: "True creativity emerges from constraints, not abundance."', 'philosophy');
             }
-        } catch (_error) {
+        }
+        catch (_error) {
             this.addOutput('❌ Could not load daily magic data', 'error');
             this.addOutput('The Daily Claude Magic system may not be initialized yet.', 'info');
             this.addDebugLog(`Failed to load daily magic data: ${_error.message}`, 'error', 'magic');
@@ -789,10 +792,10 @@ Current focus: Deep work mode - VERITAS research
                 }
             });
             this.addDebugLog('GitHub Actions command executed successfully', 'success', 'github');
-        } catch (_error) {
+        } catch (error) {
             this.addOutput('❌ GitHub Actions integration not available', 'error');
             this.addOutput('Make sure you are authenticated with GitHub CLI (gh auth login)', 'info');
-            this.addDebugLog(`GitHub Actions command failed: ${_error.message}`, 'error', 'github');
+            this.addDebugLog(`GitHub Actions command failed: ${error.message}`, 'error', 'github');
         }
     }
 
@@ -1357,8 +1360,8 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
                 this.removeChatMessage();
                 this.addChatMessage(response.response || 'Error generating response', 'ai');
             }
-        } catch (error) {
-            console.warn('LLM API not available, falling back to local responses:', error);
+        } catch (_error) {
+            console.warn('LLM API not available, falling back to local responses:', _error);
             this.removeChatMessage();
             this.addChatMessage('⚠️ Real-time AI unavailable. Using local responses.', 'ai', true);
             
@@ -3674,15 +3677,14 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
     showAdrianLogo() {
         const adrianAscii = `
-____/\\\\\\\\\\\\\\\\______________/\\\\\\\\\\\\\\\\\\\\\\\\______/\\\\\\\\\\\\\\\\\\\\\\\\______/\\\\\\\\\\\\\\\\___/\\\\\\\\\\\\\\\\\\\\\\\\___/\\\\\\\\\\\\\\\\___/\\\\\\\\\\\\\\\\\_____
- __/\\\\\\////////////__________/\\\\\\//////////\\\\\\___/\\\\\\//////////\\\\\\__/\\\\\\////\\\\\\_\/\\\\\\//////////\\\\\\\_/\\\\\\////\\\\\\\_\/\\\\\\////\\\\\\____
-  _\////\\\\\\____________/\\\\\\/_____________\////\\\\\\__/\\\\\\____________\////\\\\\\__/\\\\\\\_\//\\\\\\\_\/\\\\\\____________\////\\\\\\__/\\\\\\/_\//\\\\\\\_\/\\\\\\__\//\\\\\\___
-   ____\////\\\\\\______/\\\\\\__________________\////\\\\\\___/\\\\\\___________________/\\\\\\/__/\\\\\\\\\\\\\\\\\\\_\/\\\\\\___________________/\\\\\\/__/\\\\\\\\\\\\\\\\\\\_\/\\\\\\\\\\\\\\\\\\___
-    _______\////\\\\\\___\//\\\\\\____________/\\\\\\/_\//\\\\\\__\//\\\\\\_______________/\\\\\\/__\/\\\\\\////\\\\\\\_\/\\\\\\_______________/\\\\\\/__\/\\\\\\////\\\\\\\_\/\\\\\\////\\\\\\___
-     ___________\////\\\\\\_\///\\\\\\_____/\\\\\\//____\////\\\\\\__\///\\\\\\_____/\\\\\\//____\/\\\\\\_\//\\\\\\\_\/\\\\\\_____/\\\\\\//____\/\\\\\\_\//\\\\\\\_\/\\\\\\_\//\\\\\\__
-      ___/\\\\\\\\\\\\\\\\\\____\////\\\\\\\\\\\\\\//________/\\\\\\\\\_\\////\\\\\\\\\\\\\\//______\/\\\\\\__\//\\\\\\\_\/\\\\\\\\\\\\\\\\\\//______\/\\\\\\__\//\\\\\\\_\/\\\\\\__\//\\\\\\_
-       _\//////////////________\/////////__________\/////__\\////////__________\///____\///__\////////////__________\///____\///__\///____\///__
-        `;
+ ███        █████████  ██████████  ███████████  █████  █████████  ██████   █████
+░░░███     ███░░░░░███░░███░░░░███░░███░░░░░███░░███  ███░░░░░███░░██████ ░░███ 
+  ░░░███  ░███    ░███ ░███   ░░███░███    ░███ ░███ ░███    ░███ ░███░███ ░███ 
+    ░░░███░███████████ ░███    ░███░██████████  ░███ ░███████████ ░███░░███░███ 
+     ███░ ░███░░░░░███ ░███    ░███░███░░░░░███ ░███ ░███░░░░░███ ░███ ░░██████ 
+   ███░   ░███    ░███ ░███    ███ ░███    ░███ ░███ ░███    ░███ ░███  ░░█████ 
+ ███░     █████   ███████████████  █████   ███████████████   ██████████  ░░█████
+░░░      ░░░░░   ░░░░░░░░░░░░░░░  ░░░░░   ░░░░░░░░░░░░░░░   ░░░░░░░░░░    ░░░░░ `;
 
         this.addOutput('', 'info');
         adrianAscii.split('\n').forEach(line => {
@@ -3933,7 +3935,7 @@ ____/\\\\\\\\\\\\\\\\______________/\\\\\\\\\\\\\\\\\\\\\\\\______/\\\\\\\\\\\\\
         this.addOutput('💡 Run this command in your terminal to view the issue details', 'feature-highlight');
     }
 
-    async handleTaskSync(args) {
+    async handleTaskSync(_args) {
         this.addOutput('🔄 Task Sync Information:', 'success');
         this.addOutput('', 'info');
         this.addOutput('The task sync feature integrates with the todo system.', 'info');
@@ -4132,7 +4134,7 @@ ____/\\\\\\\\\\\\\\\\______________/\\\\\\\\\\\\\\\\\\\\\\\\______/\\\\\\\\\\\\\
                 return;
             }
 
-            if (confirm(`Are you sure you want to delete script '${name}'?`)) {
+            if (window.confirm(`Are you sure you want to delete script '${name}'?`)) {
                 this.scriptEngine.deleteScript(name);
                 this.addOutput(`🗑️ Script '${name}' deleted`, 'success');
             }
@@ -4404,7 +4406,7 @@ ____/\\\\\\\\\\\\\\\\______________/\\\\\\\\\\\\\\\\\\\\\\\\______/\\\\\\\\\\\\\
                         } else {
                             this.addOutput('📄 Log file exists but content not accessible', 'error');
                         }
-                    } catch (logError) {
+                    } catch {
                         this.addOutput('📄 Log content not accessible via web interface', 'info');
                         this.addOutput('💡 Use GitHub Actions artifacts to download full logs', 'info');
                     }

@@ -94,7 +94,7 @@ class ResearchStreamer {
     }
 
     // No-op for local markdown: assign default value
-    calculateRelevanceScore(text) {
+    calculateRelevanceScore() {
         return 0;
     }
 

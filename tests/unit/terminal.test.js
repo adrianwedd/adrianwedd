@@ -156,7 +156,7 @@ beforeAll(() => {
     executeCommand(command) {
       const parts = command.split(' ');
       const cmd = parts[0].toLowerCase();
-      const args = parts.slice(1);
+      
 
       this.addOutput(`$ ${command}`, 'prompt');
 
@@ -244,7 +244,6 @@ beforeAll(() => {
     handleTabCompletion(input) {
       const currentValue = input.value;
       const words = currentValue.split(' ');
-      const command = words[0];
       const lastWord = words[words.length - 1];
       
       let matches = [];

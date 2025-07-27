@@ -64,7 +64,7 @@ async function handleCIData(req, res) {
             throw new Error(`GitHub API returned ${response.status}`);
         }
         
-    } catch (error) {
+    } catch {
         // Return mock data as fallback
         const mockData = generateMockCIData();
         return res.status(200).json({

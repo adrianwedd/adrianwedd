@@ -311,7 +311,7 @@ class RichEffects {
     // Cleanup all effects
     cleanup() {
         // Stop all spinners
-        for (const [id, spinner] of this.spinners) {
+        for (const id of this.spinners) {
             this.stopSpinner(id);
         }
         

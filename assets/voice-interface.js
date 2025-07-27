@@ -104,7 +104,7 @@ class VoiceInterface {
         // Check for screen reader or high contrast mode
         const hasScreenReader = this.isScreenReaderDetected();
         const hasHighContrast = window.matchMedia('(prefers-contrast: high)').matches;
-        const hasReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        
         
         if (hasScreenReader || hasHighContrast) {
             this.autoSpeechEnabled = true;
@@ -363,7 +363,7 @@ class VoiceInterface {
             .replace(/\*(.*?)\*/g, '$1')     // Remove italic markdown  
             .replace(/`([^`]+)`/g, '$1')     // Remove inline code
             .replace(/```[\s\S]*?```/g, '')  // Remove code blocks
-            .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Extract link text
+            .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Extract link text
             .replace(/#{1,6}\s+/g, '')       // Remove headers
             .replace(/\n{2,}/g, '. ')        // Replace double newlines with periods
             .replace(/\n/g, ' ')             // Replace single newlines with spaces
