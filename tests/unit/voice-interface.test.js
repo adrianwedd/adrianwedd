@@ -53,3 +53,67 @@ describe('VoiceInterface helpers', () => {
     expect(voice.shouldSkipSpeaking('Normal text here', 'output')).toBe(false);
   });
 });
+
+describe('VoiceInterface core functionality', () => {
+  let voice;
+
+  beforeEach(() => {
+    // provide basic browser compatibility fallbacks
+    window.webkitSpeechRecognition = window.SpeechRecognition;
+    voice = new window.VoiceInterface();
+    voice.recognition = {
+      start: jest.fn(),
+      stop: jest.fn(),
+    };
+  });
+
+  test('wake word activates and executes mapped command', () => {
+    voice.executeTerminalCommand = jest.fn();
+
+    voice.processSpeechInput('Hey Adrian');
+    expect(voice.wakeWordActive).toBe(true);
+
+    voice.processSpeechInput('show help');
+    expect(voice.executeTerminalCommand).toHaveBeenCalledWith('help');
+    expect(voice.wakeWordActive).toBe(false);
+  });
+
+  test('speech recognition start/stop updates state', () => {
+    voice.startListening();
+    expect(voice.isActive).toBe(true);
+    expect(voice.recognition.start).toHaveBeenCalled();
+
+    voice.stopListening();
+    expect(voice.isActive).toBe(false);
+    expect(voice.recognition.stop).toHaveBeenCalled();
+  });
+
+  test('TTS parameter setters clamp values', () => {
+    voice.setVoiceRate(5);
+    voice.setVoicePitch(-1);
+    voice.setVoiceVolume(2);
+
+    expect(voice.voiceSettings.rate).toBeLessThanOrEqual(3);
+    expect(voice.voiceSettings.pitch).toBeGreaterThanOrEqual(0);
+    expect(voice.voiceSettings.volume).toBeLessThanOrEqual(1);
+  });
+
+  test('browser fallback uses webkitSpeechRecognition', () => {
+    delete window.SpeechRecognition;
+    window.webkitSpeechRecognition = jest.fn(function () {
+      this.start = jest.fn();
+    });
+
+    const instance = new window.VoiceInterface();
+    expect(instance.recognition).toBeInstanceOf(window.webkitSpeechRecognition);
+  });
+
+  test('voice command mappings trigger terminal commands', () => {
+    voice.executeTerminalCommand = jest.fn();
+
+    Object.entries(voice.voiceCommands).forEach(([phrase, command]) => {
+      voice.executeVoiceCommand(phrase);
+      expect(voice.executeTerminalCommand).toHaveBeenLastCalledWith(command);
+    });
+  });
+});
