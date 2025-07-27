@@ -53,6 +53,14 @@ class Terminal {
         
         // Matrix rain state
         this.matrixInterval = null;
+
+        // Boot sequence state
+        this.isBooting = false;
+        this.skipBoot = false;
+        this.bootTimeouts = [];
+        this.currentBootMessages = [];
+        this.boundBootKeyDown = this.handleBootKeyDown.bind(this);
+        this.boundBootSkip = this.skipBootSequence.bind(this);
         
         // Command completion state
         this.availableCommands = [
@@ -104,8 +112,12 @@ class Terminal {
         // Apply initial theme
         this.applyTheme(this.currentTheme);
         
-        // Start boot sequence
-        this.startBootSequence();
+        // Start boot sequence only on first visit
+        if (!localStorage.getItem('bootPlayed')) {
+            this.startBootSequence();
+        } else {
+            this.showBootComplete();
+        }
     }
 
     handleKeydown(event) {
@@ -283,6 +295,7 @@ class Terminal {
                 this.addOutput('🔄 Restarting system...', 'info');
                 this.addOutput('', 'info');
                 setTimeout(() => {
+                    this.clearTerminal();
                     this.startBootSequence();
                 }, 500);
                 break;
@@ -1282,6 +1295,13 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             outputs.forEach(output => output.remove());
             this.addDebugLog(`Removed ${outputs.length} output lines (fallback)`, 'info', 'system');
         }
+
+        // Clear boot sequence lines
+        const bootContainer = document.getElementById('bootSequence');
+        if (bootContainer) {
+            bootContainer.innerHTML = '';
+            this.addDebugLog('Boot sequence container cleared', 'info', 'system');
+        }
     }
 
     scrollToBottom() {
@@ -1883,44 +1903,64 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             this.addDebugLog('Boot sequence container not found', 'error', 'system');
             return;
         }
-        
-        // Clear any existing content
+
+        this.isBooting = true;
+        this.skipBoot = false;
+        this.bootTimeouts = [];
+
         bootContainer.innerHTML = '';
+        bootContainer.addEventListener('click', this.boundBootSkip);
+        document.addEventListener('keydown', this.boundBootKeyDown);
+
         this.addDebugLog('Boot sequence container cleared', 'info', 'system');
-        
-        // Define realistic boot sequence messages - will be enhanced with CI status
-        const bootMessages = [
-            'BIOS: UEFI Boot Manager v2.4.1',
-            'Initializing hardware components...',
-            'CPU: AMD Ryzen 9 7900X @ 4.7GHz [OK]',
-            'Memory: 64GB DDR5-5600 [OK]',
-            'Storage: 2TB NVMe SSD Samsung 980 PRO [OK]',
-            'GPU: NVIDIA RTX 4090 24GB [OK]',
-            'Network: Gigabit Ethernet [OK]',
-            'USB: 12 ports detected [OK]',
+
+        this.currentBootMessages = [
+            'ADRIAN.SYS BIOS v2.1.0',
+            'Copyright (C) 2025 Recursive Systems Architecture',
             '',
+            'Memory Test: 16384MB OK',
+            'CPU: Recursive Processing Unit v3.2 [OK]',
+            'GPU: Matrix Renderer v1.8 [OK]',
+            'Storage: Quantum Drive 2TB [OK]',
+            '',
+            'Initializing Homestead.OS...',
             'Loading kernel modules...',
-            'systemd: Starting system initialization',
-            'Loading neural network drivers...',
-            'AI subsystem: Claude integration [OK]',
-            'Voice recognition engine [OK]',
-            'Audio synthesis engine [OK]',
-            'WebGL renderer [OK]',
-            'Chart.js visualization [OK]',
+            'Starting system services...',
+            'Mounting filesystems...',
+            'Initializing AI subsystems...',
+            'Loading user profile: adrian',
+            'Establishing GitHub integration...',
+            'Connecting to weather services...',
             '',
-            'Starting network services...',
-            'GitHub Actions API [OK]',
-            'Weather API (BOM) [OK]',
-            'Research paper indexing [OK]',
-            'Terminal interface [OK]',
-            'System monitor [OK]',
+            'HOMESTEAD.OS Ready',
+            'Login: adrian',
+            'Password: ********',
             '',
-            'Loading CI/CD system status...',
-            '📊 Fetching latest CI reports...',
+            'Welcome to ADRIAN.SYS Terminal Interface',
+            "Type 'help' for available commands"
         ];
-        
-        // Add CI status and continue with system messages
-        this.fetchCIStatusAndContinueBoot(bootMessages);
+
+        this.typeBootMessages(this.currentBootMessages, 0);
+    }
+
+    handleBootKeyDown(event) {
+        if (event.key === 'Escape') {
+            this.skipBootSequence();
+        }
+    }
+
+    skipBootSequence() {
+        if (!this.isBooting) return;
+        this.skipBoot = true;
+        const bootContainer = document.getElementById('bootSequence');
+        bootContainer.innerHTML = '';
+        this.currentBootMessages.forEach(msg => {
+            const line = document.createElement('div');
+            line.className = 'boot-line';
+            line.textContent = msg || ' ';
+            bootContainer.appendChild(line);
+        });
+        this.showBootComplete();
     }
     
     async fetchCIStatusAndContinueBoot(bootMessages) {
@@ -2131,13 +2171,20 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     }
     
     typeBootMessages(messages, index) {
+        if (this.skipBoot) {
+            this.addDebugLog('Boot sequence skipped', 'info', 'system');
+            this.showBootComplete();
+            return;
+        }
+
         this.addDebugLog(`Typing boot message: ${messages[index].substring(0, 50)}...`, 'info', 'system');
         if (index >= messages.length) {
             // Boot complete - show ready prompt
-            setTimeout(() => {
+            const id = setTimeout(() => {
                 this.showBootComplete();
                 this.addDebugLog('Boot sequence complete', 'success', 'system');
             }, 500);
+            this.bootTimeouts.push(id);
             return;
         }
         
@@ -2152,9 +2199,10 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             bootContainer.appendChild(line);
             this.addDebugLog('Added empty boot line', 'info', 'system');
             
-            setTimeout(() => {
+            const id = setTimeout(() => {
                 this.typeBootMessages(messages, index + 1);
             }, 50);
+            this.bootTimeouts.push(id);
             return;
         }
         
@@ -2170,16 +2218,18 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
                 line.textContent += message[charIndex];
                 charIndex++;
                 // Very fast typing - 10-20ms per character
-                setTimeout(typeChar, Math.random() * 10 + 5);
+                const id = setTimeout(typeChar, Math.random() * 10 + 5);
+                this.bootTimeouts.push(id);
             } else {
                 // Line complete - scroll and continue to next
                 bootContainer.scrollTop = bootContainer.scrollHeight;
                 this.addDebugLog(`Finished typing line: ${message.substring(0, 50)}...`, 'info', 'system');
-                
+
                 // Short delay before next line (50-150ms)
-                setTimeout(() => {
+                const id = setTimeout(() => {
                     this.typeBootMessages(messages, index + 1);
                 }, Math.random() * 100 + 25);
+                this.bootTimeouts.push(id);
             }
         };
         
@@ -2188,7 +2238,14 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     
     showBootComplete() {
         this.addDebugLog('Boot sequence completed, showing prompt', 'success', 'system');
+        this.isBooting = false;
+        localStorage.setItem('bootPlayed', 'true');
+
         const bootContainer = document.getElementById('bootSequence');
+        document.removeEventListener('keydown', this.boundBootKeyDown);
+        bootContainer.removeEventListener('click', this.boundBootSkip);
+        this.bootTimeouts.forEach(id => clearTimeout(id));
+        this.bootTimeouts = [];
         
         // Add final status line
         const statusLine = document.createElement('div');
