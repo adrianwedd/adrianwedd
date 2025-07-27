@@ -2118,7 +2118,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             setTimeout(() => {
                 this.showBootComplete();
                 this.addDebugLog('Boot sequence complete', 'success', 'system');
-            }, 500);
+            }, 10);
             return;
         }
         
@@ -2135,7 +2135,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             
             setTimeout(() => {
                 this.typeBootMessages(messages, index + 1);
-            }, 50);
+            }, 1);
             return;
         }
         
@@ -2150,17 +2150,17 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             if (charIndex < message.length) {
                 line.textContent += message[charIndex];
                 charIndex++;
-                // Very fast typing - 10-20ms per character
-                setTimeout(typeChar, Math.random() * 10 + 5);
+                // Very fast typing - 1-2ms per character for immediate response
+                setTimeout(typeChar, Math.random() * 2 + 1);
             } else {
                 // Line complete - scroll and continue to next
                 bootContainer.scrollTop = bootContainer.scrollHeight;
                 this.addDebugLog(`Finished typing line: ${message.substring(0, 50)}...`, 'info', 'system');
                 
-                // Short delay before next line (50-150ms)
+                // Very short delay before next line (1-5ms)
                 setTimeout(() => {
                     this.typeBootMessages(messages, index + 1);
-                }, Math.random() * 100 + 25);
+                }, Math.random() * 5 + 1);
             }
         };
         
