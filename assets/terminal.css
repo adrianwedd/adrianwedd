@@ -401,12 +401,16 @@ input, textarea, select {
 .clickable-command {
     cursor: pointer;
     text-decoration: underline;
-    color: var(--accent-color); /* Or another suitable color */
+    color: var(--accent-color);
+    text-shadow: 0 0 5px var(--accent-color);
+    transition: all 0.3s ease;
+    animation: command-glow 2s ease-in-out infinite alternate;
 }
 
 .clickable-command:hover {
-    color: var(--primary-color); /* Highlight on hover */
-    text-shadow: 0 0 5px var(--primary-color);
+    color: var(--primary-color);
+    text-shadow: 0 0 8px var(--primary-color), 0 0 15px var(--primary-color);
+    animation: command-hover-glow 1s ease-in-out infinite alternate;
 }
 
 .ai-highlight {
@@ -523,7 +527,7 @@ input, textarea, select {
 }
 
 .ascii-art {
-    color: var(--text-color);
+    color: var(--primary-color);
     white-space: pre;
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
@@ -532,6 +536,10 @@ input, textarea, select {
     overflow-x: auto;
     word-break: keep-all;
     text-overflow: clip;
+    text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color), 0 0 30px var(--primary-color);
+    animation: adrian-glow 3s ease-in-out infinite alternate;
+    font-weight: bold;
+    transition: var(--theme-transition);
 }
 
 /* Chat Interface */
@@ -713,6 +721,33 @@ input, textarea, select {
 
     50% {
         text-shadow: 0 0 20px #00ff41;
+    }
+}
+
+@keyframes adrian-glow {
+    0% {
+        text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color), 0 0 30px var(--primary-color);
+    }
+    100% {
+        text-shadow: 0 0 15px var(--primary-color), 0 0 30px var(--primary-color), 0 0 45px var(--primary-color);
+    }
+}
+
+@keyframes command-glow {
+    0% {
+        text-shadow: 0 0 5px var(--accent-color);
+    }
+    100% {
+        text-shadow: 0 0 8px var(--accent-color), 0 0 12px var(--accent-color);
+    }
+}
+
+@keyframes command-hover-glow {
+    0% {
+        text-shadow: 0 0 8px var(--primary-color), 0 0 15px var(--primary-color);
+    }
+    100% {
+        text-shadow: 0 0 12px var(--primary-color), 0 0 25px var(--primary-color), 0 0 35px var(--primary-color);
     }
 }
 
@@ -1380,10 +1415,7 @@ input, textarea, select {
 }
 
 /* Responsive Design */
-@media (width >= 1200px) {
-    .container {
-    }
-    
+@media (width >= 1200px) {    
     .terminal {
         font-size: 15px; /* Slightly larger on desktop */
     }

@@ -12,13 +12,13 @@ test.describe('Terminal Basic Functionality', () => {
     await expect(terminal).toBeVisible();
 
     // Check for a common element in the boot sequence, e.g., a welcome message or prompt
-    await expect(terminal).toContainText('Welcome to Adrian\'s Retro Terminal');
-    await expect(terminal).toContainText('Type \'help\' for a list of commands.');
+    await expect(terminal).toContainText("Welcome to Adrian's Retro Terminal");
+    await expect(terminal).toContainText("Type 'help' for a list of commands.");
     await expect(terminal).toContainText('adrian@retro-terminal:~$');
   });
 
   test('Command execution and output display', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('echo Hello Playwright');
@@ -29,7 +29,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Command history navigation (↑/↓ keys)', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
 
     await terminalInput.fill('first command');
     await terminalInput.press('Enter');
@@ -54,7 +54,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Help command and formatted output', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('help');
@@ -68,7 +68,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Clear command functionality', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('echo This will be cleared');
@@ -83,12 +83,12 @@ test.describe('Terminal Basic Functionality', () => {
     await expect(terminalOutput).toContainText('adrian@retro-terminal:~$');
     // Verify that the terminal output area is effectively empty except for the prompt
     const outputContent = await terminalOutput.innerText();
-    const lines = outputContent.split('\n').filter(line => line.trim() !== '');
+    const lines = outputContent.split('\n').filter((line) => line.trim() !== '');
     expect(lines.length).toBeLessThanOrEqual(2); // Should be just the prompt or prompt + cursor
   });
 
   test('Tab completion - no matches', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('xyz');
@@ -98,7 +98,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Tab completion - single match', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('cle');
@@ -108,7 +108,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Tab completion - multiple matches and cycling', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('m');
@@ -131,7 +131,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Tab completion - reset on new input', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('m');
@@ -145,7 +145,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Execute "about" command', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
     await terminalInput.fill('about');
     await terminalInput.press('Enter');
@@ -154,7 +154,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Execute "projects" command', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
     await terminalInput.fill('projects');
     await terminalInput.press('Enter');
@@ -165,7 +165,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Execute "skills" command', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
     await terminalInput.fill('skills');
     await terminalInput.press('Enter');
@@ -175,7 +175,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Execute "homestead" command', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
     await terminalInput.fill('homestead');
     await terminalInput.press('Enter');
@@ -184,33 +184,41 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Execute "veritas" command', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
     await terminalInput.fill('veritas');
     await terminalInput.press('Enter');
     await expect(terminalOutput).toContainText('🔬 VERITAS - AI Safety Research Platform:');
-    await expect(terminalOutput).toContainText('Mission:      Understanding LLM vulnerabilities through systematic testing');
+    await expect(terminalOutput).toContainText(
+      'Mission:      Understanding LLM vulnerabilities through systematic testing'
+    );
   });
 
   test('Execute "ls" command', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
     await terminalInput.fill('ls');
     await terminalInput.press('Enter');
-    await expect(terminalOutput).toContainText('drwxr-xr-x  adrian adrian  4096 Jul 24 13:37 projects/');
-    await expect(terminalOutput).toContainText('-rw-r--r--  adrian adrian  2048 Jul 24 10:30 thoughts.md');
+    await expect(terminalOutput).toContainText(
+      'drwxr-xr-x  adrian adrian  4096 Jul 24 13:37 projects/'
+    );
+    await expect(terminalOutput).toContainText(
+      '-rw-r--r--  adrian adrian  2048 Jul 24 10:30 thoughts.md'
+    );
   });
 
   test('Execute "whoami" command', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
     await terminalInput.fill('whoami');
     await terminalInput.press('Enter');
-    await expect(terminalOutput).toContainText('adrian - Recursive Systems Architect & Off-Grid Permanaut');
+    await expect(terminalOutput).toContainText(
+      'adrian - Recursive Systems Architect & Off-Grid Permanaut'
+    );
   });
 
   test('Execute "pwd" command', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
     await terminalInput.fill('pwd');
     await terminalInput.press('Enter');
@@ -218,7 +226,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Execute "uptime" command', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
     await terminalInput.fill('uptime');
     await terminalInput.press('Enter');
@@ -227,7 +235,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Execute "ps" command', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
     await terminalInput.fill('ps');
     await terminalInput.press('Enter');
@@ -236,7 +244,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Execute "neofetch" command', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
     await terminalInput.fill('neofetch');
     await terminalInput.press('Enter');
@@ -245,23 +253,27 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Execute "sudo" command', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
     await terminalInput.fill('sudo rm -rf /');
     await terminalInput.press('Enter');
-    await expect(terminalOutput).toContainText('adrian is not in the sudoers file. This incident will be reported.');
+    await expect(terminalOutput).toContainText(
+      'adrian is not in the sudoers file. This incident will be reported.'
+    );
   });
 
   test('Execute unknown command', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
     await terminalInput.fill('unknowncommand');
     await terminalInput.press('Enter');
-    await expect(terminalOutput).toContainText('Command not found: unknowncommand. Type \'help\' for available commands.');
+    await expect(terminalOutput).toContainText(
+      "Command not found: unknowncommand. Type 'help' for available commands."
+    );
   });
 
   test('addOutput handles maxLines and removes old lines', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     // Set maxLines to a small number for testing
@@ -285,7 +297,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('animateTerminalScroll applies correct CSS properties', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     // Set maxLines to a small number for testing
@@ -310,7 +322,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('setupTerminalFocus maintains focus on input after click outside', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     await expect(terminalInput).toBeFocused();
 
     // Click outside the input area
@@ -321,7 +333,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('setupTerminalFocus maintains focus on input after command execution', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     await expect(terminalInput).toBeFocused();
 
     await terminalInput.fill('echo test');
@@ -332,7 +344,7 @@ test.describe('Terminal Basic Functionality', () => {
   });
 
   test('Tab completion - fuzzy matching', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('mon'); // Fuzzy match for 'monitor'

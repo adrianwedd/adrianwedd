@@ -7,7 +7,7 @@ test.describe('System Monitor Functionality', () => {
   });
 
   test('Monitor mode activation (htop/btop style)', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('monitor');
@@ -20,7 +20,7 @@ test.describe('System Monitor Functionality', () => {
   });
 
   test('Three-pane layout rendering', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     await terminalInput.fill('monitor');
     await terminalInput.press('Enter');
 
@@ -35,12 +35,12 @@ test.describe('System Monitor Functionality', () => {
   });
 
   test('CI/CD data fetching and display', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     await terminalInput.fill('monitor');
     await terminalInput.press('Enter');
 
     // Mock the API response for CI/CD data
-    await page.route('**/api/monitor-data.js?type=ci-cd', async route => {
+    await page.route('**/api/monitor-data.js?type=ci-cd', async (route) => {
       const json = { status: 'success', lastRun: '2025-07-24 10:00:00' };
       await route.fulfill({ json });
     });
@@ -51,12 +51,12 @@ test.describe('System Monitor Functionality', () => {
   });
 
   test('AI token analytics updates', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     await terminalInput.fill('monitor');
     await terminalInput.press('Enter');
 
     // Mock the API response for AI token data
-    await page.route('**/api/monitor-data.js?type=ai-tokens', async route => {
+    await page.route('**/api/monitor-data.js?type=ai-tokens', async (route) => {
       const json = { totalTokens: 12345, cachedTokens: 5432 };
       await route.fulfill({ json });
     });
@@ -67,12 +67,12 @@ test.describe('System Monitor Functionality', () => {
   });
 
   test('Homestead telemetry simulation', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     await terminalInput.fill('monitor');
     await terminalInput.press('Enter');
 
     // Mock the API response for Homestead telemetry
-    await page.route('**/api/monitor-data.js?type=homestead', async route => {
+    await page.route('**/api/monitor-data.js?type=homestead', async (route) => {
       const json = { cpu: '25%', memory: '40%', disk: '60%' };
       await route.fulfill({ json });
     });
@@ -84,12 +84,12 @@ test.describe('System Monitor Functionality', () => {
   });
 
   test('Real-time data refresh cycles', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     await terminalInput.fill('monitor');
     await terminalInput.press('Enter');
 
     // Initial mock for CI/CD data
-    await page.route('**/api/monitor-data.js?type=ci-cd', async route => {
+    await page.route('**/api/monitor-data.js?type=ci-cd', async (route) => {
       const json = { status: 'initial', lastRun: 'initial time' };
       await route.fulfill({ json });
     });
@@ -101,7 +101,7 @@ test.describe('System Monitor Functionality', () => {
     // This assumes the refresh rate is faster than 2 seconds. Adjust as needed.
     await page.waitForTimeout(2000);
 
-    await page.route('**/api/monitor-data.js?type=ci-cd', async route => {
+    await page.route('**/api/monitor-data.js?type=ci-cd', async (route) => {
       const json = { status: 'updated', lastRun: 'updated time' };
       await route.fulfill({ json });
     });
@@ -115,7 +115,7 @@ test.describe('System Monitor Functionality', () => {
   });
 
   test('Exit monitor mode using "q"', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('monitor');
@@ -128,14 +128,14 @@ test.describe('System Monitor Functionality', () => {
   });
 
   test('CI/CD data fetching handles API error', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('monitor');
     await terminalInput.press('Enter');
 
     // Mock API to return an error
-    await page.route('**/api/monitor-data.js?type=ci-cd', async route => {
+    await page.route('**/api/monitor-data.js?type=ci-cd', async (route) => {
       await route.fulfill({ status: 500, body: 'Internal Server Error' });
     });
 
@@ -148,14 +148,14 @@ test.describe('System Monitor Functionality', () => {
   });
 
   test('Homestead telemetry handles API error', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('monitor');
     await terminalInput.press('Enter');
 
     // Mock API to return an error
-    await page.route('**/api/monitor-data.js?type=homestead', async route => {
+    await page.route('**/api/monitor-data.js?type=homestead', async (route) => {
       await route.fulfill({ status: 500, body: 'Internal Server Error' });
     });
 
@@ -163,19 +163,21 @@ test.describe('System Monitor Functionality', () => {
     await terminalInput.fill('monitor');
     await terminalInput.press('Enter');
 
-    await expect(terminalOutput).toContainText('Error fetching homestead data. Displaying mock data.');
+    await expect(terminalOutput).toContainText(
+      'Error fetching homestead data. Displaying mock data.'
+    );
     await expect(terminalOutput).toContainText('Location: mock'); // Check for fallback data
   });
 
   test('System data handles API error', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('monitor');
     await terminalInput.press('Enter');
 
     // Mock API to return an error
-    await page.route('**/api/monitor-data.js?type=system', async route => {
+    await page.route('**/api/monitor-data.js?type=system', async (route) => {
       await route.fulfill({ status: 500, body: 'Internal Server Error' });
     });
 
@@ -188,13 +190,13 @@ test.describe('System Monitor Functionality', () => {
   });
 
   test('Monitor display responsiveness', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     await terminalInput.fill('monitor');
     await terminalInput.press('Enter');
 
     // Test that monitor adapts to different viewport sizes
     await page.setViewportSize({ width: 800, height: 600 });
-    
+
     const monitorDisplay = page.locator('#system-monitor-display');
     await expect(monitorDisplay).toBeVisible();
 
@@ -204,7 +206,7 @@ test.describe('System Monitor Functionality', () => {
   });
 
   test('Monitor keyboard shortcuts', async ({ page }) => {
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await terminalInput.fill('monitor');

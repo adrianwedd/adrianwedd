@@ -68,7 +68,7 @@ test.describe('Voice Interface Functionality', () => {
     });
 
     const voiceToggleButton = page.locator('#voice-toggle-button');
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     await voiceToggleButton.click();
@@ -99,7 +99,7 @@ test.describe('Voice Interface Functionality', () => {
       };
     });
 
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     await terminalInput.fill('say This is a test');
     await terminalInput.press('Enter');
 
@@ -170,7 +170,7 @@ test.describe('Voice Interface Functionality', () => {
     });
 
     const voiceToggleButton = page.locator('#voice-toggle-button');
-    const terminalInput = page.locator('#commandInput')
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('#commandOutput');
 
     // Type something to be cleared later

@@ -3,11 +3,11 @@
 // Setup minimal browser-like environment
 beforeEach(() => {
   global.window = {
-    SpeechRecognition: function(){},
+    SpeechRecognition: function () {},
     speechSynthesis: { getVoices: () => [], speak: jest.fn(), cancel: jest.fn() },
     matchMedia: () => ({ matches: false }),
     addEventListener: jest.fn(),
-    removeEventListener: jest.fn()
+    removeEventListener: jest.fn(),
   };
   global.speechSynthesis = global.window.speechSynthesis;
   global.navigator = { userAgent: '' };

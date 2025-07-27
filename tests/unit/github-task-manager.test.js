@@ -12,7 +12,7 @@ global.console = {
   ...console,
   warn: jest.fn(),
   log: jest.fn(),
-  error: jest.fn()
+  error: jest.fn(),
 };
 
 // Import the GitHubTaskManager class by setting up the global
@@ -38,12 +38,12 @@ beforeAll(() => {
         }
         const yamlText = await response.text();
         this.config = this.parseYAML(yamlText);
-        
+
         // Set properties from config
         this.repo = this.config.task_management?.repository || 'adrianwedd/adrianwedd';
         this.apiBase = 'https://api.github.com';
         this.defaultAssignee = this.config.task_management?.default_assignee || 'adrianwedd';
-        
+
         return true;
       } catch (error) {
         console.warn('Failed to load tasks.yml, using defaults:', error);
@@ -63,24 +63,24 @@ beforeAll(() => {
       let currentSection = result;
       const sectionStack = [result];
       const indentStack = [0];
-      
+
       for (const line of lines) {
         if (line.trim() === '' || line.trim().startsWith('#')) continue;
-        
+
         const indent = line.length - line.trimLeft().length;
         const content = line.trim();
-        
+
         // Handle section changes based on indentation
         while (indentStack.length > 1 && indent <= indentStack[indentStack.length - 1]) {
           indentStack.pop();
           sectionStack.pop();
         }
         currentSection = sectionStack[sectionStack.length - 1];
-        
+
         if (content.includes(':')) {
           const [key, ...valueParts] = content.split(':');
           const value = valueParts.join(':').trim();
-          
+
           if (value === '' || value === '|') {
             // This is a section header
             currentSection[key.trim()] = {};
@@ -92,12 +92,12 @@ beforeAll(() => {
             if (parsedValue === 'true') parsedValue = true;
             else if (parsedValue === 'false') parsedValue = false;
             else if (parsedValue.match(/^\d+$/)) parsedValue = parseInt(parsedValue);
-            
+
             currentSection[key.trim()] = parsedValue;
           }
         }
       }
-      
+
       return result;
     }
 
@@ -110,64 +110,64 @@ beforeAll(() => {
             priority: {
               high: 'priority: high',
               medium: 'priority: medium',
-              low: 'priority: low'
+              low: 'priority: low',
             },
             type: {
               task: 'type: task',
               enhancement: 'type: enhancement',
               bug: 'type: bug',
-              documentation: 'type: documentation'
+              documentation: 'type: documentation',
             },
             status: {
               in_progress: 'status: in-progress',
-              blocked: 'status: blocked'
+              blocked: 'status: blocked',
             },
             agent: {
-              claude: 'agent: claude'
-            }
+              claude: 'agent: claude',
+            },
           },
           templates: {
             task: {
-              body: '**Description:** {description}\n**Steps:** {steps}\n**Expected:** {expected}'
+              body: '**Description:** {description}\n**Steps:** {steps}\n**Expected:** {expected}',
             },
             bug: {
-              body: '**Bug Description:** {description}\n**Expected:** {expected}\n**Actual:** {actual}'
-            }
-          }
+              body: '**Bug Description:** {description}\n**Expected:** {expected}\n**Actual:** {actual}',
+            },
+          },
         },
         automation: {
           auto_create_from_todos: true,
           sync_interval: '30m',
-          close_completed_tasks: true
+          close_completed_tasks: true,
         },
         integrations: {
           terminal_commands: {
             create_task: 'task create',
             list_tasks: 'task list',
             update_task: 'task update',
-            close_task: 'task close'
+            close_task: 'task close',
           },
           ai_assistant: {
             auto_categorize: true,
             suggest_labels: true,
-            estimate_priority: true
-          }
-        }
+            estimate_priority: true,
+          },
+        },
       };
     }
 
     async init() {
       if (this.initialized) return true;
-      
+
       // Load configuration first
       await this.loadConfig();
-      
+
       try {
         // Check if we can access GitHub API
         const response = await fetch(`${this.apiBase}/repos/${this.repo}`, {
-          headers: { 'Accept': 'application/vnd.github.v3+json' }
+          headers: { Accept: 'application/vnd.github.v3+json' },
         });
-        
+
         if (response.ok) {
           this.initialized = true;
           await this.ensureLabelsExist();
@@ -191,7 +191,7 @@ beforeAll(() => {
         { name: 'type: documentation', color: 'cc99ff', description: 'Documentation update' },
         { name: 'agent: claude', color: '00cccc', description: 'Managed by Claude Code' },
         { name: 'status: in-progress', color: 'ffcc00', description: 'Currently being worked on' },
-        { name: 'status: blocked', color: '888888', description: 'Blocked waiting for something' }
+        { name: 'status: blocked', color: '888888', description: 'Blocked waiting for something' },
       ];
 
       for (const labelConfig of labelConfigs) {
@@ -208,36 +208,37 @@ beforeAll(() => {
     }
 
     async createIssue(title, body, priority = 'medium', type = 'task', assignee = null) {
-      if (!this.initialized && !await this.init()) {
+      if (!this.initialized && !(await this.init())) {
         throw new Error('GitHub integration not available');
       }
 
       const labels = [
         this.config?.task_management?.labels?.priority?.[priority] || `priority: ${priority}`,
         this.config?.task_management?.labels?.type?.[type] || `type: ${type}`,
-        'agent: claude'
+        'agent: claude',
       ].filter(Boolean);
 
       const issueData = {
         title,
         body: this.formatIssueBody(body, type),
         labels,
-        assignees: assignee ? [assignee] : []
+        assignees: assignee ? [assignee] : [],
       };
 
       try {
         // Use GitHub CLI for issue creation since it handles auth
-        const labelsArg = labels.map(l => `"${l}"`).join(',');
+        const labelsArg = labels.map((l) => `"${l}"`).join(',');
         const assigneeArg = assignee ? `--assignee "${assignee}"` : '';
-        
-        const command = `gh issue create --repo "${this.repo}" --title "${title}" --body "${body}" --label ${labelsArg} ${assigneeArg}`.trim();
-        
+
+        const command =
+          `gh issue create --repo "${this.repo}" --title "${title}" --body "${body}" --label ${labelsArg} ${assigneeArg}`.trim();
+
         // For security, we'll return the command instead of executing it
         return {
           success: false,
           command,
           data: issueData,
-          message: 'GitHub CLI command ready for execution'
+          message: 'GitHub CLI command ready for execution',
         };
       } catch (error) {
         throw new Error(`Failed to create GitHub issue: ${error.message}`);
@@ -247,21 +248,22 @@ beforeAll(() => {
     formatIssueBody(body, type = 'task') {
       const templates = this.config?.task_management?.templates || {};
       const template = templates[type];
-      
+
       if (template && template.body) {
         // Simple template substitution
-        return template.body.replace('{description}', body)
-                            .replace('{criteria}', '')
-                            .replace('{notes}', '')
-                            .replace('{solution}', '')
-                            .replace('{benefits}', '')
-                            .replace('{steps}', '')
-                            .replace('{expected}', '')
-                            .replace('{actual}', '')
-                            .replace('{browser}', '')
-                            .replace('{os}', '');
+        return template.body
+          .replace('{description}', body)
+          .replace('{criteria}', '')
+          .replace('{notes}', '')
+          .replace('{solution}', '')
+          .replace('{benefits}', '')
+          .replace('{steps}', '')
+          .replace('{expected}', '')
+          .replace('{actual}', '')
+          .replace('{browser}', '')
+          .replace('{os}', '');
       }
-      
+
       const timestamp = new Date().toISOString();
       return `${body}
 
@@ -287,10 +289,10 @@ gh issue close <issue-number> --comment "Completed by Claude Code"
       if (!this.config?.integrations?.ai_assistant?.estimate_priority) {
         return 'medium';
       }
-      
+
       const urgent = /urgent|critical|asap|immediately|emergency|blocking/i;
       const low = /nice to have|when possible|low priority|future|someday/i;
-      
+
       if (urgent.test(taskDescription)) return 'high';
       if (low.test(taskDescription)) return 'low';
       return 'medium';
@@ -300,11 +302,11 @@ gh issue close <issue-number> --comment "Completed by Claude Code"
       if (!this.config?.integrations?.ai_assistant?.auto_categorize) {
         return 'task';
       }
-      
+
       const bug = /bug|error|broken|fail|issue|problem|fix/i;
       const enhancement = /enhance|improve|feature|add|new|upgrade|better/i;
       const docs = /document|readme|help|guide|wiki|doc/i;
-      
+
       if (bug.test(taskDescription)) return 'bug';
       if (enhancement.test(taskDescription)) return 'enhancement';
       if (docs.test(taskDescription)) return 'documentation';
@@ -315,19 +317,19 @@ gh issue close <issue-number> --comment "Completed by Claude Code"
       if (!this.config?.integrations?.ai_assistant?.suggest_labels) {
         return [];
       }
-      
+
       const priority = this.categorizePriority(taskDescription);
       const type = this.categorizeType(taskDescription);
-      
+
       return [
         this.config?.task_management?.labels?.priority?.[priority] || `priority: ${priority}`,
         this.config?.task_management?.labels?.type?.[type] || `type: ${type}`,
-        'agent: claude'
+        'agent: claude',
       ];
     }
 
     async updateIssue(issueNumber, updates) {
-      if (!this.initialized && !await this.init()) {
+      if (!this.initialized && !(await this.init())) {
         throw new Error('GitHub integration not available');
       }
 
@@ -339,7 +341,9 @@ gh issue close <issue-number> --comment "Completed by Claude Code"
 
       if (updates.priority) {
         // Remove old priority labels and add new one
-        commands.push(`gh issue edit ${issueNumber} --remove-label "priority: high,priority: medium,priority: low"`);
+        commands.push(
+          `gh issue edit ${issueNumber} --remove-label "priority: high,priority: medium,priority: low"`
+        );
         commands.push(`gh issue edit ${issueNumber} --add-label "priority: ${updates.priority}"`);
       }
 
@@ -354,17 +358,17 @@ gh issue close <issue-number> --comment "Completed by Claude Code"
       return {
         commands,
         issueNumber,
-        message: 'GitHub CLI commands ready for execution'
+        message: 'GitHub CLI commands ready for execution',
       };
     }
 
     async listIssues(state = 'open', labels = null) {
-      if (!this.initialized && !await this.init()) {
+      if (!this.initialized && !(await this.init())) {
         throw new Error('GitHub integration not available');
       }
 
       let command = `gh issue list --repo "${this.repo}" --state ${state}`;
-      
+
       if (labels) {
         const labelFilter = labels.join(',');
         command += ` --label "${labelFilter}"`;
@@ -372,12 +376,12 @@ gh issue close <issue-number> --comment "Completed by Claude Code"
 
       return {
         command,
-        message: 'Use GitHub CLI to list issues'
+        message: 'Use GitHub CLI to list issues',
       };
     }
 
     async syncTodosWithIssues(todos) {
-      if (!this.initialized && !await this.init()) {
+      if (!this.initialized && !(await this.init())) {
         console.warn('GitHub integration not available, using local todos only');
         return todos;
       }
@@ -401,10 +405,10 @@ This issue was automatically created from the Claude Code task management system
             todo.priority,
             'task'
           );
-          
+
           issueCreations.push({
             todo: todo.id,
-            command: issueData.command
+            command: issueData.command,
           });
         } else if (todo.status === 'completed' && todo.githubIssue) {
           // Close completed issues
@@ -413,9 +417,9 @@ This issue was automatically created from the Claude Code task management system
             comment: `Task completed successfully.
 
 **Final Status:** ${todo.status}
-**Task ID:** ${todo.id}`
+**Task ID:** ${todo.id}`,
           });
-          
+
           commands.push(...closeData.commands);
         }
       }
@@ -424,22 +428,22 @@ This issue was automatically created from the Claude Code task management system
         todos,
         commands,
         issueCreations,
-        message: 'GitHub issue sync commands prepared'
+        message: 'GitHub issue sync commands prepared',
       };
     }
 
     // Convert GitHub issues back to todo format
     async parseIssuesAsTodos(issues) {
-      return issues.map(issue => {
+      return issues.map((issue) => {
         // Extract priority from labels
-        const priorityLabel = issue.labels.find(l => l.name.startsWith('priority:'));
+        const priorityLabel = issue.labels.find((l) => l.name.startsWith('priority:'));
         const priority = priorityLabel ? priorityLabel.name.split(': ')[1] : 'medium';
-        
+
         // Extract status from labels and issue state
         let status = 'pending';
         if (issue.state === 'closed') {
           status = 'completed';
-        } else if (issue.labels.some(l => l.name === 'status: in-progress')) {
+        } else if (issue.labels.some((l) => l.name === 'status: in-progress')) {
           status = 'in_progress';
         }
 
@@ -451,7 +455,7 @@ This issue was automatically created from the Claude Code task management system
           githubIssue: issue.number,
           url: issue.html_url,
           created: issue.created_at,
-          updated: issue.updated_at
+          updated: issue.updated_at,
         };
       });
     }
@@ -467,17 +471,17 @@ This issue was automatically created from the Claude Code task management system
             if (!title) {
               return 'Usage: gh-create <title> [priority] [type]';
             }
-            
+
             const result = await this.createIssue(title, title, priority, type);
             return `GitHub issue creation command:\n${result.command}`;
-          }
+          },
         },
         'gh-sync': {
           description: 'Sync todos with GitHub issues',
           usage: 'gh-sync',
           handler: async () => {
             return 'GitHub sync functionality ready - integrate with existing todo system';
-          }
+          },
         },
         'gh-list': {
           description: 'List GitHub issues',
@@ -486,8 +490,8 @@ This issue was automatically created from the Claude Code task management system
             const [state = 'open', labels] = args;
             const result = await this.listIssues(state, labels ? labels.split(',') : null);
             return `GitHub list command:\n${result.command}`;
-          }
-        }
+          },
+        },
       };
     }
   };
@@ -512,7 +516,7 @@ describe('GitHubTaskManager Initialization', () => {
 
   test('should provide default configuration', () => {
     const defaultConfig = manager.getDefaultConfig();
-    
+
     expect(defaultConfig).toHaveProperty('task_management');
     expect(defaultConfig.task_management).toHaveProperty('repository', 'adrianwedd/adrianwedd');
     expect(defaultConfig.task_management).toHaveProperty('default_assignee', 'adrianwedd');
@@ -522,7 +526,7 @@ describe('GitHubTaskManager Initialization', () => {
 
   test('should have automation settings in default config', () => {
     const config = manager.getDefaultConfig();
-    
+
     expect(config.automation).toHaveProperty('auto_create_from_todos', true);
     expect(config.automation).toHaveProperty('sync_interval', '30m');
     expect(config.automation).toHaveProperty('close_completed_tasks', true);
@@ -530,7 +534,7 @@ describe('GitHubTaskManager Initialization', () => {
 
   test('should have integration settings in default config', () => {
     const config = manager.getDefaultConfig();
-    
+
     expect(config.integrations).toHaveProperty('terminal_commands');
     expect(config.integrations).toHaveProperty('ai_assistant');
     expect(config.integrations.ai_assistant).toHaveProperty('auto_categorize', true);
@@ -552,14 +556,14 @@ task_management:
   repository: "test/repo"
   default_assignee: "testuser"
 `;
-    
+
     fetch.mockResolvedValueOnce({
       ok: true,
-      text: () => Promise.resolve(mockYaml)
+      text: () => Promise.resolve(mockYaml),
     });
 
     const result = await manager.loadConfig();
-    
+
     expect(result).toBe(true);
     expect(manager.repo).toBe('test/repo');
     expect(manager.defaultAssignee).toBe('testuser');
@@ -570,7 +574,7 @@ task_management:
     fetch.mockRejectedValueOnce(new Error('Network error'));
 
     const result = await manager.loadConfig();
-    
+
     expect(result).toBe(false);
     expect(manager.repo).toBe('adrianwedd/adrianwedd');
     expect(manager.defaultAssignee).toBe('adrianwedd');
@@ -580,11 +584,11 @@ task_management:
   test('should handle HTTP errors gracefully', async () => {
     fetch.mockResolvedValueOnce({
       ok: false,
-      status: 404
+      status: 404,
     });
 
     const result = await manager.loadConfig();
-    
+
     expect(result).toBe(false);
     expect(console.warn).toHaveBeenCalledWith(
       'Failed to load tasks.yml, using defaults:',
@@ -610,7 +614,7 @@ count: 42
 `;
 
     const result = manager.parseYAML(yaml);
-    
+
     expect(result.repository).toBe('test/repo');
     expect(result.assignee).toBe('testuser');
     expect(result.enabled).toBe(true);
@@ -628,7 +632,7 @@ task_management:
 `;
 
     const result = manager.parseYAML(yaml);
-    
+
     expect(result.task_management.repository).toBe('test/repo');
     expect(result.task_management.labels.priority.high).toBe('priority: high');
     expect(result.task_management.labels.priority.medium).toBe('priority: medium');
@@ -644,7 +648,7 @@ assignee: "testuser"
 `;
 
     const result = manager.parseYAML(yaml);
-    
+
     expect(result.repository).toBe('test/repo');
     expect(result.assignee).toBe('testuser');
     expect(Object.keys(result)).toHaveLength(2);
@@ -662,7 +666,7 @@ integrations:
 `;
 
     const result = manager.parseYAML(yaml);
-    
+
     expect(result.automation.sync_interval).toBe('30m');
     expect(result.automation.settings.auto_create).toBe(true);
     expect(result.automation.settings.close_completed).toBe(false);
@@ -679,7 +683,7 @@ quoted_number: "456"
 `;
 
     const result = manager.parseYAML(yaml);
-    
+
     expect(result.string_value).toBe('hello');
     expect(result.boolean_true).toBe(true);
     expect(result.boolean_false).toBe(false);
@@ -700,19 +704,19 @@ describe('GitHubTaskManager Initialization Process', () => {
     fetch
       .mockResolvedValueOnce({
         ok: true,
-        text: () => Promise.resolve('task_management:\n  repository: "test/repo"')
+        text: () => Promise.resolve('task_management:\n  repository: "test/repo"'),
       })
       .mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.resolve({ name: 'test/repo' })
+        json: () => Promise.resolve({ name: 'test/repo' }),
       });
 
     const result = await manager.init();
-    
+
     expect(result).toBe(true);
     expect(manager.initialized).toBe(true);
     expect(fetch).toHaveBeenCalledWith('https://api.github.com/repos/test/repo', {
-      headers: { 'Accept': 'application/vnd.github.v3+json' }
+      headers: { Accept: 'application/vnd.github.v3+json' },
     });
   });
 
@@ -720,15 +724,15 @@ describe('GitHubTaskManager Initialization Process', () => {
     fetch
       .mockResolvedValueOnce({
         ok: true,
-        text: () => Promise.resolve('task_management:\n  repository: "test/repo"')
+        text: () => Promise.resolve('task_management:\n  repository: "test/repo"'),
       })
       .mockResolvedValueOnce({
         ok: false,
-        status: 404
+        status: 404,
       });
 
     const result = await manager.init();
-    
+
     expect(result).toBe(false);
     expect(manager.initialized).toBe(false);
   });
@@ -737,24 +741,21 @@ describe('GitHubTaskManager Initialization Process', () => {
     fetch
       .mockResolvedValueOnce({
         ok: true,
-        text: () => Promise.resolve('task_management:\n  repository: "test/repo"')
+        text: () => Promise.resolve('task_management:\n  repository: "test/repo"'),
       })
       .mockRejectedValueOnce(new Error('Network error'));
 
     const result = await manager.init();
-    
+
     expect(result).toBe(false);
-    expect(console.warn).toHaveBeenCalledWith(
-      'GitHub API not accessible:',
-      expect.any(Error)
-    );
+    expect(console.warn).toHaveBeenCalledWith('GitHub API not accessible:', expect.any(Error));
   });
 
   test('should skip re-initialization if already initialized', async () => {
     manager.initialized = true;
-    
+
     const result = await manager.init();
-    
+
     expect(result).toBe(true);
     expect(fetch).not.toHaveBeenCalled();
   });
@@ -773,7 +774,7 @@ describe('GitHubTaskManager Issue Creation', () => {
 
   test('should create issue with default parameters', async () => {
     const result = await manager.createIssue('Test Issue', 'Test description');
-    
+
     expect(result.success).toBe(false);
     expect(result.command).toContain('gh issue create');
     expect(result.command).toContain('--repo "test/repo"');
@@ -790,24 +791,25 @@ describe('GitHubTaskManager Issue Creation', () => {
       'bug',
       'testuser'
     );
-    
+
     expect(result.command).toContain('--label "priority: high","type: bug","agent: claude"');
     expect(result.command).toContain('--assignee "testuser"');
   });
 
   test('should throw error when not initialized', async () => {
     manager.initialized = false;
-    
+
     // Mock init to fail
     fetch.mockRejectedValueOnce(new Error('API error'));
-    
-    await expect(manager.createIssue('Test', 'Description'))
-      .rejects.toThrow('GitHub integration not available');
+
+    await expect(manager.createIssue('Test', 'Description')).rejects.toThrow(
+      'GitHub integration not available'
+    );
   });
 
   test('should format issue body with metadata', async () => {
     const result = await manager.createIssue('Test Issue', 'Test body');
-    
+
     expect(result.data.body).toContain('Test body');
     expect(result.data.body).toContain('**Description:** Test body');
     expect(result.data.body).toContain('**Steps:**');
@@ -816,7 +818,7 @@ describe('GitHubTaskManager Issue Creation', () => {
 
   test('should use template for issue body formatting', async () => {
     const result = await manager.createIssue('Bug Report', 'Bug description', 'high', 'bug');
-    
+
     // Should use bug template
     expect(result.data.body).toContain('**Bug Description:** Bug description');
     expect(result.data.body).toContain('**Expected:**');
@@ -853,19 +855,19 @@ describe('GitHubTaskManager AI Classification', () => {
 
   test('should return medium priority when AI assist disabled', () => {
     manager.config.integrations.ai_assistant.estimate_priority = false;
-    
+
     expect(manager.categorizePriority('urgent critical emergency')).toBe('medium');
   });
 
   test('should return task type when AI assist disabled', () => {
     manager.config.integrations.ai_assistant.auto_categorize = false;
-    
+
     expect(manager.categorizeType('fix bug error problem')).toBe('task');
   });
 
   test('should suggest appropriate labels', () => {
     const labels = manager.suggestLabels('urgent bug fix needed');
-    
+
     expect(labels).toContain('priority: high');
     expect(labels).toContain('type: bug');
     expect(labels).toContain('agent: claude');
@@ -873,9 +875,9 @@ describe('GitHubTaskManager AI Classification', () => {
 
   test('should return empty array when label suggestions disabled', () => {
     manager.config.integrations.ai_assistant.suggest_labels = false;
-    
+
     const labels = manager.suggestLabels('urgent bug fix needed');
-    
+
     expect(labels).toEqual([]);
   });
 });
@@ -892,27 +894,29 @@ describe('GitHubTaskManager Issue Updates', () => {
 
   test('should generate status update commands', async () => {
     const result = await manager.updateIssue(42, { status: 'in-progress' });
-    
+
     expect(result.commands).toContain('gh issue edit 42 --add-label "status: in-progress"');
     expect(result.issueNumber).toBe(42);
   });
 
   test('should generate priority update commands', async () => {
     const result = await manager.updateIssue(42, { priority: 'high' });
-    
-    expect(result.commands).toContain('gh issue edit 42 --remove-label "priority: high,priority: medium,priority: low"');
+
+    expect(result.commands).toContain(
+      'gh issue edit 42 --remove-label "priority: high,priority: medium,priority: low"'
+    );
     expect(result.commands).toContain('gh issue edit 42 --add-label "priority: high"');
   });
 
   test('should generate comment commands', async () => {
     const result = await manager.updateIssue(42, { comment: 'Progress update' });
-    
+
     expect(result.commands).toContain('gh issue comment 42 --body "Progress update"');
   });
 
   test('should generate close commands', async () => {
     const result = await manager.updateIssue(42, { close: true });
-    
+
     expect(result.commands).toContain('gh issue close 42 --comment "Completed by Claude Code"');
   });
 
@@ -921,9 +925,9 @@ describe('GitHubTaskManager Issue Updates', () => {
       status: 'in-progress',
       priority: 'high',
       comment: 'Working on this',
-      close: false
+      close: false,
     });
-    
+
     expect(result.commands).toHaveLength(4); // status, priority remove, priority add, comment
     expect(result.commands[0]).toContain('--add-label "status: in-progress"');
     expect(result.commands[3]).toContain('--body "Working on this"');
@@ -932,9 +936,10 @@ describe('GitHubTaskManager Issue Updates', () => {
   test('should throw error when not initialized', async () => {
     manager.initialized = false;
     fetch.mockRejectedValueOnce(new Error('API error'));
-    
-    await expect(manager.updateIssue(42, { status: 'done' }))
-      .rejects.toThrow('GitHub integration not available');
+
+    await expect(manager.updateIssue(42, { status: 'done' })).rejects.toThrow(
+      'GitHub integration not available'
+    );
   });
 });
 
@@ -950,29 +955,28 @@ describe('GitHubTaskManager Issue Listing', () => {
 
   test('should generate list command with defaults', async () => {
     const result = await manager.listIssues();
-    
+
     expect(result.command).toBe('gh issue list --repo "test/repo" --state open');
     expect(result.message).toBe('Use GitHub CLI to list issues');
   });
 
   test('should generate list command with custom state', async () => {
     const result = await manager.listIssues('closed');
-    
+
     expect(result.command).toContain('--state closed');
   });
 
   test('should generate list command with labels filter', async () => {
     const result = await manager.listIssues('open', ['bug', 'high-priority']);
-    
+
     expect(result.command).toContain('--label "bug,high-priority"');
   });
 
   test('should throw error when not initialized', async () => {
     manager.initialized = false;
     fetch.mockRejectedValueOnce(new Error('API error'));
-    
-    await expect(manager.listIssues())
-      .rejects.toThrow('GitHub integration not available');
+
+    await expect(manager.listIssues()).rejects.toThrow('GitHub integration not available');
   });
 });
 
@@ -990,11 +994,11 @@ describe('GitHubTaskManager Todo Synchronization', () => {
   test('should create issues for pending todos', async () => {
     const todos = [
       { id: '1', content: 'Task 1', status: 'pending', priority: 'high' },
-      { id: '2', content: 'Task 2', status: 'completed', priority: 'medium' }
+      { id: '2', content: 'Task 2', status: 'completed', priority: 'medium' },
     ];
 
     const result = await manager.syncTodosWithIssues(todos);
-    
+
     expect(result.issueCreations).toHaveLength(1);
     expect(result.issueCreations[0].todo).toBe('1');
     expect(result.issueCreations[0].command).toContain('Task 1');
@@ -1003,35 +1007,37 @@ describe('GitHubTaskManager Todo Synchronization', () => {
   test('should close issues for completed todos', async () => {
     const todos = [
       { id: '1', content: 'Task 1', status: 'completed', priority: 'high', githubIssue: 42 },
-      { id: '2', content: 'Task 2', status: 'pending', priority: 'medium' }
+      { id: '2', content: 'Task 2', status: 'pending', priority: 'medium' },
     ];
 
     const result = await manager.syncTodosWithIssues(todos);
-    
+
     expect(result.commands.length).toBeGreaterThan(0);
-    expect(result.commands.some(cmd => cmd.includes('gh issue close 42'))).toBe(true);
+    expect(result.commands.some((cmd) => cmd.includes('gh issue close 42'))).toBe(true);
   });
 
   test('should skip todos already with GitHub issues', async () => {
     const todos = [
-      { id: '1', content: 'Task 1', status: 'pending', priority: 'high', githubIssue: 42 }
+      { id: '1', content: 'Task 1', status: 'pending', priority: 'high', githubIssue: 42 },
     ];
 
     const result = await manager.syncTodosWithIssues(todos);
-    
+
     expect(result.issueCreations).toHaveLength(0);
   });
 
   test('should handle sync when not initialized', async () => {
     manager.initialized = false;
     fetch.mockRejectedValueOnce(new Error('API error'));
-    
+
     const todos = [{ id: '1', content: 'Task 1', status: 'pending', priority: 'high' }];
-    
+
     const result = await manager.syncTodosWithIssues(todos);
-    
+
     expect(result).toBe(todos);
-    expect(console.warn).toHaveBeenCalledWith('GitHub integration not available, using local todos only');
+    expect(console.warn).toHaveBeenCalledWith(
+      'GitHub integration not available, using local todos only'
+    );
   });
 });
 
@@ -1049,32 +1055,26 @@ describe('GitHubTaskManager Issue Parsing', () => {
         number: 42,
         title: 'Test Issue',
         state: 'open',
-        labels: [
-          { name: 'priority: high' },
-          { name: 'type: bug' }
-        ],
+        labels: [{ name: 'priority: high' }, { name: 'type: bug' }],
         html_url: 'https://github.com/test/repo/issues/42',
         created_at: '2025-01-01T00:00:00Z',
-        updated_at: '2025-01-02T00:00:00Z'
+        updated_at: '2025-01-02T00:00:00Z',
       },
       {
         number: 43,
         title: 'Completed Task',
         state: 'closed',
-        labels: [
-          { name: 'priority: medium' },
-          { name: 'status: in-progress' }
-        ],
+        labels: [{ name: 'priority: medium' }, { name: 'status: in-progress' }],
         html_url: 'https://github.com/test/repo/issues/43',
         created_at: '2025-01-01T00:00:00Z',
-        updated_at: '2025-01-03T00:00:00Z'
-      }
+        updated_at: '2025-01-03T00:00:00Z',
+      },
     ];
 
     const todos = await manager.parseIssuesAsTodos(issues);
-    
+
     expect(todos).toHaveLength(2);
-    
+
     expect(todos[0]).toEqual({
       id: 'gh-42',
       content: 'Test Issue',
@@ -1083,9 +1083,9 @@ describe('GitHubTaskManager Issue Parsing', () => {
       githubIssue: 42,
       url: 'https://github.com/test/repo/issues/42',
       created: '2025-01-01T00:00:00Z',
-      updated: '2025-01-02T00:00:00Z'
+      updated: '2025-01-02T00:00:00Z',
     });
-    
+
     expect(todos[1]).toEqual({
       id: 'gh-43',
       content: 'Completed Task',
@@ -1094,7 +1094,7 @@ describe('GitHubTaskManager Issue Parsing', () => {
       githubIssue: 43,
       url: 'https://github.com/test/repo/issues/43',
       created: '2025-01-01T00:00:00Z',
-      updated: '2025-01-03T00:00:00Z'
+      updated: '2025-01-03T00:00:00Z',
     });
   });
 
@@ -1104,18 +1104,15 @@ describe('GitHubTaskManager Issue Parsing', () => {
         number: 44,
         title: 'In Progress Task',
         state: 'open',
-        labels: [
-          { name: 'priority: medium' },
-          { name: 'status: in-progress' }
-        ],
+        labels: [{ name: 'priority: medium' }, { name: 'status: in-progress' }],
         html_url: 'https://github.com/test/repo/issues/44',
         created_at: '2025-01-01T00:00:00Z',
-        updated_at: '2025-01-02T00:00:00Z'
-      }
+        updated_at: '2025-01-02T00:00:00Z',
+      },
     ];
 
     const todos = await manager.parseIssuesAsTodos(issues);
-    
+
     expect(todos[0].status).toBe('in_progress');
   });
 
@@ -1125,17 +1122,15 @@ describe('GitHubTaskManager Issue Parsing', () => {
         number: 45,
         title: 'No Priority Task',
         state: 'open',
-        labels: [
-          { name: 'type: task' }
-        ],
+        labels: [{ name: 'type: task' }],
         html_url: 'https://github.com/test/repo/issues/45',
         created_at: '2025-01-01T00:00:00Z',
-        updated_at: '2025-01-02T00:00:00Z'
-      }
+        updated_at: '2025-01-02T00:00:00Z',
+      },
     ];
 
     const todos = await manager.parseIssuesAsTodos(issues);
-    
+
     expect(todos[0].priority).toBe('medium');
   });
 });
@@ -1153,11 +1148,11 @@ describe('GitHubTaskManager Terminal Commands', () => {
 
   test('should provide terminal command definitions', () => {
     const commands = manager.getTerminalCommands();
-    
+
     expect(commands).toHaveProperty('gh-create');
     expect(commands).toHaveProperty('gh-sync');
     expect(commands).toHaveProperty('gh-list');
-    
+
     expect(commands['gh-create']).toHaveProperty('description');
     expect(commands['gh-create']).toHaveProperty('usage');
     expect(commands['gh-create']).toHaveProperty('handler');
@@ -1165,9 +1160,9 @@ describe('GitHubTaskManager Terminal Commands', () => {
 
   test('should handle gh-create command', async () => {
     const commands = manager.getTerminalCommands();
-    
+
     const result = await commands['gh-create'].handler(['Test Issue', 'high', 'bug']);
-    
+
     expect(result).toContain('GitHub issue creation command:');
     expect(result).toContain('gh issue create');
     expect(result).toContain('Test Issue');
@@ -1175,17 +1170,17 @@ describe('GitHubTaskManager Terminal Commands', () => {
 
   test('should handle gh-create command with missing title', async () => {
     const commands = manager.getTerminalCommands();
-    
+
     const result = await commands['gh-create'].handler([]);
-    
+
     expect(result).toBe('Usage: gh-create <title> [priority] [type]');
   });
 
   test('should handle gh-list command', async () => {
     const commands = manager.getTerminalCommands();
-    
+
     const result = await commands['gh-list'].handler(['closed', 'bug,high']);
-    
+
     expect(result).toContain('GitHub list command:');
     expect(result).toContain('gh issue list');
     expect(result).toContain('--state closed');
@@ -1194,9 +1189,9 @@ describe('GitHubTaskManager Terminal Commands', () => {
 
   test('should handle gh-sync command', async () => {
     const commands = manager.getTerminalCommands();
-    
+
     const result = await commands['gh-sync'].handler();
-    
+
     expect(result).toBe('GitHub sync functionality ready - integrate with existing todo system');
   });
 });
@@ -1211,9 +1206,9 @@ describe('GitHubTaskManager Label Management', () => {
 
   test('should ensure all required labels exist', async () => {
     const consoleSpy = jest.spyOn(console, 'log');
-    
+
     await manager.ensureLabelsExist();
-    
+
     expect(consoleSpy).toHaveBeenCalledWith('Ensuring label exists: priority: high');
     expect(consoleSpy).toHaveBeenCalledWith('Ensuring label exists: type: task');
     expect(consoleSpy).toHaveBeenCalledWith('Ensuring label exists: agent: claude');
@@ -1222,9 +1217,9 @@ describe('GitHubTaskManager Label Management', () => {
 
   test('should handle label creation errors gracefully', async () => {
     jest.spyOn(manager, 'createLabelIfNotExists').mockRejectedValue(new Error('API error'));
-    
+
     await manager.ensureLabelsExist();
-    
+
     expect(console.warn).toHaveBeenCalledWith(
       'Could not create label priority: high:',
       expect.any(Error)

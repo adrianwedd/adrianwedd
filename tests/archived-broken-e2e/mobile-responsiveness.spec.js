@@ -34,7 +34,7 @@ test.describe('Mobile Responsiveness', () => {
     await page.reload(); // Reload with the specific viewport
 
     const terminalInput = page.locator('#commandInput');
-    const initialInputY = await terminalInput.boundingBox().then(box => box.y);
+    const initialInputY = await terminalInput.boundingBox().then((box) => box.y);
 
     // Simulate keyboard appearance by focusing the input
     await terminalInput.focus();
@@ -42,7 +42,7 @@ test.describe('Mobile Responsiveness', () => {
     // This is a simplified check. Real mobile keyboard simulation is complex.
     // You might need to add custom CSS to handle keyboard-open states.
     // For now, we'll just check if the input's position changes significantly.
-    const afterFocusInputY = await terminalInput.boundingBox().then(box => box.y);
+    const afterFocusInputY = await terminalInput.boundingBox().then((box) => box.y);
 
     // Expect the input to move up (or some other visual change)
     expect(afterFocusInputY).toBeLessThan(initialInputY); // Example: input moves up

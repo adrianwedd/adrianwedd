@@ -14,21 +14,23 @@ test.describe('Cross‑Browser Compatibility', () => {
   /*               TERMINAL INPUT / OUTPUT BASIC FUNCTION               */
   /* ------------------------------------------------------------------ */
   test('Terminal echoes correctly in every browser', async ({ page }) => {
-    const terminalInput  = page.locator('#commandInput');
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('.terminal-content');
 
     const msg = `echo Hello from ${page.context().browser()?.browserType().name()}`;
     await terminalInput.fill(msg);
     await terminalInput.press('Enter');
 
-    await expect(terminalOutput).toContainText(`Hello from ${page.context().browser()?.browserType().name()}`);
+    await expect(terminalOutput).toContainText(
+      `Hello from ${page.context().browser()?.browserType().name()}`
+    );
   });
 
   /* ------------------------------------------------------------------ */
   /*             MUSIC PLAYER COMMANDS ACROSS BROWSERS                  */
   /* ------------------------------------------------------------------ */
   test('Music player responds to play / stop', async ({ page }) => {
-    const terminalInput  = page.locator('#commandInput');
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('.terminal-content');
 
     // Play a track
@@ -46,7 +48,7 @@ test.describe('Cross‑Browser Compatibility', () => {
   /*             AI CHAT INTEGRATION ACROSS BROWSERS                    */
   /* ------------------------------------------------------------------ */
   test('AI chat round‑trip works cross‑browser', async ({ page }) => {
-    const terminalInput  = page.locator('#commandInput');
+    const terminalInput = page.locator('#commandInput');
     const terminalOutput = page.locator('.terminal-content');
 
     // Open chat mode
@@ -55,10 +57,10 @@ test.describe('Cross‑Browser Compatibility', () => {
     await expect(terminalOutput).toContainText('ADRIAN.AI CHAT SESSION');
 
     // Mock the /api/chat endpoint for a deterministic response
-    await page.route('**/api/chat', async route => {
+    await page.route('**/api/chat', async (route) => {
       await route.fulfill({
         status: 200,
-        body: JSON.stringify({ response: 'Mocked AI response for cross‑browser test.' })
+        body: JSON.stringify({ response: 'Mocked AI response for cross‑browser test.' }),
       });
     });
 

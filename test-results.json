@@ -10,9 +10,7 @@
     "grep": {},
     "grepInvert": null,
     "maxFailures": 0,
-    "metadata": {
-      "actualWorkers": 4
-    },
+    "metadata": {},
     "preserveOutput": "always",
     "reporter": [
       [
@@ -38,9 +36,7 @@
         "outputDir": "/Users/adrian/repos/adrianwedd/test-results",
         "repeatEach": 1,
         "retries": 0,
-        "metadata": {
-          "actualWorkers": 4
-        },
+        "metadata": {},
         "id": "chromium",
         "name": "chromium",
         "testDir": "/Users/adrian/repos/adrianwedd/tests",
@@ -48,7 +44,7 @@
         "testMatch": [
           "**/*.@(spec|test).?(c|m)[jt]s?(x)"
         ],
-        "timeout": 30000
+        "timeout": 10000
       }
     ],
     "shard": null,
@@ -58,174 +54,73 @@
     "workers": 4,
     "webServer": null
   },
-  "suites": [
+  "suites": [],
+  "errors": [
     {
-      "title": "e2e/temp-terminal-test.spec.js",
-      "file": "e2e/temp-terminal-test.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [
-        {
-          "title": "terminal accepts \"help\" command and shows output",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 30000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "chromium",
-              "projectName": "chromium",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 6442,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2025-07-27T12:28:03.330Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "f5a5c6e3af8ff2520466-e754da595170c79506e5",
-          "file": "e2e/temp-terminal-test.spec.js",
-          "line": 3,
-          "column": 1
-        }
-      ]
+      "message": "ReferenceError: describe is not defined",
+      "stack": "ReferenceError: describe is not defined\n    at /Users/adrian/repos/adrianwedd/tests/unit/accessibility.test.js:7:1",
+      "location": {
+        "file": "/Users/adrian/repos/adrianwedd/tests/unit/accessibility.test.js",
+        "column": 1,
+        "line": 7
+      },
+      "snippet": "\u001b[90m   at \u001b[39munit/accessibility.test.js:7\n\n   5 |  */\n   6 |\n>  7 | describe('Accessibility Tests', () => {\n     | ^\n   8 |   let mockDocument;\n   9 |   let mockWindow;\n  10 |"
     },
     {
-      "title": "e2e/terminal-core.spec.js",
-      "file": "e2e/terminal-core.spec.js",
-      "column": 0,
-      "line": 0,
-      "specs": [],
-      "suites": [
-        {
-          "title": "Terminal Core Functionality",
-          "file": "e2e/terminal-core.spec.js",
-          "line": 3,
-          "column": 6,
-          "specs": [
-            {
-              "title": "terminal loads and accepts input",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 1,
-                      "parallelIndex": 1,
-                      "status": "passed",
-                      "duration": 6226,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-07-27T12:28:03.346Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "8aee9adb25e5d07096f7-645015c5f7a21286c656",
-              "file": "e2e/terminal-core.spec.js",
-              "line": 9,
-              "column": 3
-            },
-            {
-              "title": "basic commands work",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 2,
-                      "parallelIndex": 2,
-                      "status": "passed",
-                      "duration": 6420,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-07-27T12:28:03.329Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "8aee9adb25e5d07096f7-ce920d43da756ea17bc5",
-              "file": "e2e/terminal-core.spec.js",
-              "line": 22,
-              "column": 3
-            },
-            {
-              "title": "unknown command shows error",
-              "ok": true,
-              "tags": [],
-              "tests": [
-                {
-                  "timeout": 30000,
-                  "annotations": [],
-                  "expectedStatus": "passed",
-                  "projectId": "chromium",
-                  "projectName": "chromium",
-                  "results": [
-                    {
-                      "workerIndex": 3,
-                      "parallelIndex": 3,
-                      "status": "passed",
-                      "duration": 6406,
-                      "errors": [],
-                      "stdout": [],
-                      "stderr": [],
-                      "retry": 0,
-                      "startTime": "2025-07-27T12:28:03.331Z",
-                      "annotations": [],
-                      "attachments": []
-                    }
-                  ],
-                  "status": "expected"
-                }
-              ],
-              "id": "8aee9adb25e5d07096f7-8507d6301fb0d5facc24",
-              "file": "e2e/terminal-core.spec.js",
-              "line": 36,
-              "column": 3
-            }
-          ]
-        }
-      ]
+      "message": "ReferenceError: beforeAll is not defined",
+      "stack": "ReferenceError: beforeAll is not defined\n    at /Users/adrian/repos/adrianwedd/tests/unit/ai-service.test.js:10:1",
+      "location": {
+        "file": "/Users/adrian/repos/adrianwedd/tests/unit/ai-service.test.js",
+        "column": 1,
+        "line": 10
+      },
+      "snippet": "\u001b[90m   at \u001b[39munit/ai-service.test.js:10\n\n   8 | let AIService;\n   9 |\n> 10 | beforeAll(() => {\n     | ^\n  11 |   // Mock the AIService class as it would be available globally in the browser\n  12 |   global.AIService = jest.fn().mockImplementation(() => ({\n  13 |     tokenStats: {"
+    },
+    {
+      "message": "ReferenceError: jest is not defined",
+      "stack": "ReferenceError: jest is not defined\n    at /Users/adrian/repos/adrianwedd/tests/unit/github-task-manager.test.js:8:16",
+      "location": {
+        "file": "/Users/adrian/repos/adrianwedd/tests/unit/github-task-manager.test.js",
+        "column": 16,
+        "line": 8
+      },
+      "snippet": "\u001b[90m   at \u001b[39munit/github-task-manager.test.js:8\n\n   6 |\n   7 | // Mock fetch for HTTP requests\n>  8 | global.fetch = jest.fn();\n     |                ^\n   9 |\n  10 | // Mock console methods to avoid noise in tests\n  11 | global.console = {"
+    },
+    {
+      "message": "ReferenceError: jest is not defined",
+      "stack": "ReferenceError: jest is not defined\n    at /Users/adrian/repos/adrianwedd/tests/unit/script-engine.test.js:11:14",
+      "location": {
+        "file": "/Users/adrian/repos/adrianwedd/tests/unit/script-engine.test.js",
+        "column": 14,
+        "line": 11
+      },
+      "snippet": "\u001b[90m   at \u001b[39munit/script-engine.test.js:11\n\n   9 | // Create proper jest mocks for localStorage\n  10 | const localStorageMock = {\n> 11 |     getItem: jest.fn(() => null),\n     |              ^\n  12 |     setItem: jest.fn(),\n  13 |     removeItem: jest.fn(),\n  14 |     clear: jest.fn()"
+    },
+    {
+      "message": "ReferenceError: jest is not defined",
+      "stack": "ReferenceError: jest is not defined\n    at /Users/adrian/repos/adrianwedd/tests/unit/terminal.test.js:8:27",
+      "location": {
+        "file": "/Users/adrian/repos/adrianwedd/tests/unit/terminal.test.js",
+        "column": 27,
+        "line": 8
+      },
+      "snippet": "\u001b[90m   at \u001b[39munit/terminal.test.js:8\n\n   6 |\n   7 | // Mock dependencies and modules that terminal.js relies on\n>  8 | global.RetroMusicPlayer = jest.fn().mockImplementation(() => ({\n     |                           ^\n   9 |   play: jest.fn(),\n  10 |   stop: jest.fn(),\n  11 |   setVolume: jest.fn()"
+    },
+    {
+      "message": "ReferenceError: beforeEach is not defined",
+      "stack": "ReferenceError: beforeEach is not defined\n    at /Users/adrian/repos/adrianwedd/tests/unit/voice-interface.test.js:4:1",
+      "location": {
+        "file": "/Users/adrian/repos/adrianwedd/tests/unit/voice-interface.test.js",
+        "column": 1,
+        "line": 4
+      },
+      "snippet": "\u001b[90m   at \u001b[39munit/voice-interface.test.js:4\n\n  2 |\n  3 | // Setup minimal browser-like environment\n> 4 | beforeEach(() => {\n    | ^\n  5 |   global.window = {\n  6 |     SpeechRecognition: function(){},\n  7 |     speechSynthesis: { getVoices: () => [], speak: jest.fn(), cancel: jest.fn() },"
     }
   ],
-  "errors": [],
   "stats": {
-    "startTime": "2025-07-27T12:28:02.843Z",
-    "duration": 7852.526,
-    "expected": 4,
+    "startTime": "2025-07-27T15:16:51.234Z",
+    "duration": 331.04499999999996,
+    "expected": 0,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

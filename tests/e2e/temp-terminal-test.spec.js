@@ -13,7 +13,7 @@ test('terminal accepts "help" command and shows output', async ({ page }) => {
 
   // Wait for the output and check terminal content
   const output = page.locator('.terminal-content');
-  
+
   // Assert that the help output is present with correct text
   await expect(output).toContainText('ADRIAN.TERMINAL - Available Commands');
   await expect(output).toContainText('help');

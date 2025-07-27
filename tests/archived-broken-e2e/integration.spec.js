@@ -30,7 +30,7 @@ test.describe('Integration Tests', () => {
     await terminalInput.press('Enter');
     await expect(terminalOutput).toContainText('Entering chat mode.');
 
-    await page.route('**/api/chat.js', async route => {
+    await page.route('**/api/chat.js', async (route) => {
       const json = { response: 'Mocked AI response for integration test.' };
       await route.fulfill({ json });
     });
@@ -48,7 +48,7 @@ test.describe('Integration Tests', () => {
     await expect(terminalOutput).toContainText('Entering system monitor mode.');
 
     // Verify that AI token analytics reflect the chat interaction
-    await page.route('**/api/monitor-data.js?type=ai-tokens', async route => {
+    await page.route('**/api/monitor-data.js?type=ai-tokens', async (route) => {
       const json = { totalTokens: 150, cachedTokens: 50 }; // Example values after chat
       await route.fulfill({ json });
     });

@@ -3,11 +3,7 @@ export default {
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'html', 'lcov', 'json-summary'],
-  collectCoverageFrom: [
-    'assets/**/*.js',
-    '!assets/**/*.test.js',
-    '!assets/**/*.spec.js'
-  ],
+  collectCoverageFrom: ['assets/**/*.js', '!assets/**/*.test.js', '!assets/**/*.spec.js'],
   // Coverage thresholds disabled initially to establish baseline
   // coverageThreshold: {
   //   global: {
@@ -17,12 +13,9 @@ export default {
   //     statements: 80
   //   }
   // },
-  testMatch: [
-    '<rootDir>/tests/unit/**/*.test.js',
-    '<rootDir>/tests/unit/**/*.spec.js'
-  ],
+  testMatch: ['<rootDir>/tests/unit/**/*.test.js', '<rootDir>/tests/unit/**/*.spec.js'],
   moduleFileExtensions: ['js', 'json'],
   transform: {},
   preset: null,
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js']
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
 };

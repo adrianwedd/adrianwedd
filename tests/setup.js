@@ -6,7 +6,7 @@ global.AudioContext = jest.fn().mockImplementation(() => ({
   createOscillator: jest.fn(),
   createGain: jest.fn(),
   destination: {},
-  close: jest.fn()
+  close: jest.fn(),
 }));
 
 global.speechSynthesis = {
@@ -14,7 +14,7 @@ global.speechSynthesis = {
   cancel: jest.fn(),
   pause: jest.fn(),
   resume: jest.fn(),
-  getVoices: jest.fn(() => [])
+  getVoices: jest.fn(() => []),
 };
 
 global.webkitSpeechRecognition = jest.fn().mockImplementation(() => ({
@@ -22,7 +22,7 @@ global.webkitSpeechRecognition = jest.fn().mockImplementation(() => ({
   stop: jest.fn(),
   abort: jest.fn(),
   addEventListener: jest.fn(),
-  removeEventListener: jest.fn()
+  removeEventListener: jest.fn(),
 }));
 
 // Mock localStorage
