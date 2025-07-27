@@ -1919,7 +1919,11 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
         this.addDebugLog('Boot sequence container cleared', 'info', 'system');
 
+        // Show ADRIAN logo first
+        this.showAdrianLogo();
+        
         this.currentBootMessages = [
+            '',
             'ADRIAN.SYS BIOS v2.1.0',
             'Copyright (C) 2025 Recursive Systems Architecture',
             '',

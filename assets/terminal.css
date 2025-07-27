@@ -531,56 +531,6 @@ input, textarea, select {
     animation: blink 1s infinite;
 }
 
-/* Retro 3D Header */
-.retro-header {
-    text-align: center;
-    margin-bottom: 20px;
-    background: linear-gradient(45deg, #1a0a00, #2a1500);
-    padding: 10px;
-    box-shadow: 
-        0 0 20px rgb(255 102 0 / 30%),
-        inset 0 0 20px rgb(255 102 0 / 10%);
-}
-
-.retro-3d-logo {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    line-height: 1.1;
-    color: var(--primary-color);
-    text-shadow: 
-        2px 2px 0 var(--secondary-color),
-        4px 4px 0 var(--accent-color),
-        6px 6px 0 var(--terminal-bg),
-        8px 8px 0 var(--background-color),
-        10px 10px 20px rgb(0 0 0 / 80%);
-    margin: 0;
-    font-weight: bold;
-    letter-spacing: 1px;
-    animation: retro-glow 3s ease-in-out infinite alternate;
-    transition: var(--theme-transition);
-}
-
-@keyframes retro-glow {
-    0% {
-        filter: brightness(1) contrast(1);
-        text-shadow: 
-            2px 2px 0 #00cc33,
-            4px 4px 0 #009922,
-            6px 6px 0 #006611,
-            8px 8px 0 #003300,
-            10px 10px 20px rgb(0 0 0 / 80%);
-    }
-
-    100% {
-        filter: brightness(1.2) contrast(1.1);
-        text-shadow: 
-            2px 2px 0 #00ff55,
-            4px 4px 0 #00dd44,
-            6px 6px 0 #00bb33,
-            8px 8px 0 #009922,
-            10px 10px 30px rgb(0 255 65 / 40%);
-    }
-}
 
 /* Terminal Content Area (consolidated) */
 
@@ -1267,7 +1217,7 @@ input, textarea, select {
 }
 
 /* Logo Green Styling - Make all logos use terminal green by default */
-.logo, .window-title, .brand, .header-logo, .logo-art, .retro-3d-logo {
+.logo, .window-title, .brand, .header-logo, .logo-art {
     color: var(--primary-color) !important;
     transition: var(--theme-transition);
 }
