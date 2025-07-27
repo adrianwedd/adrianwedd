@@ -126,14 +126,19 @@ jobs:
           PRIORITY_FILTER="${{ github.event.inputs.priority_filter || 'high' }}"
           MAX_ISSUES="${{ github.event.inputs.max_issues || steps.token-check.outputs.max_issues || '3' }}"
           
-          # Build label filter based on priority
+          # Build label filter with fallback priority strategy
+          echo "🔍 Searching for issues with priority: $PRIORITY_FILTER"
+          
           if [ "$PRIORITY_FILTER" = "all" ]; then
             LABELS=""
+            echo "📋 Using no priority filter - checking all open issues"
           else
             LABELS="--label priority:${PRIORITY_FILTER}"
+            echo "🎯 Filtering for priority:${PRIORITY_FILTER} issues"
           fi
           
           # Fetch issues (excluding draft, wip, blocked)
+          echo "📥 Fetching open issues..."
           gh issue list \
             --state open \
             --limit "$MAX_ISSUES" \
@@ -142,10 +147,28 @@ jobs:
             --jq '.[] | select(.labels | map(.name) | any(. | test("^(draft|wip|blocked)$"; "i")) | not)' \
             > issues.json
           
-          # Check if we have issues to process
           ISSUE_COUNT=$(jq length issues.json)
-          echo "Found $ISSUE_COUNT eligible issues"
+          echo "📊 Found $ISSUE_COUNT issues with priority:${PRIORITY_FILTER}"
+          
+          # If no high priority issues found, try medium priority
+          if [ "$ISSUE_COUNT" -eq 0 ] && [ "$PRIORITY_FILTER" = "high" ]; then
+            echo "⬇️ No high priority issues found, falling back to medium priority..."
+            gh issue list \
+              --state open \
+              --limit "$MAX_ISSUES" \
+              --label priority:medium \
+              --json number,title,labels,body,url \
+              --jq '.[] | select(.labels | map(.name) | any(. | test("^(draft|wip|blocked)$"; "i")) | not)' \
+              > issues.json
+            
+            ISSUE_COUNT=$(jq length issues.json)
+            echo "📊 Found $ISSUE_COUNT medium priority issues"
+            PRIORITY_FILTER="medium (fallback)"
+          fi
+          
+          echo "✅ Final issue count: $ISSUE_COUNT eligible issues for processing"
           echo "issue_count=$ISSUE_COUNT" >> $GITHUB_OUTPUT
+          echo "actual_priority=$PRIORITY_FILTER" >> $GITHUB_OUTPUT
           
           if [ "$ISSUE_COUNT" -gt 0 ]; then
             # Create structured prompt for Claude
@@ -195,6 +218,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+
+      - name: 🚀 Begin Autonomous Session
+        if: steps.fetch-issues.outputs.issue_count > 0 && steps.token-check.outputs.proceed == 'true'
+        run: |
+          echo "🤖 **AUTONOMOUS SESSION STARTING**"
+          echo "📅 Session #${{ steps.token-check.outputs.session_number }}/6 at $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')"
+          echo "🎯 Processing ${{ steps.fetch-issues.outputs.issue_count }} issues with priority: ${{ steps.fetch-issues.outputs.actual_priority }}"
+          echo "💰 Token budget: ${{ steps.token-check.outputs.tokens_remaining }} remaining"
+          echo "📊 Estimated usage: ${{ steps.token-check.outputs.estimated_usage }} tokens"
+          echo ""
+          echo "📋 **Issues to be processed:**"
+          jq -r '.[] | "  #\(.number): \(.title) (\(.labels | map(.name) | join(", ")))"' issues.json
+          echo ""
+          echo "🚀 **Launching Claude Code autonomous execution...**"
 
       - name: 🤖 Run Autonomous Claude Code
         if: steps.fetch-issues.outputs.issue_count > 0 && steps.token-check.outputs.proceed == 'true'
@@ -266,6 +303,16 @@ jobs:
             - Add appropriate tests where needed
             
             Execute with confidence and technical excellence!
+
+      - name: 📊 Autonomous Session Complete
+        if: always() && steps.claude-autonomous.outcome != 'skipped'
+        run: |
+          echo "🏁 **AUTONOMOUS SESSION COMPLETED**"
+          echo "📅 Finished at $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')"
+          echo "✅ Session outcome: ${{ steps.claude-autonomous.outcome }}"
+          echo "🎯 Issues processed: ${{ steps.fetch-issues.outputs.issue_count }}"
+          echo "📊 Priority level: ${{ steps.fetch-issues.outputs.actual_priority }}"
+          echo ""
 
       - name: 💾 Record Token Usage & Cache Analytics
         if: always() && steps.claude-autonomous.outcome != 'skipped'
@@ -367,7 +414,7 @@ jobs:
           echo "**Session Metrics:**"
           echo "- Session: #${{ steps.token-check.outputs.session_number || 'N/A' }}/6"
           echo "- Issues Available: ${{ steps.fetch-issues.outputs.issue_count || 'N/A' }}"
-          echo "- Priority Filter: ${{ github.event.inputs.priority_filter || 'high' }}"
+          echo "- Priority Filter: ${{ steps.fetch-issues.outputs.actual_priority || github.event.inputs.priority_filter || 'high' }}"
           echo "- Max Issues: ${{ steps.token-check.outputs.max_issues || github.event.inputs.max_issues || '3' }}"
           echo "- Trigger: ${{ github.event_name == 'schedule' && 'Scheduled (4-hour cycle)' || 'Manual dispatch' }}"
           echo "- Token Budget: ${{ steps.token-check.outputs.tokens_remaining || 'Unknown' }} remaining"
@@ -410,7 +457,7 @@ jobs:
           
           **Session:** $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST') (#${{ steps.token-check.outputs.session_number }}/6)  
           **Issues Processed:** ${{ steps.fetch-issues.outputs.issue_count || '0' }}  
-          **Priority Level:** ${{ github.event.inputs.priority_filter || 'high' }}  
+          **Priority Level:** ${{ steps.fetch-issues.outputs.actual_priority || github.event.inputs.priority_filter || 'high' }}  
           **Token Budget:** ${{ steps.token-check.outputs.tokens_remaining || 'Unknown' }} remaining  
           **Estimated Usage:** ${{ steps.token-check.outputs.estimated_usage || 'Unknown' }} tokens
           
