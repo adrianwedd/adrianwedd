@@ -252,89 +252,79 @@ jobs:
           echo ""
           echo "🚀 **Launching Claude Code autonomous execution...**"
 
-      - name: 🤖 Run Autonomous Claude Code
+      - name: 📦 Setup Node.js for Custom Executor
+        if: steps.fetch-issues.outputs.issue_count > 0 && steps.token-check.outputs.proceed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 🚀 Install Custom Executor Dependencies
+        if: steps.fetch-issues.outputs.issue_count > 0 && steps.token-check.outputs.proceed == 'true'
+        run: |
+          echo "📦 **INSTALLING CUSTOM EXECUTOR DEPENDENCIES**"
+          cd .github/scripts
+          npm install
+          cd ../..
+          echo "✅ Dependencies installed"
+
+      - name: 🤖 Run Custom Autonomous Executor
         if: steps.fetch-issues.outputs.issue_count > 0 && steps.token-check.outputs.proceed == 'true'
         id: claude-autonomous
         continue-on-error: true
-        uses: anthropics/claude-code-action@beta
-        with:
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          echo "🤖 **LAUNCHING CUSTOM AUTONOMOUS EXECUTOR**"
+          echo "📋 Processing ${{ steps.fetch-issues.outputs.issue_count }} issues"
+          echo "🎯 Session #${{ steps.token-check.outputs.session_number }}/6"
+          echo "💰 Token budget: ${{ steps.token-check.outputs.tokens_remaining }} remaining"
+          echo ""
           
-          # Use high-capability model for autonomous work
-          model: "claude-sonnet-4-20250514"
+          # Prepare enhanced prompt with session context
+          ENHANCED_PROMPT="🤖 **AUTONOMOUS EXECUTION SESSION** - $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')
           
-          # Direct prompt for autonomous execution
-          direct_prompt: ${{ steps.fetch-issues.outputs.prompt }}
+          ## 📊 **Session Context**
+          - Session #${{ steps.token-check.outputs.session_number }}/6
+          - Token budget: ${{ steps.token-check.outputs.tokens_remaining }} remaining
+          - Target usage: ${{ steps.token-check.outputs.estimated_usage }} tokens
+          - Issues to process: ${{ steps.fetch-issues.outputs.issue_count }}
           
-          # Enable comprehensive toolset for autonomous work
-          allowed_tools: |
-            Bash(npm install)
-            Bash(npm run build)
-            Bash(npm run test:*)
-            Bash(npm run lint:*)
-            Bash(git add *)
-            Bash(git commit *)
-            Bash(gh issue close *)
-            
-          # Custom instructions for autonomous operation with token awareness
-          custom_instructions: |
-            🤖 **AUTONOMOUS MODE ACTIVE** - Session #${{ steps.token-check.outputs.session_number }}/6
-            
-            **📊 Token Budget Awareness:**
-            - Estimated tokens remaining today: ${{ steps.token-check.outputs.tokens_remaining }}
-            - Target usage for this session: ${{ steps.token-check.outputs.estimated_usage }} tokens
-            - Issues to process: ${{ steps.token-check.outputs.max_issues }}
-            
-            **⚡ Efficiency Guidelines:**
-            - Use prompt caching extensively for repeated contexts
-            - Implement efficient, focused solutions  
-            - Prioritize high-impact, low-complexity tasks when token budget is limited
-            - Cache common patterns and reuse established approaches
-            - Track and report: input_tokens, output_tokens, cached_tokens for analysis
-            - Maximize cache hit ratio to reduce costs and improve performance
-            
-            You are operating in autonomous mode to complete GitHub issues without human intervention.
-            
-            **Key Responsibilities:**
-            - Complete assigned issues end-to-end
-            - Follow all coding standards and best practices  
-            - Use TodoWrite tool to track your progress transparently
-            - Close issues with comprehensive summaries using our established format
-            - Commit changes with descriptive messages including emoji
-            - Run tests and ensure code quality
-            - Handle errors gracefully and document any limitations
-            
-            **Decision Making:**
-            - Use your best technical judgment for implementation approaches
-            - Prioritize maintainable, well-documented solutions
-            - Skip any task that seems too risky or complex for autonomous completion
-            - Focus on high-value, clearly-defined improvements
-            
-            **Communication:**
-            - Use sophisticated emoji in all outputs for enhanced readability
-            - Provide detailed progress updates via TodoWrite
-            - Create comprehensive issue closure summaries
-            - Document any assumptions or design decisions
-            
-            **Quality Standards:**
-            - Ensure accessibility compliance
-            - Maintain performance standards
-            - Follow existing code patterns
-            - Add appropriate tests where needed
-            
-            Execute with confidence and technical excellence!
+          ## 🎯 **Enhanced Instructions**
+          ${{ steps.fetch-issues.outputs.prompt }}
+          
+          ## ⚡ **Efficiency Guidelines**
+          - Use prompt caching extensively for repeated contexts
+          - Implement efficient, focused solutions  
+          - Prioritize high-impact, low-complexity tasks when token budget is limited
+          - Track and report: input_tokens, output_tokens for analysis
+          
+          ## 🔧 **Technical Excellence**
+          - Follow existing code patterns and architecture
+          - Use sophisticated emoji for enhanced readability
+          - Run tests and ensure code quality
+          - Create comprehensive issue closure summaries
+          - Commit changes with descriptive messages
+          
+          Execute with confidence and technical excellence!"
+          
+          # Execute custom autonomous script
+          node .github/scripts/autonomous-executor.js "$ENHANCED_PROMPT" "$(cat issues.json)"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          AUTONOMOUS_PROMPT: ${{ steps.fetch-issues.outputs.prompt }}
+          ISSUES_JSON: ${{ steps.fetch-issues.outputs.issues }}
 
-      - name: ⚠️ Claude Code Action Failed  
+      - name: ⚠️ Custom Autonomous Executor Failed  
         if: steps.claude-autonomous.outcome == 'failure'
         run: |
-          echo "⚠️ **CLAUDE CODE ACTION FAILED**"
-          echo "🔍 Likely issue: Unsupported event type (workflow_dispatch)"
-          echo "💡 Claude Code Action may only support push/pull_request events"
+          echo "⚠️ **CUSTOM AUTONOMOUS EXECUTOR FAILED**"
+          echo "🔍 Checking execution logs for error details..."
           echo "🎯 Issues detected: ${{ steps.fetch-issues.outputs.issue_count }}"
-          echo "📋 Manual intervention may be required for:"
+          echo "📋 Issues that may require manual intervention:"
           jq -r '.[] | "  - #\(.number): \(.title)"' issues.json
           echo ""
-          echo "🔧 Consider triggering via push event or manual processing"
+          echo "🔧 Manual review and processing may be required"
+          echo "📊 Session data available in .github/data/autonomous-sessions/"
 
       - name: 📊 Autonomous Session Complete
         if: always() && steps.claude-autonomous.outcome != 'skipped'

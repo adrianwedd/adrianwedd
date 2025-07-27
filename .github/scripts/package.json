@@ -1,0 +1,13 @@
+{
+  "name": "autonomous-executor",
+  "version": "1.0.0",
+  "description": "Custom autonomous executor for GitHub Actions workflow_dispatch events",
+  "main": "autonomous-executor.js",
+  "type": "commonjs",
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
