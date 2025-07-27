@@ -45,7 +45,6 @@
     
     .command-input,
     button {
-        border: 1px solid currentColor;
     }
     
     .voice-indicator,
@@ -246,7 +245,6 @@ button,
     }
     
     .command-input {
-        border: 1px solid black;
         background: white;
         color: black;
     }
@@ -267,7 +265,6 @@ button,
     .command-input {
         background: #fff;
         color: #000;
-        border-color: #333;
     }
     
     .prompt {
@@ -347,7 +344,6 @@ button,
     
     .command-input,
     button {
-        border: 1px solid;
     }
     
     .voice-indicator {
