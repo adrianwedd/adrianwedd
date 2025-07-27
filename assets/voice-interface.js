@@ -246,11 +246,21 @@ class VoiceInterface {
   activateWakeWord() {
     this.wakeWordActive = true;
     this.updateVoiceIndicator('activated');
+    
+    // Update terminal status panel
+    if (window.terminal) {
+      window.terminal.updateStatusPanel();
+    }
 
     // Auto-deactivate after 10 seconds if no command
     setTimeout(() => {
       this.wakeWordActive = false;
       this.updateVoiceIndicator('listening');
+      
+      // Update terminal status panel
+      if (window.terminal) {
+        window.terminal.updateStatusPanel();
+      }
     }, 10000);
   }
 
@@ -551,6 +561,12 @@ class VoiceInterface {
     try {
       this.isActive = true;
       this.recognition.start();
+      
+      // Update terminal status panel
+      if (window.terminal) {
+        window.terminal.updateStatusPanel();
+      }
+      
       return true;
     } catch (error) {
       console.error('Failed to start listening:', error);
@@ -562,6 +578,11 @@ class VoiceInterface {
   stopListening() {
     this.isActive = false;
     this.wakeWordActive = false;
+    
+    // Update terminal status panel
+    if (window.terminal) {
+      window.terminal.updateStatusPanel();
+    }
 
     if (this.recognition) {
       this.recognition.stop();

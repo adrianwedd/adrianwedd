@@ -623,6 +623,11 @@ class Terminal {
     }
 
     this.addOutput('', 'info');
+    this.addOutput('🎤 VOICE COMMANDS:', 'section-header');
+    this.addOutput('1. Click "Voice" button to enable voice recognition', 'info');
+    this.addOutput('2. Say "Adrian" to activate voice commands', 'info');
+    this.addOutput('3. Then say any command like "show help" or "clear screen"', 'info');
+    this.addOutput('', 'info');
     this.addOutput(
       'For more information on a specific command, type: help <command> or <command> help',
       'feature-highlight'
@@ -3653,9 +3658,26 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     const themeStatus = document.getElementById('themeStatus');
 
     if (voiceStatus) {
-      const isVoiceReady = this.voiceInterface && this.voiceInterface.isListening;
-      voiceStatus.textContent = isVoiceReady ? 'LISTENING' : 'READY';
-      voiceStatus.className = 'status-value ' + (isVoiceReady ? '' : 'warning');
+      let status = 'OFF';
+      let statusClass = 'error';
+      
+      if (this.voiceInterface) {
+        if (this.voiceInterface.isListening) {
+          if (this.voiceInterface.wakeWordActive) {
+            status = 'ACTIVATED';
+            statusClass = '';
+          } else {
+            status = 'SAY "ADRIAN"';
+            statusClass = 'warning';
+          }
+        } else if (this.voiceEnabled) {
+          status = 'READY';
+          statusClass = 'warning';
+        }
+      }
+      
+      voiceStatus.textContent = status;
+      voiceStatus.className = 'status-value ' + statusClass;
     }
 
     if (systemStatus) {
