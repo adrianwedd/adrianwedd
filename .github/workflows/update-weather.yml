@@ -1,4 +1,4 @@
-name: 🌤️ Tasmania Weather Intelligence System
+name: "🌤️ Tasmania Weather Intelligence System"
 
 on:
   schedule:
@@ -25,13 +25,13 @@ env:
 
 jobs:
   weather-intelligence:
-    name: 🌦️ Weather Data Intelligence
+    name: "🌦️ Weather Data Intelligence"
     runs-on: ubuntu-latest
     permissions:
       contents: write
     
     steps:
-      - name: 🌤️ Weather System Initialization
+      - name: "🌤️ Weather System Initialization"
         run: |
           echo "🌤️ **TASMANIA WEATHER INTELLIGENCE SYSTEM ACTIVATED**"
           echo "📅 Update cycle: $(TZ='${{ env.TASMANIA_TIMEZONE }}' date +'%Y-%m-%d %H:%M %Z')"
@@ -70,7 +70,7 @@ jobs:
           echo "coordinates=$COORDINATES" >> $GITHUB_OUTPUT
           echo "location=$LOCATION" >> $GITHUB_OUTPUT
 
-    - name: 🌦️ Fetch BOM Weather Data
+    - name: "🌦️ Fetch BOM Weather Data"
       id: weather
       run: |
         echo "🌤️ Fetching weather data from BOM..."
