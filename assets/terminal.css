@@ -115,36 +115,6 @@ input, textarea, select {
     transition: var(--theme-transition);
 }
 
-.header {
-    background: #1e1e1e;
-    padding: 8px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-}
-
-.window-controls {
-    display: flex;
-    gap: 8px;
-}
-
-.control {
-    width: 12px;
-    height: 12px;
-    cursor: pointer;
-}
-
-.control.close { background: #ff5f56; }
-
-.control.minimize { background: #ffbd2e; }
-
-.control.maximize { background: #27ca3f; }
-
-.title {
-    color: #888;
-    font-size: 14px;
-}
 
 .terminal {
     flex: 1;
@@ -156,7 +126,7 @@ input, textarea, select {
     line-height: 1.4;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 60px);
+    height: 100vh;
     cursor: text; /* Indicate that clicking focuses the input */
     position: relative;
     max-width: 100%; /* Prevent content bleeding */
@@ -1217,12 +1187,12 @@ input, textarea, select {
 }
 
 /* Logo Green Styling - Make all logos use terminal green by default */
-.logo, .window-title, .brand, .header-logo, .logo-art {
+.logo, .window-title, .brand, .logo-art {
     color: var(--primary-color) !important;
     transition: var(--theme-transition);
 }
 
-.logo:hover, .brand:hover, .header-logo:hover {
+.logo:hover, .brand:hover {
     color: var(--accent-color) !important;
 }
 
