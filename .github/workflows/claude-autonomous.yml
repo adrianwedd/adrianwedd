@@ -268,19 +268,25 @@ jobs:
           cd ../..
           echo "✅ Dependencies installed"
 
-      - name: 🤖 Run Custom Autonomous Executor
+      - name: 🤖 Run Autonomous Processing
         if: steps.fetch-issues.outputs.issue_count > 0 && steps.token-check.outputs.proceed == 'true'
         id: claude-autonomous
         continue-on-error: true
         run: |
-          echo "🤖 **LAUNCHING CUSTOM AUTONOMOUS EXECUTOR**"
+          echo "🤖 **LAUNCHING AUTONOMOUS PROCESSING**"
           echo "📋 Processing ${{ steps.fetch-issues.outputs.issue_count }} issues"
           echo "🎯 Session #${{ steps.token-check.outputs.session_number }}/6"
           echo "💰 Token budget: ${{ steps.token-check.outputs.tokens_remaining }} remaining"
           echo ""
           
-          # Create enhanced prompt file to avoid shell parsing issues
-          cat > enhanced_prompt.txt << 'PROMPT_EOF'
+          # Check if Anthropic API key is available
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            echo "🧠 **USING CLAUDE AI AUTONOMOUS EXECUTOR**"
+            echo "✅ API key detected - full AI-powered automation enabled"
+            echo ""
+            
+            # Create enhanced prompt file to avoid shell parsing issues
+            cat > enhanced_prompt.txt << 'PROMPT_EOF'
           🤖 **AUTONOMOUS EXECUTION SESSION** - $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')
           
           ## 📊 **Session Context**
@@ -307,25 +313,39 @@ jobs:
           
           Execute with confidence and technical excellence!
           PROMPT_EOF
-          
-          # Execute custom autonomous script using environment variables
-          AUTONOMOUS_PROMPT="$(cat enhanced_prompt.txt)" ISSUES_JSON="$(cat issues.json)" node .github/scripts/autonomous-executor.js
+            
+            # Execute AI-powered autonomous script
+            AUTONOMOUS_PROMPT="$(cat enhanced_prompt.txt)" ISSUES_JSON="$(cat issues.json)" node .github/scripts/autonomous-executor.js
+          else
+            echo "🔧 **USING RULE-BASED ISSUE PROCESSOR**"
+            echo "💡 No API key - using intelligent automation without external APIs"
+            echo ""
+            
+            # Execute rule-based issue processor
+            ISSUES_JSON="$(cat issues.json)" node .github/scripts/issue-processor.js
+          fi
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AUTONOMOUS_PROMPT: ${{ steps.fetch-issues.outputs.prompt }}
           ISSUES_JSON: ${{ steps.fetch-issues.outputs.issues }}
 
-      - name: ⚠️ Custom Autonomous Executor Failed  
+      - name: ⚠️ Autonomous Processing Failed  
         if: steps.claude-autonomous.outcome == 'failure'
         run: |
-          echo "⚠️ **CUSTOM AUTONOMOUS EXECUTOR FAILED**"
+          echo "⚠️ **AUTONOMOUS PROCESSING FAILED**"
           echo "🔍 Checking execution logs for error details..."
           echo "🎯 Issues detected: ${{ steps.fetch-issues.outputs.issue_count }}"
           echo "📋 Issues that may require manual intervention:"
           jq -r '.[] | "  - #\(.number): \(.title)"' issues.json
           echo ""
-          echo "🔧 Manual review and processing may be required"
+          if [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+            echo "🧠 Mode: AI-powered autonomous executor"
+            echo "🔧 Check API key configuration and network connectivity"
+          else
+            echo "🔧 Mode: Rule-based issue processor"
+            echo "💡 Consider adding ANTHROPIC_API_KEY secret for AI-powered automation"
+          fi
           echo "📊 Session data available in .github/data/autonomous-sessions/"
 
       - name: 📊 Autonomous Session Complete
