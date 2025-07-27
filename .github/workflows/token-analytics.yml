@@ -18,7 +18,7 @@ on:
       generate_charts:
         description: 'Generate visual charts'
         required: false
-        default: 'true'
+        default: true
         type: boolean
 
 jobs:
@@ -59,7 +59,7 @@ jobs:
           TOTAL_TOKENS=$(jq '.session_usage | map(.total_tokens) | add // 0' "$USAGE_FILE")
           TOTAL_CACHED=$(jq '.session_usage | map(.cached_tokens) | add // 0' "$USAGE_FILE")
           TOTAL_SAVINGS=$(jq '.session_usage | map(.token_savings) | add // 0' "$USAGE_FILE")
-          AVG_CACHE_RATIO=$(jq '.session_usage | map(.cache_hit_ratio) | add / length // 0' "$USAGE_FILE")
+          AVG_CACHE_RATIO=$(jq '.session_usage | if length > 0 then map(.cache_hit_ratio) | add / length else 0 end' "$USAGE_FILE")
           
           echo "- **Total Sessions:** $TOTAL_SESSIONS/6" >> analytics-report.md
           echo "- **Total Tokens Used:** $(printf "%'d" $TOTAL_TOKENS)" >> analytics-report.md
