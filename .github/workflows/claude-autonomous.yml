@@ -133,8 +133,8 @@ jobs:
             LABELS=""
             echo "📋 Using no priority filter - checking all open issues"
           else
-            LABELS="--label priority:${PRIORITY_FILTER}"
-            echo "🎯 Filtering for priority:${PRIORITY_FILTER} issues"
+            LABELS="--label \"priority: ${PRIORITY_FILTER}\""
+            echo "🎯 Filtering for \"priority: ${PRIORITY_FILTER}\" issues"
           fi
           
           # Fetch issues (excluding draft, wip, blocked)
@@ -169,7 +169,7 @@ jobs:
             gh issue list \
               --state open \
               --limit "$MAX_ISSUES" \
-              --label priority:medium \
+              --label "priority: medium" \
               --json number,title,labels,body,url > all_issues_medium.json
             
             # Filter out draft, wip, blocked issues
