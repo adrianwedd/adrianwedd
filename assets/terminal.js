@@ -499,210 +499,32 @@ class Terminal {
         const helpLines = [
             '',
             '══════════════════════════════════════════════════════════════════════',
-            '    🧠 ADRIAN.TERMINAL - Advanced Interactive Command Interface',
+            '    🧠 ADRIAN.TERMINAL - Available Commands',
             '══════════════════════════════════════════════════════════════════════',
             '',
-            'CORE COMMANDS',
-            '    help         display this comprehensive help',
-            '    about        personal information & background',
-            '    projects     technical projects & repositories',
-            '    skills       technical skills & expertise',
-            '    home         off-grid Tasmania home details',
-            '    veritas      AI safety research platform',
-            '    whoami       current user information',
-            '    pwd          print working directory',
-            '    ls           list directory contents',
-            '    cat          display file contents',
-            '    grep         search files and command output',
-            '    tail         show last lines of files/logs',
-            '    clear        clear terminal screen',
-            '    boot         restart boot sequence',
-            '    uptime       show system uptime',
-            '    neofetch     display system information',
-            '    gemini       display GEMINI ASCII art logo',
-            '    adrian       display ADRIAN ASCII art logo',
-            '    ps           show running processes',
-            '',
-            'AI & CHAT SYSTEM',
-            '    chat         enter interactive AI chat mode',
-            '    tokens       AI token usage statistics & analytics',
-            '    cache        manage prompt cache [clear|stats]',
-            '    magic        daily Claude creativity showcase',
-            '    speak        text-to-speech synthesis [text]',
-            '',
-            'VOICE INTERFACE 🎤',
-            '    voice        voice controls [on|off|status|rate|pitch|volume]',
-            '    Wake Words:  "Adrian", "Computer", "Terminal", "Hey Adrian"',
-            '    Commands:    "show help", "clear screen", "show projects"',
-            '    Usage:       Click "Voice Ready" → say wake word → speak command',
-            '    Features:    - Speech-to-text transcription',
-            '                 - Direct command execution',
-            '                 - Voice transcripts → terminal input',
-            '                 - Configurable voice synthesis',
-            '',
-            'AUDIO & VISUAL EFFECTS 🎵',
-            '    music        play background music [track]',
-            '    stop         stop currently playing music',
-            '    volume       set music volume [0.0-1.0]',
-            '    effects      particle effects [matrix|stars|rain|fireflies|neural]',
-            '    matrix       toggle matrix rain effect',
-            '    theme        change terminal theme [matrix|cyberpunk|amber|synthwave]',
-            '',
-            'AVAILABLE MUSIC TRACKS',
-            '    ambient      peaceful ambient drones',
-            '    cyberpunk    dark synthwave beats', 
-            '    mathematical algorithmic patterns with drums',
-            '    matrix       digital rain sounds',
-            '    synthwave    retro 80s synthesizer',
-            '',
-            'PARTICLE EFFECTS SYSTEM',
-            '    effects matrix on     - Start matrix digital rain',
-            '    effects stars         - Twinkling starfield',
-            '    effects rain          - Falling rain particles',
-            '    effects fireflies     - Organic floating lights',
-            '    effects neural        - Neural network visualization',
-            '    effects opacity 0.5   - Set effects transparency',
-            '    effects clear         - Stop all effects',
-            '',
-            'SYSTEM MONITORING 📊',
-            '    monitor      system monitor (htop/btop style)',
-            '    split        terminal + monitor split screen (desktop only)',
-            '    weather      Tasmania weather data (BOM API)',
-            '    actions      list GitHub Actions workflows',
-            '    runs         show recent workflow runs',
-            '    trigger      trigger GitHub Actions workflow',
-            '',
-            'TASK MANAGEMENT 📋',
-            '    task         GitHub task/issue management system',
-            '    task create  create new GitHub issue with AI categorization',
-            '    task list    list GitHub issues [state] [labels]',
-            '    task update  update issue status/priority/comments',
-            '    task close   close issue with completion comment',
-            '    task show    display detailed issue information',
-            '    task sync    sync todo system with GitHub issues',
-            '',
-            'SCRIPTING & AUTOMATION 📜',
-            '    script       script management system',
-            '    script list  list all available scripts',
-            '    script create <name>     create new script',
-            '    script run <name> [args] execute script with arguments',
-            '    script edit <name>       edit script in built-in editor',
-            '    script show <name>       display script content',
-            '    script delete <name>     remove script',
-            '    script debug [on|off]    toggle debug mode',
-            '    script status            show engine statistics',
-            '    edit [name]  open script editor (with optional script)',
-            '    exec <name> [args]       execute script (shorthand)',
-            '',
-            'SCRIPT LANGUAGE FEATURES',
-            '    • Variables: set var value, get var, $var, ${var}',
-            '    • Control flow: for loops, while loops, if conditions',
-            '    • Functions: echo, wait, repeat, custom functions',
-            '    • Comments: # prefix for line comments',
-            '    • All terminal commands accessible in scripts',
-            '',
-            'ADVANCED FEATURES',
-            '    research     stream research papers [personal|global]',
-            '    theme        change terminal theme [default|cyberpunk|matrix]',
-            '    Tab          autocomplete commands (fuzzy matching)',
-            '    History:     ↑/↓ arrows navigate command history',
-            '    Search:      history search <term>',
-            '',
-            'KEYBOARD SHORTCUTS',
-            '    Tab          command autocomplete & cycling',
-            '    ↑/↓          command history navigation',
-            '    Ctrl+C       exit chat/monitor mode',
-            '    Escape       return focus to terminal input',
-            '    q            quit monitor mode',
-            '    Click        anywhere to focus input',
-            '',
-            'TERMINAL FEATURES',
-            '    • Authentic retro terminal scrolling (no scroll bars)',
-            '    • Desktop width constraint (max 1400px, centered)',
-            '    • Responsive design (mobile & desktop optimized)',
-            '    • WebGL audio visualizations with FFT analysis',
-            '    • Mathematical music synthesis & modulation',
-            '    • Real-time system monitoring with live data',
-            '    • Advanced AI integration with prompt caching',
-            '    • Persistent command history with search',
-            '    • Click-anywhere input focus management',
-            '    • Fuzzy command completion & suggestions',
-            '',
-            'AI INTEGRATION 🤖',
-            '    • Claude-powered chat with context awareness',
-            '    • Advanced prompt caching for efficiency',
-            '    • Token usage tracking & optimization',
-            '    • Voice recognition with wake word detection',
-            '    • Text-to-speech synthesis with voice controls',
-            '    • Real-time GitHub Actions integration',
-            '    • Daily automated content generation',
-            '',
-            'TECHNICAL ARCHITECTURE',
-            '    • ES6+ JavaScript with modern APIs',
-            '    • WebGL shaders for visual effects',
-            '    • Web Audio API for real-time synthesis',
-            '    • Canvas-based particle systems',
-            '    • CSS3 animations & responsive design',
-            '    • GitHub Actions CI/CD automation',
-            '    • RESTful API integrations (BOM, GitHub)',
-            '    • Local storage for persistent data',
-            '',
-            'USAGE EXAMPLES',
-            '    help                     - Show this help',
-            '    music cyberpunk          - Play cyberpunk beats',
-            '    effects matrix on        - Start matrix rain',
-            '    voice on                 - Enable voice recognition',
-            '    weather                  - Show Tasmania weather',
-            '    chat                     - Enter AI chat mode',
-            '    history search git       - Search command history',
-            '    cache stats              - Show prompt cache info',
-            '    monitor                  - Enter system monitor',
-            '    task create "Fix bug" high bug - Create high-priority bug issue',
-            '    task list open "priority: high" - List high-priority open issues',
-            '',
-            '🛠 TECHNICAL DETAILS',
-            '    Repository:   https://github.com/adrianwedd/adrianwedd',
-            '    Technology:   Vanilla JS, WebGL, Web Audio API, WebRTC',
-            '    Deployment:   GitHub Pages with automated CI/CD',
-            '    Architecture: Client-side progressive web app',
-            '    Author:       Adrian Wedd (Systems Architect & Off-Grid Permanaut)',
-            '',
-            '══════════════════════════════════════════════════════════════════════',
-            '  Type any command above or explore with Tab completion! 🚀',
-            '══════════════════════════════════════════════════════════════════════',
-            ''
+            'COMMANDS:',
         ];
-        
-        helpLines.forEach(line => {
-            if (line.includes('══') || line.includes('🧠')) {
-                this.addOutput(line, 'section-header');
-            } else if (line.includes('COMMANDS') || line.includes('SYSTEM') || line.includes('VOICE') || 
-                      line.includes('AUDIO') || line.includes('TRACKS') || line.includes('EFFECTS') ||
-                      line.includes('MONITORING') || line.includes('FEATURES') || line.includes('SHORTCUTS') ||
-                      line.includes('INTEGRATION') || line.includes('ARCHITECTURE') || line.includes('EXAMPLES') ||
-                      line.includes('TECHNICAL DETAILS')) {
-                this.addOutput(line, 'feature-highlight');
-            } else if (line.startsWith('    ') && line.includes(' ') && !line.includes('•')) {
-                // Format command lines with proper spacing
-                const trimmed = line.trim();
-                if (trimmed.includes('-')) {
-                    this.addOutput(line, 'ai-highlight');
-                } else {
-                    const parts = trimmed.split(/\s+/);
-                    const command = parts[0];
-                    const description = parts.slice(1).join(' ');
-                    const formatted = `    <span class="command-name">${command.padEnd(15)}</span> <span class="command-line">${description}</span>`;
-                    this.addOutput(formatted, 'info', true); // allowHTML flag for styled commands
-                }
-            } else if (line.includes('•')) {
-                this.addOutput(line, 'success');
-            } else if (line.includes('Wake Words:') || line.includes('Commands:') || line.includes('Usage:') || 
-                      line.includes('Features:') || line.includes('Repository:') || line.includes('Technology:')) {
-                this.addOutput(line, 'philosophy');
-            } else {
-                this.addOutput(line, 'info');
+
+        helpLines.forEach(line => this.addOutput(line, 'section-header'));
+
+        // Dynamically add available commands
+        const commandsPerRow = 5;
+        let commandOutput = '';
+        this.availableCommands.sort().forEach((cmd, index) => {
+            commandOutput += cmd.padEnd(15);
+            if ((index + 1) % commandsPerRow === 0) {
+                this.addOutput(commandOutput, 'info');
+                commandOutput = '';
             }
         });
+        if (commandOutput !== '') {
+            this.addOutput(commandOutput, 'info');
+        }
+
+        this.addOutput('', 'info');
+        this.addOutput('For more information on a specific command, type: help <command> or <command> help', 'feature-highlight');
+        this.addOutput('', 'info');
+        this.addOutput('══════════════════════════════════════════════════════════════════════', 'section-header');
     }
 
     showAbout() {
@@ -1529,7 +1351,6 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         // Try different API endpoints (adjust for your deployment)
         const apiEndpoints = [
             '/api/chat',  // Vercel/Netlify
-            'https://your-domain.com/api/chat',  // Custom domain
             'http://localhost:3000/api/chat'  // Local development
         ];
 
