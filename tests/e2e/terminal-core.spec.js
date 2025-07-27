@@ -16,7 +16,7 @@ test.describe('Terminal Core Functionality', () => {
     await input.fill('help');
     await input.press('Enter');
 
-    await expect(output).toContainText('Available commands:');
+    await expect(output).toContainText('ADRIAN.TERMINAL - Available Commands');
   });
 
   test('basic commands work', async ({ page }) => {
@@ -40,6 +40,6 @@ test.describe('Terminal Core Functionality', () => {
     await input.fill('invalidcommand123');
     await input.press('Enter');
 
-    await expect(output).toContainText('command not found');
+    await expect(output).toContainText('Command not found:');
   });
 });

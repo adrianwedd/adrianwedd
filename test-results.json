@@ -67,7 +67,7 @@
       "specs": [
         {
           "title": "terminal accepts \"help\" command and shows output",
-          "ok": false,
+          "ok": true,
           "tags": [],
           "tests": [
             {
@@ -80,50 +80,18 @@
                 {
                   "workerIndex": 0,
                   "parallelIndex": 0,
-                  "status": "timedOut",
-                  "duration": 30154,
-                  "error": {
-                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
-                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
-                  },
-                  "errors": [
-                    {
-                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
-                    },
-                    {
-                      "location": {
-                        "file": "/Users/adrian/repos/adrianwedd/tests/e2e/temp-terminal-test.spec.js",
-                        "column": 14,
-                        "line": 15
-                      },
-                      "message": "Error: page.waitForSelector: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#terminal-output') to be visible\u001b[22m\n\n\n  13 |   // Wait for the output to appear. Adjust selector if needed.\n  14 |   // This assumes 'help' command output contains \"Available commands:\"\n> 15 |   await page.waitForSelector('#terminal-output');\n     |              ^\n  16 |   const output = await page.textContent('#terminal-output');\n  17 |\n  18 |   // Assert that the help output is present\n    at /Users/adrian/repos/adrianwedd/tests/e2e/temp-terminal-test.spec.js:15:14"
-                    }
-                  ],
+                  "status": "passed",
+                  "duration": 10372,
+                  "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2025-07-27T09:03:59.975Z",
+                  "startTime": "2025-07-27T10:31:41.083Z",
                   "annotations": [],
-                  "attachments": [
-                    {
-                      "name": "screenshot",
-                      "contentType": "image/png",
-                      "path": "/Users/adrian/repos/adrianwedd/test-results/e2e-temp-terminal-test-ter-c3ba3-lp-command-and-shows-output-chromium/test-failed-1.png"
-                    },
-                    {
-                      "name": "video",
-                      "contentType": "video/webm",
-                      "path": "/Users/adrian/repos/adrianwedd/test-results/e2e-temp-terminal-test-ter-c3ba3-lp-command-and-shows-output-chromium/video.webm"
-                    },
-                    {
-                      "name": "error-context",
-                      "contentType": "text/markdown",
-                      "path": "/Users/adrian/repos/adrianwedd/test-results/e2e-temp-terminal-test-ter-c3ba3-lp-command-and-shows-output-chromium/error-context.md"
-                    }
-                  ]
+                  "attachments": []
                 }
               ],
-              "status": "unexpected"
+              "status": "expected"
             }
           ],
           "id": "f5a5c6e3af8ff2520466-e754da595170c79506e5",
@@ -148,7 +116,7 @@
           "specs": [
             {
               "title": "terminal loads and accepts input",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -161,58 +129,18 @@
                     {
                       "workerIndex": 1,
                       "parallelIndex": 1,
-                      "status": "failed",
-                      "duration": 7171,
-                      "error": {
-                        "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nLocator: locator('.terminal-content')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 5\u001b[39m\n\n\u001b[32m- Available commands:\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+                 Adrian Wedd - Terminal Interface\u001b[39m\n\u001b[31m+ \u001b[43m                \u001b[49m\u001b[39m\n\u001b[31m+ \u001b[43m                \u001b[49m\u001b[39m\n\u001b[31m+ \u001b[43m            \u001b[49m\u001b[39m\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.terminal-content')\u001b[22m\n\u001b[2m    9 × locator resolved to <div class=\"terminal-content\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"\u001b[22m\n\u001b[2m                Adrian Wedd - Terminal Interface\u001b[22m\n\u001b[2m                \u001b[22m\n\u001b[2m                \u001b[22m\n\u001b[2m            \"\u001b[22m\n",
-                        "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nLocator: locator('.terminal-content')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 5\u001b[39m\n\n\u001b[32m- Available commands:\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+                 Adrian Wedd - Terminal Interface\u001b[39m\n\u001b[31m+ \u001b[43m                \u001b[49m\u001b[39m\n\u001b[31m+ \u001b[43m                \u001b[49m\u001b[39m\n\u001b[31m+ \u001b[43m            \u001b[49m\u001b[39m\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.terminal-content')\u001b[22m\n\u001b[2m    9 × locator resolved to <div class=\"terminal-content\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"\u001b[22m\n\u001b[2m                Adrian Wedd - Terminal Interface\u001b[22m\n\u001b[2m                \u001b[22m\n\u001b[2m                \u001b[22m\n\u001b[2m            \"\u001b[22m\n\n    at /Users/adrian/repos/adrianwedd/tests/e2e/terminal-core.spec.js:19:26",
-                        "location": {
-                          "file": "/Users/adrian/repos/adrianwedd/tests/e2e/terminal-core.spec.js",
-                          "column": 26,
-                          "line": 19
-                        },
-                        "snippet": "  17 |     await input.press('Enter');\n  18 |\n> 19 |     await expect(output).toContainText('Available commands:');\n     |                          ^\n  20 |   });\n  21 |\n  22 |   test('basic commands work', async ({ page }) => {"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/Users/adrian/repos/adrianwedd/tests/e2e/terminal-core.spec.js",
-                            "column": 26,
-                            "line": 19
-                          },
-                          "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nLocator: locator('.terminal-content')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 5\u001b[39m\n\n\u001b[32m- Available commands:\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+                 Adrian Wedd - Terminal Interface\u001b[39m\n\u001b[31m+ \u001b[43m                \u001b[49m\u001b[39m\n\u001b[31m+ \u001b[43m                \u001b[49m\u001b[39m\n\u001b[31m+ \u001b[43m            \u001b[49m\u001b[39m\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.terminal-content')\u001b[22m\n\u001b[2m    9 × locator resolved to <div class=\"terminal-content\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"\u001b[22m\n\u001b[2m                Adrian Wedd - Terminal Interface\u001b[22m\n\u001b[2m                \u001b[22m\n\u001b[2m                \u001b[22m\n\u001b[2m            \"\u001b[22m\n\n\n  17 |     await input.press('Enter');\n  18 |\n> 19 |     await expect(output).toContainText('Available commands:');\n     |                          ^\n  20 |   });\n  21 |\n  22 |   test('basic commands work', async ({ page }) => {\n    at /Users/adrian/repos/adrianwedd/tests/e2e/terminal-core.spec.js:19:26"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 10231,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-07-27T09:03:59.981Z",
+                      "startTime": "2025-07-27T10:31:41.084Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/Users/adrian/repos/adrianwedd/test-results/e2e-terminal-core-Terminal-58f26-nal-loads-and-accepts-input-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/Users/adrian/repos/adrianwedd/test-results/e2e-terminal-core-Terminal-58f26-nal-loads-and-accepts-input-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/Users/adrian/repos/adrianwedd/test-results/e2e-terminal-core-Terminal-58f26-nal-loads-and-accepts-input-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/Users/adrian/repos/adrianwedd/tests/e2e/terminal-core.spec.js",
-                        "column": 26,
-                        "line": 19
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "8aee9adb25e5d07096f7-645015c5f7a21286c656",
@@ -236,12 +164,12 @@
                       "workerIndex": 2,
                       "parallelIndex": 2,
                       "status": "passed",
-                      "duration": 2207,
+                      "duration": 10453,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-07-27T09:03:59.956Z",
+                      "startTime": "2025-07-27T10:31:41.083Z",
                       "annotations": [],
                       "attachments": []
                     }
@@ -256,7 +184,7 @@
             },
             {
               "title": "unknown command shows error",
-              "ok": false,
+              "ok": true,
               "tags": [],
               "tests": [
                 {
@@ -269,58 +197,18 @@
                     {
                       "workerIndex": 3,
                       "parallelIndex": 3,
-                      "status": "failed",
-                      "duration": 7166,
-                      "error": {
-                        "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nLocator: locator('.terminal-content')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 5\u001b[39m\n\n\u001b[32m- command not found\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+                 Adrian Wedd - Terminal Interface\u001b[39m\n\u001b[31m+ \u001b[43m                \u001b[49m\u001b[39m\n\u001b[31m+ \u001b[43m                \u001b[49m\u001b[39m\n\u001b[31m+ \u001b[43m            \u001b[49m\u001b[39m\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.terminal-content')\u001b[22m\n\u001b[2m    9 × locator resolved to <div class=\"terminal-content\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"\u001b[22m\n\u001b[2m                Adrian Wedd - Terminal Interface\u001b[22m\n\u001b[2m                \u001b[22m\n\u001b[2m                \u001b[22m\n\u001b[2m            \"\u001b[22m\n",
-                        "stack": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nLocator: locator('.terminal-content')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 5\u001b[39m\n\n\u001b[32m- command not found\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+                 Adrian Wedd - Terminal Interface\u001b[39m\n\u001b[31m+ \u001b[43m                \u001b[49m\u001b[39m\n\u001b[31m+ \u001b[43m                \u001b[49m\u001b[39m\n\u001b[31m+ \u001b[43m            \u001b[49m\u001b[39m\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.terminal-content')\u001b[22m\n\u001b[2m    9 × locator resolved to <div class=\"terminal-content\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"\u001b[22m\n\u001b[2m                Adrian Wedd - Terminal Interface\u001b[22m\n\u001b[2m                \u001b[22m\n\u001b[2m                \u001b[22m\n\u001b[2m            \"\u001b[22m\n\n    at /Users/adrian/repos/adrianwedd/tests/e2e/terminal-core.spec.js:43:26",
-                        "location": {
-                          "file": "/Users/adrian/repos/adrianwedd/tests/e2e/terminal-core.spec.js",
-                          "column": 26,
-                          "line": 43
-                        },
-                        "snippet": "  41 |     await input.press('Enter');\n  42 |\n> 43 |     await expect(output).toContainText('command not found');\n     |                          ^\n  44 |   });\n  45 | });"
-                      },
-                      "errors": [
-                        {
-                          "location": {
-                            "file": "/Users/adrian/repos/adrianwedd/tests/e2e/terminal-core.spec.js",
-                            "column": 26,
-                            "line": 43
-                          },
-                          "message": "Error: \u001b[31mTimed out 5000ms waiting for \u001b[39m\u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nLocator: locator('.terminal-content')\n\u001b[32m- Expected string  - 1\u001b[39m\n\u001b[31m+ Received string  + 5\u001b[39m\n\n\u001b[32m- command not found\u001b[39m\n\u001b[31m+\u001b[39m\n\u001b[31m+                 Adrian Wedd - Terminal Interface\u001b[39m\n\u001b[31m+ \u001b[43m                \u001b[49m\u001b[39m\n\u001b[31m+ \u001b[43m                \u001b[49m\u001b[39m\n\u001b[31m+ \u001b[43m            \u001b[49m\u001b[39m\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('.terminal-content')\u001b[22m\n\u001b[2m    9 × locator resolved to <div class=\"terminal-content\">…</div>\u001b[22m\n\u001b[2m      - unexpected value \"\u001b[22m\n\u001b[2m                Adrian Wedd - Terminal Interface\u001b[22m\n\u001b[2m                \u001b[22m\n\u001b[2m                \u001b[22m\n\u001b[2m            \"\u001b[22m\n\n\n  41 |     await input.press('Enter');\n  42 |\n> 43 |     await expect(output).toContainText('command not found');\n     |                          ^\n  44 |   });\n  45 | });\n    at /Users/adrian/repos/adrianwedd/tests/e2e/terminal-core.spec.js:43:26"
-                        }
-                      ],
+                      "status": "passed",
+                      "duration": 10254,
+                      "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2025-07-27T09:03:59.977Z",
+                      "startTime": "2025-07-27T10:31:41.084Z",
                       "annotations": [],
-                      "attachments": [
-                        {
-                          "name": "screenshot",
-                          "contentType": "image/png",
-                          "path": "/Users/adrian/repos/adrianwedd/test-results/e2e-terminal-core-Terminal-7c2f8-unknown-command-shows-error-chromium/test-failed-1.png"
-                        },
-                        {
-                          "name": "video",
-                          "contentType": "video/webm",
-                          "path": "/Users/adrian/repos/adrianwedd/test-results/e2e-terminal-core-Terminal-7c2f8-unknown-command-shows-error-chromium/video.webm"
-                        },
-                        {
-                          "name": "error-context",
-                          "contentType": "text/markdown",
-                          "path": "/Users/adrian/repos/adrianwedd/test-results/e2e-terminal-core-Terminal-7c2f8-unknown-command-shows-error-chromium/error-context.md"
-                        }
-                      ],
-                      "errorLocation": {
-                        "file": "/Users/adrian/repos/adrianwedd/tests/e2e/terminal-core.spec.js",
-                        "column": 26,
-                        "line": 43
-                      }
+                      "attachments": []
                     }
                   ],
-                  "status": "unexpected"
+                  "status": "expected"
                 }
               ],
               "id": "8aee9adb25e5d07096f7-8507d6301fb0d5facc24",
@@ -335,11 +223,11 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2025-07-27T09:03:59.330Z",
-    "duration": 31266.021,
-    "expected": 1,
+    "startTime": "2025-07-27T10:31:40.594Z",
+    "duration": 11391.762,
+    "expected": 4,
     "skipped": 0,
-    "unexpected": 3,
+    "unexpected": 0,
     "flaky": 0
   }
 }
