@@ -14,7 +14,7 @@ on:
       generate_report:
         description: 'Generate detailed token usage report'
         required: false
-        default: 'false'
+        default: false
         type: boolean
       priority_filter:
         description: 'Priority filter (high, medium, low, all)'
@@ -111,6 +111,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: 🚀 Checkout Repository  
+        if: steps.token-check.outputs.proceed == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: 🔍 Fetch Open Issues
         id: fetch-issues
         if: steps.token-check.outputs.proceed == 'true'
@@ -188,12 +195,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🚀 Checkout Repository  
-        if: steps.fetch-issues.outputs.issue_count > 0 && steps.token-check.outputs.proceed == 'true'
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🤖 Run Autonomous Claude Code
         if: steps.fetch-issues.outputs.issue_count > 0 && steps.token-check.outputs.proceed == 'true'
@@ -378,7 +379,7 @@ jobs:
             echo "📈 **Token Analytics Summary:**"
             TOTAL_SAVED=$(jq '.token_savings | map(.savings) | add // 0' .github/data/token-usage.json)
             TOTAL_SPENT=$(jq '.session_usage | map(.total_tokens) | add // 0' .github/data/token-usage.json)
-            AVG_CACHE_RATIO=$(jq '.cache_efficiency | map(.cache_hit_ratio) | add / length // 0' .github/data/token-usage.json)
+            AVG_CACHE_RATIO=$(jq '.cache_efficiency | if length > 0 then map(.cache_hit_ratio) | add / length else 0 end' .github/data/token-usage.json)
             echo "- Total Tokens Saved: $TOTAL_SAVED"
             echo "- Total Tokens Spent: $TOTAL_SPENT"
             echo "- Average Cache Hit Ratio: $(echo "scale=1; $AVG_CACHE_RATIO * 100" | bc -l)%"
@@ -423,7 +424,7 @@ jobs:
           ' || echo "**Analytics:** Not available yet")
           
           ### 📋 Issues Targeted:
-          $(jq -r '.[] | "- **#\(.number):** \(.title)"' issues.json || echo "Error reading issues")
+          $(if [ -f "issues.json" ]; then jq -r '.[] | "- **#\(.number):** \(.title)"' issues.json; else echo "No issues found for processing"; fi)
           
           ### ✅ Results:
           ${{ steps.token-check.outputs.proceed == 'false' && '⚠️ **Session skipped** due to insufficient token budget. Will resume when tokens are available.' || 'Check the [Claude Code Action logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for detailed implementation results and issue closure summaries.' }}
