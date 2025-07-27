@@ -130,20 +130,25 @@ jobs:
           echo "🔍 Searching for issues with priority: $PRIORITY_FILTER"
           
           if [ "$PRIORITY_FILTER" = "all" ]; then
-            LABELS=""
             echo "📋 Using no priority filter - checking all open issues"
           else
-            LABELS="--label \"priority: ${PRIORITY_FILTER}\""
             echo "🎯 Filtering for \"priority: ${PRIORITY_FILTER}\" issues"
           fi
           
           # Fetch issues (excluding draft, wip, blocked)
           echo "📥 Fetching open issues..."
-          gh issue list \
-            --state open \
-            --limit "$MAX_ISSUES" \
-            $LABELS \
-            --json number,title,labels,body,url > all_issues.json
+          if [ "$PRIORITY_FILTER" = "all" ]; then
+            gh issue list \
+              --state open \
+              --limit "$MAX_ISSUES" \
+              --json number,title,labels,body,url > all_issues.json
+          else
+            gh issue list \
+              --state open \
+              --limit "$MAX_ISSUES" \
+              --label "priority: ${PRIORITY_FILTER}" \
+              --json number,title,labels,body,url > all_issues.json
+          fi
           
           # Filter out draft, wip, blocked issues
           jq '[.[] | select(.labels | map(.name) | any(. | test("^(draft|wip|blocked)$"; "i")) | not)]' all_issues.json > issues.json
