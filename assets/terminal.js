@@ -56,7 +56,7 @@ class Terminal {
         
         // Command completion state
         this.availableCommands = [
-            'about', 'actions', 'adrian', 'boot', 'cache', 'cat', 'chat', 'clear', 'edit', 'effects', 'exec', 'gemini', 'gh-create', 'gh-list', 'gh-sync', 'grep', 'help', 'history', 'home', 'ls', 'magic', 'matrix',
+            'about', 'actions', 'adrian', 'boot', 'cache', 'cat', 'chat', 'ci', 'clear', 'edit', 'effects', 'exec', 'gemini', 'gh-create', 'gh-list', 'gh-sync', 'grep', 'help', 'history', 'home', 'ls', 'magic', 'matrix',
             'monitor', 'music', 'neofetch', 'particles', 'projects', 'ps', 'pwd', 'reboot', 'research', 'runs', 'script',
             'skills', 'speak', 'split', 'stop', 'tail', 'tokens', 'trigger', 'uptime', 'veritas', 'voice',
             'volume', 'weather', 'whoami', 'theme', 'debug'
@@ -164,7 +164,7 @@ class Terminal {
         const cmd = parts[0].toLowerCase();
         const args = parts.slice(1);
 
-        const formattedCommand = `<span class="clickable-command" onclick="window.terminal.executeClickedCommand('${command.replace(/\'/g, '\'')}')">$ ${command}</span>`;
+        const formattedCommand = `<span class="clickable-command" onclick="window.terminal.executeClickedCommand('${command.replace(/'/g, "'")}')">$ ${command}</span>`;
         this.addOutput(formattedCommand, 'prompt', true);
 
         switch (cmd) {
@@ -358,6 +358,10 @@ class Terminal {
             case 'task':
                 this.addDebugLog(`Handling task command with args: ${args.join(' ')}`, 'info', 'command');
                 this.handleTaskCommand(args);
+                break;
+            case 'ci':
+                this.addDebugLog(`Handling CI command with args: ${args.join(' ')}`, 'info', 'command');
+                this.handleCICommand(args);
                 break;
             case 'debug':
                 this.toggleDebugPanel(args);
@@ -1884,7 +1888,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         bootContainer.innerHTML = '';
         this.addDebugLog('Boot sequence container cleared', 'info', 'system');
         
-        // Define realistic boot sequence messages
+        // Define realistic boot sequence messages - will be enhanced with CI status
         const bootMessages = [
             'BIOS: UEFI Boot Manager v2.4.1',
             'Initializing hardware components...',
@@ -1911,19 +1915,219 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             'Terminal interface [OK]',
             'System monitor [OK]',
             '',
-            'Recursive systems architecture: ACTIVE',
-            'Self-improving algorithms: ENABLED',
-            'Neural pathways: SYNCHRONIZED',
-            'Quantum entanglement matrix: STABLE',
-            'Reality.exe: RUNNING',
-            '',
-            'System initialization complete.',
-            'Welcome to ADRIAN.SYS Terminal Interface',
-            'Type "help" for available commands',
+            'Loading CI/CD system status...',
+            '📊 Fetching latest CI reports...',
         ];
         
+        // Add CI status and continue with system messages
+        this.fetchCIStatusAndContinueBoot(bootMessages);
+    }
+    
+    async fetchCIStatusAndContinueBoot(bootMessages) {
+        this.addDebugLog('Fetching CI status for boot sequence', 'info', 'system');
+        
+        try {
+            // First, check for local CI log files
+            const ciStatus = await this.checkLocalCILogs();
+            
+            // Then fetch latest workflow runs from GitHub API
+            const githubStatus = await this.fetchGitHubWorkflowStatus();
+            
+            // Enhance boot messages with CI information
+            const ciMessages = this.generateCIBootMessages(ciStatus, githubStatus);
+            bootMessages.push(...ciMessages);
+            
+            // Add final system messages
+            bootMessages.push(
+                '',
+                'Recursive systems architecture: ACTIVE',
+                'Self-improving algorithms: ENABLED', 
+                'Neural pathways: SYNCHRONIZED',
+                'Quantum entanglement matrix: STABLE',
+                'Reality.exe: RUNNING',
+                '',
+                'System initialization complete.',
+                'Welcome to ADRIAN.SYS Terminal Interface',
+                'Type "help" for available commands'
+            );
+            
+        } catch (error) {
+            this.addDebugLog(`CI status fetch failed: ${error.message}`, 'warning', 'system');
+            
+            // Add fallback messages if CI fetch fails
+            bootMessages.push(
+                '⚠️ CI status: Unable to connect to remote systems',
+                'Local mode: ENABLED',
+                '',
+                'Recursive systems architecture: ACTIVE',
+                'Self-improving algorithms: ENABLED',
+                'Neural pathways: SYNCHRONIZED', 
+                'Quantum entanglement matrix: STABLE',
+                'Reality.exe: RUNNING',
+                '',
+                'System initialization complete.',
+                'Welcome to ADRIAN.SYS Terminal Interface',
+                'Type "help" for available commands'
+            );
+        }
+        
+        // Start typing the enhanced boot messages
         this.typeBootMessages(bootMessages, 0);
-        this.addDebugLog('Boot messages started typing', 'info', 'system');
+        this.addDebugLog('Enhanced boot messages started typing', 'info', 'system');
+    }
+    
+    async checkLocalCILogs() {
+        this.addDebugLog('Checking for local CI log files', 'info', 'system');
+        
+        try {
+            // Try to fetch CI log directory contents
+            const response = await fetch('/logs/ci/', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*'
+                }
+            });
+            
+            if (response.ok) {
+                // If logs directory is accessible, try to parse log files
+                const logFiles = await response.text();
+                return this.parseCILogFiles(logFiles);
+            }
+        } catch (error) {
+            this.addDebugLog(`Local CI logs not accessible: ${error.message}`, 'info', 'system');
+        }
+        
+        return null;
+    }
+    
+    parseCILogFiles(logFiles) {
+        // Basic parsing of CI log file directory
+        const lines = logFiles.split('\n');
+        const testSuiteFiles = lines.filter(line => line.includes('test-suite-'));
+        
+        if (testSuiteFiles.length > 0) {
+            // Get most recent log file
+            const latest = testSuiteFiles[testSuiteFiles.length - 1];
+            return {
+                hasLogs: true,
+                latestLog: latest,
+                logCount: testSuiteFiles.length
+            };
+        }
+        
+        return { hasLogs: false };
+    }
+    
+    async fetchGitHubWorkflowStatus() {
+        this.addDebugLog('Fetching GitHub workflow status', 'info', 'system');
+        
+        try {
+            // Use GitHub API to get recent workflow runs
+            const response = await fetch('https://api.github.com/repos/adrianwedd/adrianwedd/actions/runs?per_page=5', {
+                headers: {
+                    'Accept': 'application/vnd.github.v3+json',
+                    'User-Agent': 'ADRIAN-Terminal-Interface'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`GitHub API returned ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return this.analyzeWorkflowRuns(data.workflow_runs);
+            
+        } catch (error) {
+            this.addDebugLog(`GitHub API fetch failed: ${error.message}`, 'warning', 'system');
+            return null;
+        }
+    }
+    
+    analyzeWorkflowRuns(runs) {
+        if (!runs || runs.length === 0) {
+            return { status: 'no_runs', message: 'No recent workflow runs' };
+        }
+        
+        const recent = runs[0]; // Most recent run
+        const testRuns = runs.filter(run => run.name.includes('Test') || run.name.includes('🧪'));
+        const deployRuns = runs.filter(run => run.name.includes('Deploy') || run.name.includes('🚀'));
+        
+        const passedRuns = runs.filter(run => run.conclusion === 'success').length;
+        const failedRuns = runs.filter(run => run.conclusion === 'failure').length;
+        const totalRuns = runs.length;
+        
+        return {
+            status: recent.conclusion,
+            recentRun: {
+                name: recent.name,
+                status: recent.conclusion,
+                updatedAt: recent.updated_at,
+                runNumber: recent.run_number
+            },
+            summary: {
+                total: totalRuns,
+                passed: passedRuns,
+                failed: failedRuns,
+                successRate: Math.round((passedRuns / totalRuns) * 100)
+            },
+            testRuns: testRuns.length,
+            deployRuns: deployRuns.length
+        };
+    }
+    
+    generateCIBootMessages(ciStatus, githubStatus) {
+        const messages = [];
+        
+        if (githubStatus) {
+            messages.push(`🔄 Recent workflow: ${githubStatus.recentRun.name}`);
+            
+            const statusEmoji = githubStatus.status === 'success' ? '✅' : 
+                               githubStatus.status === 'failure' ? '❌' : 
+                               githubStatus.status === 'in_progress' ? '🔄' : '⏸️';
+            
+            messages.push(`${statusEmoji} Status: ${githubStatus.status} (Run #${githubStatus.recentRun.runNumber})`);
+            messages.push(`📊 Success rate: ${githubStatus.summary.successRate}% (${githubStatus.summary.passed}/${githubStatus.summary.total})`);
+            
+            if (githubStatus.testRuns > 0) {
+                messages.push(`🧪 Test workflows: ${githubStatus.testRuns} configured`);
+            }
+            
+            if (githubStatus.deployRuns > 0) {
+                messages.push(`🚀 Deploy workflows: ${githubStatus.deployRuns} configured`);
+            }
+            
+            // Add recent timestamp
+            const lastRun = new Date(githubStatus.recentRun.updatedAt);
+            const timeAgo = this.getTimeAgo(lastRun);
+            messages.push(`⏰ Last activity: ${timeAgo}`);
+            
+        } else {
+            messages.push('⚠️ CI status: Unable to fetch workflow data');
+        }
+        
+        if (ciStatus && ciStatus.hasLogs) {
+            messages.push(`📝 Local CI logs: ${ciStatus.logCount} files available`);
+            messages.push(`📄 Latest log: ${ciStatus.latestLog}`);
+        } else {
+            messages.push('📝 Local CI logs: Not yet available');
+        }
+        
+        messages.push('🔧 CI/CD excellence: OPERATIONAL');
+        
+        return messages;
+    }
+    
+    getTimeAgo(date) {
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+        
+        if (diffMins < 1) return 'just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        return `${diffDays}d ago`;
     }
     
     typeBootMessages(messages, index) {
@@ -3971,6 +4175,261 @@ ____/\\\\\\\\\\\\\\\\______________/\\\\\\\\\\\\\\\\\\\\\\\\______/\\\\\\\\\\\\\
         } catch (error) {
             this.addOutput(`❌ Failed to export script: ${error.message}`, 'error');
         }
+    }
+    
+    // CI/CD System Command Handler
+    async handleCICommand(args) {
+        if (args.length === 0) {
+            this.showCIHelp();
+            return;
+        }
+        
+        const subCommand = args[0].toLowerCase();
+        const subArgs = args.slice(1);
+        
+        switch (subCommand) {
+            case 'status':
+                await this.showCIStatus();
+                break;
+            case 'logs':
+                await this.showCILogs(subArgs);
+                break;
+            case 'refresh':
+                await this.refreshCIStatus();
+                break;
+            case 'workflows':
+                await this.showWorkflows();
+                break;
+            default:
+                this.addOutput(`Unknown CI command: ${subCommand}`, 'error');
+                this.showCIHelp();
+        }
+    }
+    
+    showCIHelp() {
+        this.addOutput('🔧 CI/CD SYSTEM COMMANDS', 'success');
+        this.addOutput('', 'info');
+        this.addOutput('<span class="command-name">ci status</span>                     - Show current CI/CD status', 'feature-highlight', true);
+        this.addOutput('<span class="command-name">ci logs</span> [latest|all]         - Display CI execution logs', 'feature-highlight', true);
+        this.addOutput('<span class="command-name">ci refresh</span>                   - Refresh CI status from GitHub', 'feature-highlight', true);
+        this.addOutput('<span class="command-name">ci workflows</span>                 - List all configured workflows', 'feature-highlight', true);
+        this.addOutput('', 'info');
+        this.addOutput('Examples:', 'success');
+        this.addOutput('  ci status                    # Show overall CI health', 'info');
+        this.addOutput('  ci logs latest               # Show most recent logs', 'info');
+        this.addOutput('  ci workflows                 # List all workflows', 'info');
+        this.addOutput('', 'info');
+    }
+    
+    async showCIStatus() {
+        this.addOutput('🔧 FETCHING CI/CD STATUS...', 'info');
+        this.addOutput('', 'info');
+        
+        try {
+            // Fetch current CI status
+            const githubStatus = await this.fetchGitHubWorkflowStatus();
+            const ciStatus = await this.checkLocalCILogs();
+            
+            if (githubStatus) {
+                this.addOutput('📊 CI/CD SYSTEM STATUS', 'success');
+                this.addOutput('', 'info');
+                
+                const statusEmoji = githubStatus.status === 'success' ? '✅' : 
+                                   githubStatus.status === 'failure' ? '❌' : 
+                                   githubStatus.status === 'in_progress' ? '🔄' : '⏸️';
+                
+                this.addOutput(`${statusEmoji} Recent Workflow: ${githubStatus.recentRun.name}`, 'feature-highlight');
+                this.addOutput(`📋 Status: ${githubStatus.status.toUpperCase()}`, 'info');
+                this.addOutput(`🔢 Run Number: #${githubStatus.recentRun.runNumber}`, 'info');
+                
+                const lastRun = new Date(githubStatus.recentRun.updatedAt);
+                this.addOutput(`⏰ Last Activity: ${this.getTimeAgo(lastRun)}`, 'info');
+                
+                this.addOutput('', 'info');
+                this.addOutput('📈 SUCCESS METRICS', 'success');
+                this.addOutput(`🎯 Success Rate: ${githubStatus.summary.successRate}%`, 'feature-highlight');
+                this.addOutput(`✅ Passed: ${githubStatus.summary.passed}/${githubStatus.summary.total} workflows`, 'info');
+                this.addOutput(`❌ Failed: ${githubStatus.summary.failed}/${githubStatus.summary.total} workflows`, 'info');
+                
+                if (githubStatus.testRuns > 0) {
+                    this.addOutput('', 'info');
+                    this.addOutput('🧪 TEST WORKFLOWS', 'success');
+                    this.addOutput(`📊 Configured: ${githubStatus.testRuns} test workflows`, 'info');
+                }
+                
+                if (githubStatus.deployRuns > 0) {
+                    this.addOutput('', 'info');
+                    this.addOutput('🚀 DEPLOYMENT WORKFLOWS', 'success');
+                    this.addOutput(`📊 Configured: ${githubStatus.deployRuns} deploy workflows`, 'info');
+                }
+                
+            } else {
+                this.addOutput('⚠️ Unable to fetch GitHub workflow status', 'error');
+            }
+            
+            if (ciStatus && ciStatus.hasLogs) {
+                this.addOutput('', 'info');
+                this.addOutput('📝 LOCAL CI LOGS', 'success');
+                this.addOutput(`📄 Available: ${ciStatus.logCount} log files`, 'info');
+                this.addOutput(`📃 Latest: ${ciStatus.latestLog}`, 'feature-highlight');
+            } else {
+                this.addOutput('', 'info');
+                this.addOutput('📝 LOCAL CI LOGS', 'success');
+                this.addOutput('📄 Status: No logs available yet', 'info');
+                this.addOutput('💡 Logs will appear after CI workflows execute', 'info');
+            }
+            
+        } catch (error) {
+            this.addOutput(`❌ Error fetching CI status: ${error.message}`, 'error');
+        }
+        
+        this.addOutput('', 'info');
+        this.addOutput('🔧 CI/CD Excellence: OPERATIONAL', 'success');
+    }
+    
+    async showCILogs(args) {
+        const mode = args[0] || 'latest';
+        
+        this.addOutput('📝 CI/CD EXECUTION LOGS', 'success');
+        this.addOutput('', 'info');
+        
+        try {
+            // Try to fetch local logs first
+            const response = await fetch('/logs/ci/', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*'
+                }
+            });
+            
+            if (response.ok) {
+                const logFiles = await response.text();
+                const lines = logFiles.split('\n').filter(line => line.includes('test-suite-'));
+                
+                if (lines.length === 0) {
+                    this.addOutput('📄 No CI logs found yet', 'info');
+                    this.addOutput('💡 Logs will be created when CI workflows execute', 'info');
+                    return;
+                }
+                
+                if (mode === 'latest') {
+                    const latestLog = lines[lines.length - 1];
+                    this.addOutput(`📄 Latest Log: ${latestLog}`, 'feature-highlight');
+                    this.addOutput('', 'info');
+                    
+                    // Try to fetch the actual log content
+                    try {
+                        const logResponse = await fetch(`/logs/ci/${latestLog}`);
+                        if (logResponse.ok) {
+                            const logContent = await logResponse.text();
+                            const logLines = logContent.split('\n');
+                            
+                            this.addOutput('📋 LOG CONTENT:', 'success');
+                            this.addOutput('', 'info');
+                            
+                            // Show first and last 10 lines
+                            const startLines = logLines.slice(0, 10);
+                            const endLines = logLines.slice(-10);
+                            
+                            startLines.forEach(line => {
+                                this.addOutput(line, 'info');
+                            });
+                            
+                            if (logLines.length > 20) {
+                                this.addOutput('', 'info');
+                                this.addOutput(`... [${logLines.length - 20} lines omitted] ...`, 'feature-highlight');
+                                this.addOutput('', 'info');
+                                
+                                endLines.forEach(line => {
+                                    this.addOutput(line, 'info');
+                                });
+                            }
+                        } else {
+                            this.addOutput('📄 Log file exists but content not accessible', 'error');
+                        }
+                    } catch (logError) {
+                        this.addOutput('📄 Log content not accessible via web interface', 'info');
+                        this.addOutput('💡 Use GitHub Actions artifacts to download full logs', 'info');
+                    }
+                    
+                } else if (mode === 'all') {
+                    this.addOutput(`📋 All Available Logs (${lines.length} files):`, 'feature-highlight');
+                    this.addOutput('', 'info');
+                    
+                    lines.forEach((logFile, index) => {
+                        this.addOutput(`${index + 1}. ${logFile}`, 'info');
+                    });
+                }
+                
+            } else {
+                this.addOutput('📄 Local logs directory not accessible', 'error');
+                this.addOutput('💡 Logs will be available after workflows execute and commit', 'info');
+            }
+            
+        } catch (error) {
+            this.addOutput(`❌ Error accessing CI logs: ${error.message}`, 'error');
+            this.addOutput('💡 Logs may not be available yet or require workflow execution', 'info');
+        }
+    }
+    
+    async refreshCIStatus() {
+        this.addOutput('🔄 REFRESHING CI/CD STATUS...', 'info');
+        this.addOutput('', 'info');
+        
+        // This essentially calls the same status check but with a refresh message
+        await this.showCIStatus();
+        
+        this.addOutput('', 'info');
+        this.addOutput('✅ CI/CD status refreshed', 'success');
+    }
+    
+    async showWorkflows() {
+        this.addOutput('⚙️ CONFIGURED CI/CD WORKFLOWS', 'success');
+        this.addOutput('', 'info');
+        
+        const workflows = [
+            {
+                name: '🧪 Comprehensive Test Suite Excellence',
+                file: 'test.yml', 
+                trigger: 'Pull requests, pushes to main',
+                description: 'Multi-dimensional testing with matrix execution'
+            },
+            {
+                name: '🎭 Playwright Testing Excellence',
+                file: 'playwright-tests.yml',
+                trigger: 'Pull requests, daily schedule, manual',
+                description: 'Cross-browser end-to-end testing'
+            },
+            {
+                name: '🚀 Terminal Interface Deployment Excellence',
+                file: 'deploy-pages.yml',
+                trigger: 'Pushes to main, manual deployment',
+                description: 'GitHub Pages deployment with asset optimization'
+            },
+            {
+                name: '🤖 Claude Code Review Excellence',
+                file: 'claude-code-review.yml',
+                trigger: 'Pull requests',
+                description: 'AI-powered code review and analysis'
+            },
+            {
+                name: '🌤️ Tasmania Weather Intelligence System',
+                file: 'update-weather.yml',
+                trigger: 'Every 3 hours, manual',
+                description: 'Automated weather data collection and processing'
+            }
+        ];
+        
+        workflows.forEach((workflow, index) => {
+            this.addOutput(`${index + 1}. ${workflow.name}`, 'feature-highlight');
+            this.addOutput(`   📄 File: .github/workflows/${workflow.file}`, 'info');
+            this.addOutput(`   🔄 Trigger: ${workflow.trigger}`, 'info');
+            this.addOutput(`   📋 Description: ${workflow.description}`, 'info');
+            this.addOutput('', 'info');
+        });
+        
+        this.addOutput('💡 Use "ci status" to see current execution status', 'feature-highlight');
+        this.addOutput('🔗 View detailed runs at: https://github.com/adrianwedd/adrianwedd/actions', 'info');
     }
 }
 
