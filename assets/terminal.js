@@ -522,8 +522,7 @@ class Terminal {
             '  weather      Tasmania weather data',
             '  music        Play background music',
             '  clear        Clear screen',
-            ''
-        ];
+            '',
             '    task list    list GitHub issues [state] [labels]',
             '    task update  update issue status/priority/comments',
             '    task close   close issue with completion comment',
@@ -2535,6 +2534,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     async initVoiceInterface() {
         try {
             this.voiceInterface = new VoiceInterface();
+            window.voiceInterface = this.voiceInterface; // Set global reference
             const initialized = await this.voiceInterface.init();
             const button = document.getElementById('voiceToggle');
             

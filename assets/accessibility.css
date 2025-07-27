@@ -74,17 +74,16 @@
     }
 }
 
-/* Enhanced focus indicators */
+/* Enhanced focus indicators - terminal style */
 button:focus,
 input:focus,
 select:focus,
 textarea:focus,
 [tabindex]:focus,
 canvas:focus {
-    outline: 3px solid #0ff;
-    outline-offset: 2px;
-    background-color: rgba(0, 255, 255, 0.1);
-    box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.3);
+    outline: 1px solid var(--primary-color, #0f0);
+    outline-offset: 1px;
+    box-shadow: 0 0 4px rgba(0, 255, 0, 0.3);
     /* Ensure focus is visible in Windows High Contrast */
     forced-color-adjust: none;
 }
@@ -96,9 +95,9 @@ select:focus-visible,
 textarea:focus-visible,
 [tabindex]:focus-visible,
 canvas:focus-visible {
-    outline: 3px solid #00ffff;
-    outline-offset: 2px;
-    box-shadow: 0 0 0 1px #000, 0 0 0 4px #00ffff;
+    outline: 1px solid var(--primary-color, #0f0);
+    outline-offset: 1px;
+    box-shadow: 0 0 6px rgba(0, 255, 0, 0.4);
 }
 
 /* High contrast focus for dark themes */
@@ -110,56 +109,64 @@ canvas:focus-visible {
     box-shadow: 0 0 0 3px rgba(0, 255, 0, 0.3);
 }
 
-/* Ensure minimum touch target sizes (44x44px minimum) */
+/* Ensure minimum touch target sizes (44x44px minimum) - but keep terminal look */
 button,
 .voice-toggle,
 .speech-toggle,
-.split-btn,
-.control {
+.split-btn {
     min-width: 44px;
     min-height: 44px;
-    padding: 8px 12px;
+    padding: 6px 10px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
 }
 
-/* Accessible form controls */
+/* Keep window controls small for authentic look */
+.control {
+    min-width: 12px;
+    min-height: 12px;
+    padding: 0;
+}
+
+/* Accessible form controls - terminal style */
 .command-input {
-    min-height: 44px;
-    padding: 8px 12px;
-    border: 2px solid #333;
-    border-radius: 3px;
-    background: rgba(0, 0, 0, 0.8);
-    color: #0f0;
+    min-height: 32px;
+    padding: 4px 8px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: var(--primary-color, #0f0);
     font-family: 'JetBrains Mono', monospace;
+    font-size: inherit;
 }
 
 .command-input:focus {
-    border-color: #0f0;
-    background: rgba(0, 255, 0, 0.1);
+    background: transparent;
+    outline: none;
+    box-shadow: none;
 }
 
-/* Accessible color contrast ratios (WCAG AA compliance) */
+/* Accessible color contrast ratios (WCAG AA compliance) - but respect theme */
 .terminal {
-    color: #00ff41; /* High contrast green on black (7.1:1 ratio) */
-    background-color: #000;
+    color: var(--text-color);
+    background-color: var(--terminal-bg);
 }
 
 .prompt {
-    color: #00ffff; /* Cyan for prompts (7.1:1 ratio) */
-    font-weight: bold;
+    color: var(--command-color);
+    font-weight: normal;
 }
 
 /* Ensure monitor interface has sufficient contrast */
 .monitor-interface {
-    color: #ffffff; /* White text on dark background (21:1 ratio) */
-    background-color: #000000;
+    color: var(--text-color);
+    background-color: var(--terminal-bg);
 }
 
 .pane-title {
-    color: #00ff41; /* High contrast green for headings */
-    font-weight: bold;
+    color: var(--primary-color);
+    font-weight: normal;
 }
 
 /* Status indicators with accessible colors */

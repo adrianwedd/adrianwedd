@@ -4,7 +4,7 @@ class VoiceInterface {
         this.synthesis = null;
         this.isListening = false;
         this.isActive = false;
-        this.speechOutputEnabled = false; // Voice output state
+        this.speechOutputEnabled = true; // Voice output state - enabled by default
         this.autoSpeechEnabled = false; // Auto-speech for accessibility
         this.currentVoice = null;
         this.voiceSettings = {
@@ -72,6 +72,9 @@ class VoiceInterface {
                 // Enable speech output by default for accessibility
                 this.enableSpeechOutput();
                 
+                // Update UI to reflect initial state
+                this.updateVoiceOutputIndicator(this.speechOutputEnabled);
+                
                 // Check for accessibility preferences
                 this.detectAccessibilityNeeds();
             } else {
@@ -134,6 +137,12 @@ class VoiceInterface {
 
     loadVoices() {
         const voices = this.synthesis.getVoices();
+        
+        // If no voices loaded yet, try again in a moment
+        if (voices.length === 0) {
+            setTimeout(() => this.loadVoices(), 100);
+            return;
+        }
         
         // Prefer voices with specific characteristics for Adrian.AI
         const preferredVoices = voices.filter(voice => 
@@ -606,10 +615,25 @@ class VoiceInterface {
             statusText.textContent = baseText + speechStatus;
         }
         
-        // Update button text
+        // Update speech toggle button
+        const speechButton = document.getElementById('speechToggle');
+        if (speechButton) {
+            if (enabled) {
+                speechButton.classList.remove('disabled');
+                speechButton.textContent = '🔊';
+                speechButton.title = 'Voice output enabled. Click to disable.';
+            } else {
+                speechButton.classList.add('disabled');
+                speechButton.textContent = '🔇';
+                speechButton.title = 'Voice output disabled. Click to enable.';
+            }
+        }
+        
+        // Update voice toggle button
         const button = document.getElementById('voiceToggle');
-        if (button && this.speechOutputEnabled) {
-            button.setAttribute('title', 'Voice input and output enabled. Click to configure.');
+        if (button) {
+            const title = enabled ? 'Voice input and output enabled. Click to configure.' : 'Voice input available. Speech output disabled.';
+            button.setAttribute('title', title);
         }
     }
 
