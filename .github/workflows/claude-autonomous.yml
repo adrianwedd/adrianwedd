@@ -38,76 +38,135 @@ jobs:
       actions: read
 
     steps:
-      - name: 📊 Check Token Usage History
+      - name: 📊 Check Usage History (Max/Pro Compatible)
         id: token-check
         run: |
-          # Create token usage tracking file if it doesn't exist
+          # Create usage tracking file with Max/Pro account compatibility
           mkdir -p .github/data
-          USAGE_FILE=".github/data/token-usage.json"
+          USAGE_FILE=".github/data/usage-tracking.json"
+          
+          # Detect authentication method for proper limit calculation
+          if [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
+            AUTH_METHOD="claude-max-oauth"
+            echo "🔐 Detected Claude Max/Pro OAuth authentication"
+          elif [ -n "$ANTHROPIC_API_KEY" ]; then
+            AUTH_METHOD="anthropic-api"
+            echo "🔐 Detected Anthropic API key authentication"
+          else
+            AUTH_METHOD="none"
+            echo "🔧 No authentication - using rule-based processing"
+          fi
           
           if [ ! -f "$USAGE_FILE" ]; then
             echo '{
-              "daily_usage": [],
+              "auth_method": "'$AUTH_METHOD'",
               "session_usage": [],
-              "cache_efficiency": [],
-              "token_savings": [],
-              "last_reset": "'$(date -u +%Y-%m-%d)'",
+              "five_hour_sessions": [],
+              "last_session_reset": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
               "metadata": {
-                "daily_limit": 100000,
-                "cache_hit_savings": 0.75,
+                "max_pro_limits": {
+                  "pro_prompts_per_5h": 40,
+                  "max_5x_prompts_per_5h": 200,
+                  "max_20x_prompts_per_5h": 800,
+                  "session_length_hours": 5
+                },
+                "api_limits": {
+                  "daily_tokens": 100000
+                },
                 "created": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'",
-                "version": "1.0"
+                "version": "2.0"
               }
             }' > "$USAGE_FILE"
           fi
           
-          # Check if we need to reset daily counters
-          LAST_RESET=$(jq -r '.last_reset' "$USAGE_FILE")
-          TODAY=$(date -u +%Y-%m-%d)
+          # Calculate 5-hour session boundaries for Max/Pro accounts
+          CURRENT_TIME=$(date -u +%s)
+          LAST_SESSION_TIME=$(date -d "$(jq -r '.last_session_reset' "$USAGE_FILE")" +%s 2>/dev/null || echo "0")
+          FIVE_HOURS_AGO=$((CURRENT_TIME - 18000)) # 5 hours = 18000 seconds
           
-          if [ "$LAST_RESET" != "$TODAY" ]; then
-            echo "Resetting daily token counters for new day: $TODAY"
-            jq --arg today "$TODAY" '.
-              | .daily_usage = []
-              | .last_reset = $today' "$USAGE_FILE" > "$USAGE_FILE.tmp"
+          # Check if we need to reset 5-hour session for Max/Pro
+          if [ "$AUTH_METHOD" = "claude-max-oauth" ] && [ "$LAST_SESSION_TIME" -lt "$FIVE_HOURS_AGO" ]; then
+            echo "🔄 Resetting 5-hour session limits for Claude Max/Pro account"
+            jq --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '.
+              | .five_hour_sessions = []
+              | .last_session_reset = $timestamp' "$USAGE_FILE" > "$USAGE_FILE.tmp"
             mv "$USAGE_FILE.tmp" "$USAGE_FILE"
           fi
           
-          # Calculate estimated usage for this session
-          HOUR=$(TZ='Australia/Sydney' date +%H)
-          SESSIONS_TODAY=$(jq '.session_usage | length' "$USAGE_FILE")
-          AVG_TOKENS=$(jq '.session_usage | if length > 0 then (map(.tokens_used) | add / length) else 5000 end' "$USAGE_FILE")
-          
-          # Estimate tokens remaining (assuming 100k daily limit)
-          DAILY_LIMIT=100000
-          TOKENS_USED_TODAY=$(jq '.daily_usage | map(.tokens) | add // 0' "$USAGE_FILE")
-          ESTIMATED_REMAINING=$((DAILY_LIMIT - TOKENS_USED_TODAY))
-          SESSIONS_REMAINING=$((6 - SESSIONS_TODAY))
-          
-          echo "📊 Token Usage Analysis:"
-          echo "- Daily Limit: $DAILY_LIMIT tokens"
-          echo "- Used Today: $TOKENS_USED_TODAY tokens"
-          echo "- Estimated Remaining: $ESTIMATED_REMAINING tokens"
-          echo "- Sessions Today: $SESSIONS_TODAY/6"
-          echo "- Avg per Session: $AVG_TOKENS tokens"
-          
-          # Determine if we should proceed
-          if [ "$ESTIMATED_REMAINING" -lt 2000 ]; then
-            echo "⚠️ Low token budget remaining, skipping autonomous session"
-            echo "proceed=false" >> $GITHUB_OUTPUT
-          elif [ "$SESSIONS_REMAINING" -gt 0 ] && [ "$ESTIMATED_REMAINING" -lt $((AVG_TOKENS * SESSIONS_REMAINING)) ]; then
-            echo "💡 Reducing scope to conserve tokens for remaining sessions"
-            echo "proceed=true" >> $GITHUB_OUTPUT
-            echo "max_issues=1" >> $GITHUB_OUTPUT
+          # Calculate usage limits based on authentication method
+          if [ "$AUTH_METHOD" = "claude-max-oauth" ]; then
+            # Max/Pro account - message-based limits per 5-hour session
+            SESSION_PROMPTS_TODAY=$(jq '.five_hour_sessions | length' "$USAGE_FILE")
+            
+            # Conservative estimates for autonomous workflow (assume Max 5x plan)
+            MAX_PROMPTS_PER_SESSION=200
+            PROMPTS_REMAINING=$((MAX_PROMPTS_PER_SESSION - SESSION_PROMPTS_TODAY))
+            
+            echo "📊 Claude Max/Pro Usage Analysis:"
+            echo "- Account Type: Max/Pro (5-hour sessions)"
+            echo "- Session Prompts Used: $SESSION_PROMPTS_TODAY"
+            echo "- Estimated Session Limit: $MAX_PROMPTS_PER_SESSION prompts"
+            echo "- Prompts Remaining: $PROMPTS_REMAINING"
+            echo "- Session resets every 5 hours"
+            
+            # Determine if we should proceed (conservative approach)
+            if [ "$PROMPTS_REMAINING" -lt 10 ]; then
+              echo "⚠️ Approaching 5-hour session limit, waiting for reset"
+              echo "proceed=false" >> $GITHUB_OUTPUT
+              echo "limit_reason=session_limit" >> $GITHUB_OUTPUT
+            elif [ "$PROMPTS_REMAINING" -lt 50 ]; then
+              echo "💡 Limited prompts remaining, reducing scope"
+              echo "proceed=true" >> $GITHUB_OUTPUT
+              echo "max_issues=1" >> $GITHUB_OUTPUT
+            else
+              echo "✅ Sufficient prompts available in current session"
+              echo "proceed=true" >> $GITHUB_OUTPUT
+              echo "max_issues=3" >> $GITHUB_OUTPUT
+            fi
+            
+            echo "estimated_usage=prompt_based" >> $GITHUB_OUTPUT
+            echo "prompts_remaining=$PROMPTS_REMAINING" >> $GITHUB_OUTPUT
+            
+          elif [ "$AUTH_METHOD" = "anthropic-api" ]; then
+            # API key - token-based daily limits
+            DAILY_TOKENS=100000
+            TOKENS_USED_TODAY=$(jq '.session_usage | map(.total_tokens // 0) | add // 0' "$USAGE_FILE")
+            TOKENS_REMAINING=$((DAILY_TOKENS - TOKENS_USED_TODAY))
+            
+            echo "📊 Anthropic API Usage Analysis:"
+            echo "- Account Type: API Key (daily token limit)"
+            echo "- Daily Limit: $DAILY_TOKENS tokens"
+            echo "- Used Today: $TOKENS_USED_TODAY tokens"
+            echo "- Remaining: $TOKENS_REMAINING tokens"
+            
+            if [ "$TOKENS_REMAINING" -lt 5000 ]; then
+              echo "⚠️ Low token budget remaining"
+              echo "proceed=false" >> $GITHUB_OUTPUT
+              echo "limit_reason=token_limit" >> $GITHUB_OUTPUT
+            else
+              echo "✅ Sufficient tokens available"
+              echo "proceed=true" >> $GITHUB_OUTPUT
+              echo "max_issues=3" >> $GITHUB_OUTPUT
+            fi
+            
+            echo "estimated_usage=5000" >> $GITHUB_OUTPUT
+            echo "tokens_remaining=$TOKENS_REMAINING" >> $GITHUB_OUTPUT
+            
           else
-            echo "✅ Sufficient token budget available"
+            # No authentication - always proceed with rule-based processing
+            echo "📊 Rule-based Processing (No API limits):"
+            echo "- Mode: Issue analysis and suggestions only"
+            echo "- No external API calls required"
+            echo "✅ Always available for rule-based automation"
+            
             echo "proceed=true" >> $GITHUB_OUTPUT
-            echo "max_issues=3" >> $GITHUB_OUTPUT
+            echo "max_issues=5" >> $GITHUB_OUTPUT
+            echo "estimated_usage=none" >> $GITHUB_OUTPUT
+            echo "limit_reason=none" >> $GITHUB_OUTPUT
           fi
           
-          echo "estimated_usage=$AVG_TOKENS" >> $GITHUB_OUTPUT
-          echo "tokens_remaining=$ESTIMATED_REMAINING" >> $GITHUB_OUTPUT
-          echo "session_number=$((SESSIONS_TODAY + 1))" >> $GITHUB_OUTPUT
+          echo "auth_method=$AUTH_METHOD" >> $GITHUB_OUTPUT
+          echo "session_number=1" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -334,24 +393,133 @@ jobs:
           AUTONOMOUS_PROMPT: ${{ steps.fetch-issues.outputs.prompt }}
           ISSUES_JSON: ${{ steps.fetch-issues.outputs.issues }}
 
-      - name: ⚠️ Autonomous Processing Failed  
+      - name: ⚠️ Autonomous Processing Failed - Detailed Analysis
         if: steps.claude-autonomous.outcome == 'failure'
         run: |
-          echo "⚠️ **AUTONOMOUS PROCESSING FAILED**"
-          echo "🔍 Checking execution logs for error details..."
-          echo "🎯 Issues detected: ${{ steps.fetch-issues.outputs.issue_count }}"
-          echo "📋 Issues that may require manual intervention:"
-          jq -r '.[] | "  - #\(.number): \(.title)"' issues.json
+          echo "⚠️ **AUTONOMOUS PROCESSING FAILED - DETAILED ERROR ANALYSIS**"
+          echo "================================================="
           echo ""
-          if [ -n "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}" ] || [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
-            echo "🧠 Mode: AI-powered autonomous executor"
-            echo "🔧 Check authentication configuration and network connectivity"
-            echo "💡 OAuth token preferred for Claude Max/Pro accounts"
+          
+          # Capture and display exit code details
+          AUTONOMOUS_EXIT_CODE="${{ steps.claude-autonomous.outputs.exit_code || 'unknown' }}"
+          echo "🔍 **Exit Code**: $AUTONOMOUS_EXIT_CODE"
+          echo ""
+          
+          # Authentication method diagnosis
+          echo "🔐 **Authentication Analysis**:"
+          if [ -n "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}" ]; then
+            echo "  ✅ Claude OAuth Token: Present (Claude Max/Pro account)"
+            echo "  📋 Account Type: ${{ steps.token-check.outputs.auth_method }}"
+            echo "  🎯 Usage Limit: ${{ steps.token-check.outputs.prompts_remaining || 'Unknown' }} prompts remaining in session"
+          elif [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+            echo "  ✅ Anthropic API Key: Present"
+            echo "  📋 Account Type: ${{ steps.token-check.outputs.auth_method }}"
+            echo "  🎯 Token Budget: ${{ steps.token-check.outputs.tokens_remaining || 'Unknown' }} tokens remaining"
           else
-            echo "🔧 Mode: Rule-based issue processor"
-            echo "💡 Add CLAUDE_CODE_OAUTH_TOKEN (Claude Max) or ANTHROPIC_API_KEY for AI automation"
+            echo "  ❌ No authentication detected"
+            echo "  📋 Fallback Mode: Rule-based issue processor only"
           fi
-          echo "📊 Session data available in .github/data/autonomous-sessions/"
+          echo ""
+          
+          # Issue processing context
+          echo "🎯 **Issue Processing Context**:"
+          echo "  📊 Issues Found: ${{ steps.fetch-issues.outputs.issue_count }}"
+          echo "  🏷️ Priority Filter: ${{ steps.fetch-issues.outputs.actual_priority }}"
+          echo "  📋 Max Issues Setting: ${{ steps.token-check.outputs.max_issues || github.event.inputs.max_issues }}"
+          echo ""
+          
+          # List specific issues that failed
+          echo "📋 **Issues That Failed Processing**:"
+          if [ -f "issues.json" ]; then
+            jq -r '.[] | "  🔸 Issue #\(.number): \(.title)\n    🔗 URL: \(.url)\n    🏷️ Labels: \(.labels | map(.name) | join(", "))\n"' issues.json
+          else
+            echo "  ❌ issues.json not found - issue fetching may have failed"
+          fi
+          echo ""
+          
+          # Check for specific error patterns
+          echo "🔍 **Error Pattern Analysis**:"
+          
+          # Check if it's a dependency issue
+          if ! command -v node &> /dev/null; then
+            echo "  ❌ Node.js not available - dependency missing"
+          else
+            echo "  ✅ Node.js available: $(node --version)"
+          fi
+          
+          # Check script accessibility
+          if [ ! -f ".github/scripts/claude-oauth-executor.js" ]; then
+            echo "  ❌ OAuth executor script missing"
+          else
+            echo "  ✅ OAuth executor script present"
+          fi
+          
+          if [ ! -f ".github/scripts/issue-processor.js" ]; then
+            echo "  ❌ Issue processor script missing"
+          else
+            echo "  ✅ Issue processor script present"
+          fi
+          
+          # Check npm dependencies
+          if [ ! -f ".github/scripts/package.json" ]; then
+            echo "  ⚠️ package.json missing in scripts directory"
+          else
+            echo "  ✅ package.json present"
+            if [ ! -d ".github/scripts/node_modules" ]; then
+              echo "  ❌ node_modules not installed"
+            else
+              echo "  ✅ node_modules installed"
+            fi
+          fi
+          echo ""
+          
+          # Network and API diagnostics
+          echo "🌐 **Network & API Diagnostics**:"
+          if [ -n "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}" ] || [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+            echo "  🔍 Testing Anthropic API connectivity..."
+            if curl -s --max-time 10 https://api.anthropic.com > /dev/null; then
+              echo "  ✅ Anthropic API endpoint reachable"
+            else
+              echo "  ❌ Anthropic API endpoint unreachable"
+            fi
+          else
+            echo "  ℹ️ No API authentication - network check skipped"
+          fi
+          echo ""
+          
+          # Suggested remediation steps
+          echo "🔧 **Suggested Remediation Steps**:"
+          echo "  1. 📋 Check GitHub Actions logs above for specific error messages"
+          echo "  2. 🔍 Verify authentication tokens are properly configured in repository secrets"
+          echo "  3. 🧪 Test autonomous scripts locally with: cd .github/scripts && npm test"
+          echo "  4. 📊 Check usage limits for your account type (Max/Pro vs API)"
+          echo "  5. 🔄 Try manual workflow dispatch with different parameters"
+          echo "  6. 📞 If issues persist, check Anthropic service status"
+          echo ""
+          
+          # Save failure context for analysis
+          echo "💾 **Saving Failure Context**:"
+          mkdir -p .github/data/failure-logs
+          FAILURE_LOG=".github/data/failure-logs/failure-$(date +%Y%m%d-%H%M%S).json"
+          cat > "$FAILURE_LOG" << EOF
+          {
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "trigger": "${{ github.event_name }}",
+            "auth_method": "${{ steps.token-check.outputs.auth_method }}",
+            "exit_code": "$AUTONOMOUS_EXIT_CODE",
+            "issues_count": "${{ steps.fetch-issues.outputs.issue_count }}",
+            "priority_filter": "${{ steps.fetch-issues.outputs.actual_priority }}",
+            "workflow_run_id": "${{ github.run_id }}",
+            "repository": "${{ github.repository }}",
+            "commit_sha": "${{ github.sha }}"
+          }
+          EOF
+          echo "  📄 Failure context saved to: $FAILURE_LOG"
+          echo ""
+          
+          echo "================================================="
+          echo "🔍 **For detailed logs, check the workflow run at:**"
+          echo "🔗 https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: 📊 Autonomous Session Complete
         if: always() && steps.claude-autonomous.outcome != 'skipped'
@@ -363,38 +531,128 @@ jobs:
           echo "📊 Priority level: ${{ steps.fetch-issues.outputs.actual_priority }}"
           echo ""
 
-      - name: 💾 Record Token Usage & Cache Analytics
+      - name: 💾 Record Usage Analytics (Max/Pro Compatible)
         if: always() && steps.claude-autonomous.outcome != 'skipped'
         run: |
-          # Record this session's comprehensive token usage
-          USAGE_FILE=".github/data/token-usage.json"
+          # Record session usage based on account type
+          USAGE_FILE=".github/data/usage-tracking.json"
           SESSION_TIME=$(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')
           SESSION_UTC=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          AUTH_METHOD="${{ steps.token-check.outputs.auth_method }}"
           
-          # Estimate token breakdown based on typical Claude Code patterns
-          if [ "${{ steps.claude-autonomous.outcome }}" = "success" ]; then
-            TOTAL_TOKENS=${{ steps.token-check.outputs.estimated_usage }}
-            # Estimate cache efficiency for successful runs
-            CACHE_HIT_RATIO=0.65  # 65% cache hit ratio assumed
-            CACHED_TOKENS=$(echo "$TOTAL_TOKENS * $CACHE_HIT_RATIO" | bc -l | cut -d. -f1)
-            INPUT_TOKENS=$(echo "$TOTAL_TOKENS * 0.6" | bc -l | cut -d. -f1)
-            OUTPUT_TOKENS=$(echo "$TOTAL_TOKENS * 0.4" | bc -l | cut -d. -f1)
-            TOKEN_SAVINGS=$(echo "$CACHED_TOKENS * 0.75" | bc -l | cut -d. -f1)  # 75% savings on cached tokens
-          elif [ "${{ steps.claude-autonomous.outcome }}" = "failure" ]; then
-            ESTIMATED_USAGE="${{ steps.token-check.outputs.estimated_usage }}"
-            TOTAL_TOKENS=$((ESTIMATED_USAGE / 2))
-            CACHE_HIT_RATIO=0.3   # Lower cache efficiency on failures
-            CACHED_TOKENS=$(echo "$TOTAL_TOKENS * $CACHE_HIT_RATIO" | bc -l | cut -d. -f1)
-            INPUT_TOKENS=$(echo "$TOTAL_TOKENS * 0.7" | bc -l | cut -d. -f1)
-            OUTPUT_TOKENS=$(echo "$TOTAL_TOKENS * 0.3" | bc -l | cut -d. -f1)
-            TOKEN_SAVINGS=$(echo "$CACHED_TOKENS * 0.75" | bc -l | cut -d. -f1)
+          # Record usage based on authentication method
+          if [ "$AUTH_METHOD" = "claude-max-oauth" ]; then
+            # Max/Pro account - record prompt usage
+            if [ "${{ steps.claude-autonomous.outcome }}" = "success" ]; then
+              PROMPTS_USED=3  # Conservative estimate for successful run
+            elif [ "${{ steps.claude-autonomous.outcome }}" = "failure" ]; then
+              PROMPTS_USED=1  # Partial execution
+            else
+              PROMPTS_USED=0  # Skipped
+            fi
+            
+            echo "📊 Max/Pro Usage Recording:"
+            echo "- Prompts Used: $PROMPTS_USED"
+            echo "- Session Outcome: ${{ steps.claude-autonomous.outcome }}"
+            echo "- Issues Processed: ${{ steps.fetch-issues.outputs.issue_count }}"
+            
+            # Update usage file with prompt-based tracking
+            jq --arg time "$SESSION_TIME" \
+               --arg utc "$SESSION_UTC" \
+               --arg prompts "$PROMPTS_USED" \
+               --arg outcome "${{ steps.claude-autonomous.outcome }}" \
+               --arg issues "${{ steps.fetch-issues.outputs.issue_count }}" \
+               --arg auth "$AUTH_METHOD" \
+               '. as $root |
+               .five_hour_sessions += [{
+                 "timestamp": $time,
+                 "utc_timestamp": $utc,
+                 "prompts_used": ($prompts | tonumber),
+                 "outcome": $outcome,
+                 "issues_processed": ($issues | tonumber),
+                 "auth_method": $auth
+               }] |
+               .session_usage += [{
+                 "timestamp": $time,
+                 "type": "claude_max_pro",
+                 "prompts_used": ($prompts | tonumber),
+                 "outcome": $outcome,
+                 "issues_count": ($issues | tonumber)
+               }]' "$USAGE_FILE" > "$USAGE_FILE.tmp"
+            mv "$USAGE_FILE.tmp" "$USAGE_FILE"
+            
+          elif [ "$AUTH_METHOD" = "anthropic-api" ]; then
+            # API account - estimate token usage
+            if [ "${{ steps.claude-autonomous.outcome }}" = "success" ]; then
+              TOTAL_TOKENS=5000  # Conservative estimate
+              CACHE_HIT_RATIO=0.65
+            elif [ "${{ steps.claude-autonomous.outcome }}" = "failure" ]; then
+              TOTAL_TOKENS=2500  # Partial execution
+              CACHE_HIT_RATIO=0.3
+            else
+              TOTAL_TOKENS=0
+              CACHE_HIT_RATIO=0
+            fi
+            
+            CACHED_TOKENS=$((TOTAL_TOKENS * 65 / 100))
+            INPUT_TOKENS=$((TOTAL_TOKENS * 60 / 100))
+            OUTPUT_TOKENS=$((TOTAL_TOKENS * 40 / 100))
+            TOKEN_SAVINGS=$((CACHED_TOKENS * 75 / 100))
+            
+            echo "📊 API Token Usage Recording:"
+            echo "- Total Tokens: $TOTAL_TOKENS"
+            echo "- Cached Tokens: $CACHED_TOKENS"
+            echo "- Token Savings: $TOKEN_SAVINGS"
+            
+            # Update usage file with token-based tracking
+            jq --arg time "$SESSION_TIME" \
+               --arg utc "$SESSION_UTC" \
+               --arg total "$TOTAL_TOKENS" \
+               --arg input "$INPUT_TOKENS" \
+               --arg output "$OUTPUT_TOKENS" \
+               --arg cached "$CACHED_TOKENS" \
+               --arg savings "$TOKEN_SAVINGS" \
+               --arg cache_ratio "$CACHE_HIT_RATIO" \
+               --arg outcome "${{ steps.claude-autonomous.outcome }}" \
+               --arg issues "${{ steps.fetch-issues.outputs.issue_count }}" \
+               --arg auth "$AUTH_METHOD" \
+               '. as $root |
+               .session_usage += [{
+                 "timestamp": $time,
+                 "utc_timestamp": $utc,
+                 "total_tokens": ($total | tonumber),
+                 "input_tokens": ($input | tonumber),
+                 "output_tokens": ($output | tonumber),
+                 "cached_tokens": ($cached | tonumber),
+                 "cache_hit_ratio": ($cache_ratio | tonumber),
+                 "token_savings": ($savings | tonumber),
+                 "outcome": $outcome,
+                 "issues_processed": ($issues | tonumber),
+                 "auth_method": $auth
+               }]' "$USAGE_FILE" > "$USAGE_FILE.tmp"
+            mv "$USAGE_FILE.tmp" "$USAGE_FILE"
+            
           else
-            TOTAL_TOKENS=1000
-            CACHE_HIT_RATIO=0.4
-            CACHED_TOKENS=400
-            INPUT_TOKENS=600
-            OUTPUT_TOKENS=400
-            TOKEN_SAVINGS=300
+            # No auth - record rule-based processing
+            echo "📊 Rule-based Processing Recording:"
+            echo "- Mode: API-free issue analysis"
+            echo "- Issues Analyzed: ${{ steps.fetch-issues.outputs.issue_count }}"
+            
+            jq --arg time "$SESSION_TIME" \
+               --arg utc "$SESSION_UTC" \
+               --arg outcome "${{ steps.claude-autonomous.outcome }}" \
+               --arg issues "${{ steps.fetch-issues.outputs.issue_count }}" \
+               --arg auth "$AUTH_METHOD" \
+               '. as $root |
+               .session_usage += [{
+                 "timestamp": $time,
+                 "utc_timestamp": $utc,
+                 "type": "rule_based",
+                 "outcome": $outcome,
+                 "issues_analyzed": ($issues | tonumber),
+                 "auth_method": $auth
+               }]' "$USAGE_FILE" > "$USAGE_FILE.tmp"
+            mv "$USAGE_FILE.tmp" "$USAGE_FILE"
           fi
           
           # Update comprehensive usage tracking with cache analytics

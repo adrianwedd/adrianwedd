@@ -41,16 +41,15 @@ class IssueProcessor {
         success: true,
         processedCount: this.processedIssues.length,
         suggestedActions: this.suggestedActions,
-        sessionId: this.sessionId
+        sessionId: this.sessionId,
       };
-
     } catch (error) {
       console.error('❌ **ISSUE PROCESSING FAILED**');
       console.error(`Error: ${error.message}`);
       return {
         success: false,
         error: error.message,
-        sessionId: this.sessionId
+        sessionId: this.sessionId,
       };
     }
   }
@@ -62,29 +61,29 @@ class IssueProcessor {
 
     // Execute appropriate automation based on analysis
     const result = await this.executeAutomation(issue, analysis);
-    
+
     this.processedIssues.push({
       issue: issue.number,
       title: issue.title,
       analysis: analysis,
       result: result,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     if (result.actions.length > 0) {
       console.log(`✅ **Executed ${result.actions.length} automated actions**`);
-      result.actions.forEach(action => {
+      result.actions.forEach((action) => {
         console.log(`  - ${action}`);
       });
     }
 
     if (result.suggestions.length > 0) {
       console.log(`💡 **Generated ${result.suggestions.length} suggestions**`);
-      result.suggestions.forEach(suggestion => {
+      result.suggestions.forEach((suggestion) => {
         console.log(`  - ${suggestion}`);
         this.suggestedActions.push({
           issue: issue.number,
-          suggestion: suggestion
+          suggestion: suggestion,
         });
       });
     }
@@ -93,17 +92,29 @@ class IssueProcessor {
   analyzeIssue(issue) {
     const title = issue.title.toLowerCase();
     const body = issue.body.toLowerCase();
-    const labels = issue.labels.map(l => l.name.toLowerCase());
+    const labels = issue.labels.map((l) => l.name.toLowerCase());
 
     // Determine issue category
     let category = 'general';
     if (labels.includes('bug') || title.includes('fix') || title.includes('error')) {
       category = 'bug';
-    } else if (labels.includes('enhancement') || title.includes('feature') || title.includes('add')) {
+    } else if (
+      labels.includes('enhancement') ||
+      title.includes('feature') ||
+      title.includes('add')
+    ) {
       category = 'feature';
-    } else if (labels.includes('documentation') || title.includes('docs') || title.includes('readme')) {
+    } else if (
+      labels.includes('documentation') ||
+      title.includes('docs') ||
+      title.includes('readme')
+    ) {
       category = 'documentation';
-    } else if (title.includes('refactor') || title.includes('improve') || title.includes('optimize')) {
+    } else if (
+      title.includes('refactor') ||
+      title.includes('improve') ||
+      title.includes('optimize')
+    ) {
       category = 'enhancement';
     } else if (title.includes('test') || title.includes('spec')) {
       category = 'testing';
@@ -112,11 +123,20 @@ class IssueProcessor {
     // Determine complexity
     let complexity = 'medium';
     const simpleKeywords = ['typo', 'fix text', 'update readme', 'add comment', 'lint', 'format'];
-    const complexKeywords = ['architecture', 'refactor', 'database', 'security', 'performance', 'integration'];
-    
-    if (simpleKeywords.some(keyword => title.includes(keyword) || body.includes(keyword))) {
+    const complexKeywords = [
+      'architecture',
+      'refactor',
+      'database',
+      'security',
+      'performance',
+      'integration',
+    ];
+
+    if (simpleKeywords.some((keyword) => title.includes(keyword) || body.includes(keyword))) {
       complexity = 'simple';
-    } else if (complexKeywords.some(keyword => title.includes(keyword) || body.includes(keyword))) {
+    } else if (
+      complexKeywords.some((keyword) => title.includes(keyword) || body.includes(keyword))
+    ) {
       complexity = 'complex';
     }
 
@@ -127,42 +147,43 @@ class IssueProcessor {
       category,
       complexity,
       actionPlan,
-      automatable: complexity === 'simple' && ['bug', 'documentation', 'enhancement'].includes(category)
+      automatable:
+        complexity === 'simple' && ['bug', 'documentation', 'enhancement'].includes(category),
     };
   }
 
-  generateActionPlan(category, complexity, title, body) {
+  generateActionPlan(category, complexity, _title, _body) {
     const plans = {
       bug: {
         simple: 'Quick fix - likely configuration or text correction',
         medium: 'Code investigation and targeted fix required',
-        complex: 'Comprehensive debugging and testing needed'
+        complex: 'Comprehensive debugging and testing needed',
       },
       feature: {
         simple: 'Small addition or enhancement',
         medium: 'New functionality implementation',
-        complex: 'Major feature development with multiple components'
+        complex: 'Major feature development with multiple components',
       },
       documentation: {
         simple: 'Text update or correction',
         medium: 'Section rewrite or new documentation',
-        complex: 'Comprehensive documentation overhaul'
+        complex: 'Comprehensive documentation overhaul',
       },
       enhancement: {
         simple: 'Minor improvement or optimization',
         medium: 'Code refactoring or performance improvement',
-        complex: 'Architectural changes or major optimization'
+        complex: 'Architectural changes or major optimization',
       },
       testing: {
         simple: 'Add missing test case',
         medium: 'Test suite enhancement',
-        complex: 'Comprehensive testing framework'
+        complex: 'Comprehensive testing framework',
       },
       general: {
         simple: 'Basic task completion',
         medium: 'Standard development work',
-        complex: 'Complex multi-step implementation'
-      }
+        complex: 'Complex multi-step implementation',
+      },
     };
 
     return plans[category]?.[complexity] || 'Analysis and implementation required';
@@ -176,7 +197,10 @@ class IssueProcessor {
     if (analysis.automatable) {
       try {
         // Create issue branch if it doesn't exist
-        const branchName = `issue-${issue.number}-${issue.title.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 30)}`;
+        const branchName = `issue-${issue.number}-${issue.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '-')
+          .slice(0, 30)}`;
         try {
           execSync(`git checkout -b ${branchName}`, { encoding: 'utf8', stdio: 'pipe' });
           actions.push(`Created branch: ${branchName}`);
@@ -194,13 +218,14 @@ class IssueProcessor {
         if (analysis.category === 'bug' && analysis.complexity === 'simple') {
           await this.generateBugFixSuggestions(issue, suggestions);
         }
-
       } catch (error) {
         suggestions.push(`Automation failed: ${error.message}`);
       }
     } else {
       // Generate suggestions for manual implementation
-      suggestions.push(`Manual implementation required for ${analysis.category} (${analysis.complexity})`);
+      suggestions.push(
+        `Manual implementation required for ${analysis.category} (${analysis.complexity})`
+      );
       suggestions.push(`Action plan: ${analysis.actionPlan}`);
     }
 
@@ -209,17 +234,17 @@ class IssueProcessor {
 
   async generateDocumentationSuggestions(issue, suggestions) {
     suggestions.push('Documentation updates needed:');
-    
+
     if (issue.title.toLowerCase().includes('readme')) {
       suggestions.push('- Update README.md with new information');
       suggestions.push('- Ensure all sections are current and accurate');
     }
-    
+
     if (issue.body.toLowerCase().includes('command')) {
       suggestions.push('- Document new terminal commands in CLAUDE.md');
       suggestions.push('- Add usage examples and descriptions');
     }
-    
+
     suggestions.push('- Review existing documentation for consistency');
     suggestions.push('- Consider adding inline code comments where needed');
   }
@@ -235,7 +260,7 @@ class IssueProcessor {
 
   async generateProcessingSummary(issues) {
     const summaryPath = `.github/data/autonomous-sessions/${this.sessionId}.json`;
-    
+
     // Ensure directory exists
     await fs.mkdir(path.dirname(summaryPath), { recursive: true });
 
@@ -248,7 +273,7 @@ class IssueProcessor {
       suggestedActions: this.suggestedActions,
       categoryBreakdown: this.getCategoryBreakdown(),
       complexityBreakdown: this.getComplexityBreakdown(),
-      status: 'completed'
+      status: 'completed',
     };
 
     await fs.writeFile(summaryPath, JSON.stringify(summary, null, 2));
@@ -257,14 +282,16 @@ class IssueProcessor {
     // Generate human-readable summary
     console.log('\n📊 **PROCESSING SUMMARY:**');
     console.log(`- Total issues analyzed: ${issues.length}`);
-    console.log(`- Automated actions: ${this.processedIssues.reduce((sum, p) => sum + p.result.actions.length, 0)}`);
+    console.log(
+      `- Automated actions: ${this.processedIssues.reduce((sum, p) => sum + p.result.actions.length, 0)}`
+    );
     console.log(`- Suggestions generated: ${this.suggestedActions.length}`);
     console.log(`- Session ID: ${this.sessionId}`);
   }
 
   getCategoryBreakdown() {
     const breakdown = {};
-    this.processedIssues.forEach(p => {
+    this.processedIssues.forEach((p) => {
       breakdown[p.analysis.category] = (breakdown[p.analysis.category] || 0) + 1;
     });
     return breakdown;
@@ -272,7 +299,7 @@ class IssueProcessor {
 
   getComplexityBreakdown() {
     const breakdown = {};
-    this.processedIssues.forEach(p => {
+    this.processedIssues.forEach((p) => {
       breakdown[p.analysis.complexity] = (breakdown[p.analysis.complexity] || 0) + 1;
     });
     return breakdown;
@@ -282,7 +309,7 @@ class IssueProcessor {
 // Main execution
 async function main() {
   const processor = new IssueProcessor();
-  
+
   // Get issues from environment variable
   const issuesJson = process.env.ISSUES_JSON;
 
@@ -300,9 +327,9 @@ async function main() {
     const issues = JSON.parse(issuesJson);
     console.log(`📋 **PARSED ${issues.length} ISSUES SUCCESSFULLY**`);
     console.log('');
-    
+
     const result = await processor.processIssues(issues);
-    
+
     if (result.success) {
       console.log('🎉 **ISSUE PROCESSING SUCCESSFUL**');
       console.log(`📊 Processed: ${result.processedCount} issues`);

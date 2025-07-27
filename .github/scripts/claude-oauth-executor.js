@@ -19,7 +19,7 @@ class ClaudeOAuthExecutor {
       input: 0,
       output: 0,
       cached: 0,
-      total: 0
+      total: 0,
     };
   }
 
@@ -44,13 +44,15 @@ class ClaudeOAuthExecutor {
 
       console.log('🧠 **CALLING CLAUDE API**');
       const response = await this.callClaudeAPI(systemPrompt, userPrompt, authMethod);
-      
+
       if (response.error) {
         throw new Error(`API Error: ${response.error}`);
       }
 
       console.log('✅ **API RESPONSE RECEIVED**');
-      console.log(`📊 Tokens - Input: ${response.usage?.input_tokens || 0}, Output: ${response.usage?.output_tokens || 0}`);
+      console.log(
+        `📊 Tokens - Input: ${response.usage?.input_tokens || 0}, Output: ${response.usage?.output_tokens || 0}`
+      );
 
       // Update token usage tracking
       this.updateTokenUsage(response.usage);
@@ -63,16 +65,15 @@ class ClaudeOAuthExecutor {
         success: true,
         tokenUsage: this.tokenUsage,
         sessionId: this.sessionId,
-        authMethod: authMethod
+        authMethod: authMethod,
       };
-
     } catch (error) {
       console.error('❌ **AUTONOMOUS SESSION FAILED**');
       console.error(`Error: ${error.message}`);
       return {
         success: false,
         error: error.message,
-        sessionId: this.sessionId
+        sessionId: this.sessionId,
       };
     }
   }
@@ -112,14 +113,17 @@ Execute with confidence and technical excellence!`;
   }
 
   buildUserPrompt(prompt, issues) {
-    const issueDetails = issues.map(issue => 
-      `### Issue #${issue.number}: ${issue.title}
+    const issueDetails = issues
+      .map(
+        (issue) =>
+          `### Issue #${issue.number}: ${issue.title}
 **URL:** ${issue.url}
-**Labels:** ${issue.labels.map(l => l.name).join(', ')}
+**Labels:** ${issue.labels.map((l) => l.name).join(', ')}
 **Description:**
 ${issue.body}
 ---`
-    ).join('\n');
+      )
+      .join('\n');
 
     return `${prompt}
 
@@ -131,24 +135,24 @@ Begin autonomous execution now. Work through each issue systematically and provi
 
   async callClaudeAPI(systemPrompt, userPrompt, authMethod) {
     const fetch = require('node-fetch');
-    
+
     const requestBody = {
-      model: "claude-sonnet-4-20250514",
+      model: 'claude-sonnet-4-20250514',
       max_tokens: 4000,
       temperature: 0.1,
       system: systemPrompt,
       messages: [
         {
-          role: "user",
-          content: userPrompt
-        }
-      ]
+          role: 'user',
+          content: userPrompt,
+        },
+      ],
     };
 
     // Determine authentication headers based on method
-    let headers = {
+    const headers = {
       'Content-Type': 'application/json',
-      'anthropic-version': '2023-06-01'
+      'anthropic-version': '2023-06-01',
     };
 
     if (authMethod === 'oauth' && this.oauthToken) {
@@ -166,32 +170,32 @@ Begin autonomous execution now. Work through each issue systematically and provi
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`HTTP ${response.status}: ${errorText}`);
-        
+
         // If OAuth fails and we have API key, try fallback
         if (authMethod === 'oauth' && this.apiKey) {
           console.log('🔄 OAuth failed, attempting API key fallback...');
           return this.callClaudeAPI(systemPrompt, userPrompt, 'api-key');
         }
-        
+
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
 
       return await response.json();
     } catch (error) {
       console.error(`Authentication error (${authMethod}):`, error.message);
-      
+
       // If OAuth fails and we have API key, try fallback
       if (authMethod === 'oauth' && this.apiKey && !error.message.includes('fallback')) {
         console.log('🔄 OAuth failed, attempting API key fallback...');
         return this.callClaudeAPI(systemPrompt, userPrompt, 'api-key');
       }
-      
+
       return { error: error.message };
     }
   }
@@ -205,14 +209,14 @@ Begin autonomous execution now. Work through each issue systematically and provi
 
     // Parse AI response for actionable commands
     const commands = this.extractCommands(aiResponse);
-    
+
     console.log(`🎯 **EXTRACTED ${commands.length} ACTIONABLE COMMANDS**`);
-    
+
     for (let i = 0; i < commands.length; i++) {
       const command = commands[i];
       console.log(`\n📋 **Executing Command ${i + 1}/${commands.length}:**`);
       console.log(`Command: ${command}`);
-      
+
       try {
         await this.executeCommand(command);
         console.log('✅ Command executed successfully');
@@ -229,12 +233,15 @@ Begin autonomous execution now. Work through each issue systematically and provi
   extractCommands(aiResponse) {
     // Extract bash commands and file operations from AI response
     const commands = [];
-    
+
     // Look for code blocks with bash/shell commands
     const bashMatches = aiResponse.match(/```(?:bash|shell|sh)\n([\s\S]*?)\n```/g);
     if (bashMatches) {
-      bashMatches.forEach(match => {
-        const command = match.replace(/```(?:bash|shell|sh)\n/, '').replace(/\n```/, '').trim();
+      bashMatches.forEach((match) => {
+        const command = match
+          .replace(/```(?:bash|shell|sh)\n/, '')
+          .replace(/\n```/, '')
+          .trim();
         if (command && !command.includes('placeholder') && !command.includes('example')) {
           commands.push(command);
         }
@@ -244,7 +251,7 @@ Begin autonomous execution now. Work through each issue systematically and provi
     // Look for explicit git commands
     const gitMatches = aiResponse.match(/git [^\n]+/g);
     if (gitMatches) {
-      gitMatches.forEach(cmd => {
+      gitMatches.forEach((cmd) => {
         if (!commands.includes(cmd)) {
           commands.push(cmd);
         }
@@ -256,22 +263,30 @@ Begin autonomous execution now. Work through each issue systematically and provi
 
   async executeCommand(command) {
     // Safety checks
-    const dangerousCommands = ['rm -rf', 'sudo', 'curl', 'wget', 'npm install -g', 'format', 'shutdown'];
-    if (dangerousCommands.some(danger => command.includes(danger))) {
+    const dangerousCommands = [
+      'rm -rf',
+      'sudo',
+      'curl',
+      'wget',
+      'npm install -g',
+      'format',
+      'shutdown',
+    ];
+    if (dangerousCommands.some((danger) => command.includes(danger))) {
       throw new Error('Command blocked for safety');
     }
 
     // Allow only safe git, npm, and file operations
     const allowedPrefixes = ['git ', 'npm run', 'ls ', 'mkdir', 'echo', 'cat'];
-    if (!allowedPrefixes.some(prefix => command.startsWith(prefix))) {
+    if (!allowedPrefixes.some((prefix) => command.startsWith(prefix))) {
       throw new Error('Command not in allowed list');
     }
 
     try {
-      const output = execSync(command, { 
+      const output = execSync(command, {
         encoding: 'utf8',
         timeout: 30000, // 30 second timeout
-        maxBuffer: 1024 * 1024 // 1MB max output
+        maxBuffer: 1024 * 1024, // 1MB max output
       });
       console.log(`Output: ${output.trim()}`);
       return output;
@@ -290,7 +305,7 @@ Begin autonomous execution now. Work through each issue systematically and provi
 
   async createSessionSummary(aiResponse, issues, commands) {
     const summaryPath = `.github/data/autonomous-sessions/${this.sessionId}.json`;
-    
+
     // Ensure directory exists
     await fs.mkdir(path.dirname(summaryPath), { recursive: true });
 
@@ -298,15 +313,15 @@ Begin autonomous execution now. Work through each issue systematically and provi
       sessionId: this.sessionId,
       timestamp: new Date().toISOString(),
       authMethod: this.oauthToken ? 'claude-oauth' : 'api-key',
-      issues: issues.map(issue => ({
+      issues: issues.map((issue) => ({
         number: issue.number,
         title: issue.title,
-        url: issue.url
+        url: issue.url,
       })),
       aiResponse: aiResponse.substring(0, 2000), // Truncate for storage
       commandsExecuted: commands,
       tokenUsage: this.tokenUsage,
-      status: 'completed'
+      status: 'completed',
     };
 
     await fs.writeFile(summaryPath, JSON.stringify(summary, null, 2));
@@ -317,7 +332,7 @@ Begin autonomous execution now. Work through each issue systematically and provi
 // Main execution
 async function main() {
   const executor = new ClaudeOAuthExecutor();
-  
+
   // Get arguments from environment variables
   const prompt = process.env.AUTONOMOUS_PROMPT;
   const issuesJson = process.env.ISSUES_JSON;
@@ -343,12 +358,14 @@ async function main() {
     const issues = JSON.parse(issuesJson);
     console.log(`📋 **PARSED ${issues.length} ISSUES SUCCESSFULLY**`);
     console.log('');
-    
+
     const result = await executor.executeAutonomousSession(prompt, issues);
-    
+
     if (result.success) {
       console.log('🎉 **AUTONOMOUS EXECUTION SUCCESSFUL**');
-      console.log(`📊 Token usage: ${result.tokenUsage.total} total (${result.tokenUsage.input} input, ${result.tokenUsage.output} output)`);
+      console.log(
+        `📊 Token usage: ${result.tokenUsage.total} total (${result.tokenUsage.input} input, ${result.tokenUsage.output} output)`
+      );
       console.log(`🔐 Auth method: ${result.authMethod}`);
       console.log(`🎯 Session ID: ${result.sessionId}`);
       process.exit(0);
