@@ -3,6 +3,9 @@ class GitHubActionsManager {
         this.repo = 'adrianwedd/adrianwedd';
         this.cache = new Map();
         this.initialized = false;
+        this.performanceMetrics = new Map();
+        this.realTimeMonitors = new Map();
+        this.workflowTemplates = this.initWorkflowTemplates();
     }
 
     async init() {
@@ -354,9 +357,421 @@ class GitHubActionsManager {
         return 'Just now';
     }
 
+    // Initialize workflow templates library
+    initWorkflowTemplates() {
+        return {
+            'Node.js CI/CD': {
+                description: 'Continuous integration and deployment for Node.js applications',
+                category: 'web',
+                template: `name: Node.js CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js \${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: \${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build --if-present
+    - run: npm test
+    
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v4
+    - name: Deploy to production
+      run: echo "Deploy to production server"`
+            },
+            'Python Django': {
+                description: 'Django application testing and deployment pipeline',
+                category: 'python',
+                template: `name: Django CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run tests
+      run: |
+        python manage.py test`
+            },
+            'Accessibility Testing': {
+                description: 'Automated accessibility testing with axe-core',
+                category: 'testing',
+                template: `name: Accessibility Testing
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  accessibility:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    - run: npm ci
+    - name: Install Playwright
+      run: npx playwright install
+    - name: Run accessibility tests
+      run: npm run test:accessibility
+    - name: Upload accessibility report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: accessibility-report
+        path: accessibility-report/`
+            },
+            'Security Scan': {
+                description: 'Security vulnerability scanning with CodeQL',
+                category: 'security',
+                template: `name: Security Scan
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 6 * * 1'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: \${{ matrix.language }}
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3`
+            }
+        };
+    }
+
+    // Visual workflow editor in terminal
+    async createWorkflowEditor() {
+        return {
+            title: '🔧 GITHUB ACTIONS WORKFLOW EDITOR',
+            commands: {
+                'new': {
+                    description: 'Create new workflow from template',
+                    handler: async (args) => this.newWorkflowFromTemplate(args)
+                },
+                'edit': {
+                    description: 'Edit existing workflow',
+                    handler: async (args) => this.editExistingWorkflow(args)
+                },
+                'validate': {
+                    description: 'Validate workflow syntax',
+                    handler: async (args) => this.validateWorkflow(args)
+                },
+                'preview': {
+                    description: 'Preview workflow before saving',
+                    handler: async (args) => this.previewWorkflow(args)
+                },
+                'templates': {
+                    description: 'List available workflow templates',
+                    handler: async (args) => this.listWorkflowTemplates()
+                }
+            }
+        };
+    }
+
+    async newWorkflowFromTemplate(args) {
+        if (args.length === 0) {
+            return {
+                success: false,
+                message: 'Usage: workflow new <template-name> [workflow-name]',
+                suggestion: 'Try: workflow templates to see available templates'
+            };
+        }
+
+        const templateName = args[0];
+        const workflowName = args[1] || templateName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        
+        const template = this.findTemplate(templateName);
+        if (!template) {
+            return {
+                success: false,
+                message: `Template "${templateName}" not found`,
+                availableTemplates: Object.keys(this.workflowTemplates)
+            };
+        }
+
+        return {
+            success: true,
+            template: template.template,
+            workflowName: workflowName,
+            description: template.description,
+            message: `Created workflow "${workflowName}" from template "${templateName}"`
+        };
+    }
+
+    findTemplate(name) {
+        // Case-insensitive search
+        const key = Object.keys(this.workflowTemplates).find(
+            k => k.toLowerCase().includes(name.toLowerCase())
+        );
+        return key ? this.workflowTemplates[key] : null;
+    }
+
+    async listWorkflowTemplates() {
+        const templates = Object.entries(this.workflowTemplates).map(([name, info]) => ({
+            name,
+            description: info.description,
+            category: info.category
+        }));
+
+        return {
+            success: true,
+            templates,
+            total: templates.length
+        };
+    }
+
+    // Real-time workflow monitoring
+    async startRealTimeMonitoring(workflowName = null) {
+        const monitorId = `monitor-${Date.now()}`;
+        
+        const monitor = {
+            id: monitorId,
+            workflowName,
+            startTime: new Date(),
+            isActive: true,
+            updates: []
+        };
+
+        this.realTimeMonitors.set(monitorId, monitor);
+        
+        // Start polling for updates
+        this.pollWorkflowUpdates(monitorId);
+        
+        return {
+            success: true,
+            monitorId,
+            message: `Started real-time monitoring for ${workflowName || 'all workflows'}`
+        };
+    }
+
+    async pollWorkflowUpdates(monitorId) {
+        const monitor = this.realTimeMonitors.get(monitorId);
+        if (!monitor || !monitor.isActive) return;
+
+        try {
+            const runs = await this.getWorkflowRuns(monitor.workflowName, 3);
+            if (runs.success) {
+                const latestRuns = runs.runs.filter(run => 
+                    new Date(run.created_at) > monitor.startTime
+                );
+                
+                if (latestRuns.length > 0) {
+                    monitor.updates.push({
+                        timestamp: new Date(),
+                        runs: latestRuns
+                    });
+                }
+            }
+        } catch (error) {
+            console.warn('Error polling workflow updates:', error);
+        }
+
+        // Continue polling every 10 seconds
+        setTimeout(() => this.pollWorkflowUpdates(monitorId), 10000);
+    }
+
+    async stopRealTimeMonitoring(monitorId) {
+        const monitor = this.realTimeMonitors.get(monitorId);
+        if (monitor) {
+            monitor.isActive = false;
+            this.realTimeMonitors.delete(monitorId);
+            return {
+                success: true,
+                message: `Stopped monitoring ${monitorId}`
+            };
+        }
+        return {
+            success: false,
+            message: `Monitor ${monitorId} not found`
+        };
+    }
+
+    // Workflow performance analytics
+    async getWorkflowAnalytics(timeframe = '30d') {
+        try {
+            const runs = await this.getWorkflowRuns(null, 50);
+            if (!runs.success) {
+                return runs;
+            }
+
+            const analytics = this.calculatePerformanceMetrics(runs.runs, timeframe);
+            return {
+                success: true,
+                analytics,
+                timeframe
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: `Error calculating analytics: ${error.message}`
+            };
+        }
+    }
+
+    calculatePerformanceMetrics(runs, timeframe) {
+        const now = new Date();
+        const timeframeMs = this.parseTimeframe(timeframe);
+        const cutoffDate = new Date(now.getTime() - timeframeMs);
+        
+        const filteredRuns = runs.filter(run => 
+            new Date(run.created_at) > cutoffDate
+        );
+
+        const successfulRuns = filteredRuns.filter(run => run.conclusion === 'success');
+        const failedRuns = filteredRuns.filter(run => run.conclusion === 'failure');
+        
+        const durations = filteredRuns.map(run => {
+            const start = new Date(run.created_at);
+            const end = new Date(run.updated_at);
+            return end - start;
+        }).filter(d => d > 0);
+
+        const avgDuration = durations.length > 0 
+            ? durations.reduce((a, b) => a + b, 0) / durations.length 
+            : 0;
+
+        return {
+            totalRuns: filteredRuns.length,
+            successRate: filteredRuns.length > 0 
+                ? (successfulRuns.length / filteredRuns.length * 100).toFixed(1) 
+                : 0,
+            failureRate: filteredRuns.length > 0 
+                ? (failedRuns.length / filteredRuns.length * 100).toFixed(1) 
+                : 0,
+            averageDuration: this.formatDuration(avgDuration),
+            fastestRun: durations.length > 0 ? this.formatDuration(Math.min(...durations)) : 'N/A',
+            slowestRun: durations.length > 0 ? this.formatDuration(Math.max(...durations)) : 'N/A',
+            runsPerDay: filteredRuns.length > 0 
+                ? (filteredRuns.length / (timeframeMs / (24 * 60 * 60 * 1000))).toFixed(1) 
+                : 0
+        };
+    }
+
+    parseTimeframe(timeframe) {
+        const match = timeframe.match(/^(\d+)([dwmy])$/);
+        if (!match) return 30 * 24 * 60 * 60 * 1000; // Default 30 days
+        
+        const [, num, unit] = match;
+        const multipliers = {
+            'd': 24 * 60 * 60 * 1000,
+            'w': 7 * 24 * 60 * 60 * 1000,
+            'm': 30 * 24 * 60 * 60 * 1000,
+            'y': 365 * 24 * 60 * 60 * 1000
+        };
+        
+        return parseInt(num) * (multipliers[unit] || multipliers.d);
+    }
+
+    formatDuration(ms) {
+        const minutes = Math.floor(ms / 60000);
+        const seconds = Math.floor((ms % 60000) / 1000);
+        return `${minutes}m ${seconds}s`;
+    }
+
+    // Enhanced command registry
+    getEnhancedCommands() {
+        return {
+            'workflow': {
+                description: 'Enhanced workflow management with templates and analytics',
+                subcommands: {
+                    'editor': {
+                        description: 'Open visual workflow editor',
+                        handler: async () => this.createWorkflowEditor()
+                    },
+                    'analytics': {
+                        description: 'Show workflow performance analytics',
+                        handler: async (args) => this.getWorkflowAnalytics(args[0])
+                    },
+                    'monitor': {
+                        description: 'Start/stop real-time monitoring',
+                        handler: async (args) => {
+                            if (args[0] === 'start') return this.startRealTimeMonitoring(args[1]);
+                            if (args[0] === 'stop') return this.stopRealTimeMonitoring(args[1]);
+                            return { success: false, message: 'Usage: workflow monitor <start|stop> [workflow-name|monitor-id]' };
+                        }
+                    },
+                    'templates': {
+                        description: 'Manage workflow templates',
+                        handler: async () => this.listWorkflowTemplates()
+                    }
+                }
+            }
+        };
+    }
+
     // Cleanup method
     cleanup() {
         this.cache.clear();
+        this.realTimeMonitors.forEach(monitor => monitor.isActive = false);
+        this.realTimeMonitors.clear();
+        this.performanceMetrics.clear();
     }
 }
 

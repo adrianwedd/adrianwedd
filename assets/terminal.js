@@ -256,6 +256,10 @@ class Terminal {
                 this.addDebugLog(`Handling runs command with args: ${parts.slice(1).join(' ')}`, 'info', 'command');
                 this.handleRunsCommand(parts.slice(1));
                 break;
+            case 'workflow':
+                this.addDebugLog(`Handling enhanced workflow command with args: ${parts.slice(1).join(' ')}`, 'info', 'command');
+                this.handleEnhancedWorkflowCommand(parts.slice(1));
+                break;
             case 'ps':
                 this.addDebugLog('Showing processes', 'info', 'command');
                 this.showProcesses();
@@ -509,83 +513,17 @@ class Terminal {
     showHelp() {
         const helpLines = [
             '',
-            '══════════════════════════════════════════════════════════════════════',
-            '    🧠 ADRIAN.TERMINAL - Advanced Interactive Command Interface',
-            '══════════════════════════════════════════════════════════════════════',
+            '📋 Available commands:',
             '',
-            'CORE COMMANDS',
-            '    help         display this comprehensive help',
-            '    about        personal information & background',
-            '    projects     technical projects & repositories',
-            '    skills       technical skills & expertise',
-            '    home         off-grid Tasmania home details',
-            '    veritas      AI safety research platform',
-            '    whoami       current user information',
-            '    pwd          print working directory',
-            '    ls           list directory contents',
-            '    cat          display file contents',
-            '    grep         search files and command output',
-            '    tail         show last lines of files/logs',
-            '    clear        clear terminal screen',
-            '    boot         restart boot sequence',
-            '    uptime       show system uptime',
-            '    neofetch     display system information',
-            '    gemini       display GEMINI ASCII art logo',
-            '    adrian       display ADRIAN ASCII art logo',
-            '    ps           show running processes',
-            '',
-            'AI & CHAT SYSTEM',
-            '    chat         enter interactive AI chat mode',
-            '    tokens       AI token usage statistics & analytics',
-            '    cache        manage prompt cache [clear|stats]',
-            '    magic        daily Claude creativity showcase',
-            '    speak        text-to-speech synthesis [text]',
-            '',
-            'VOICE INTERFACE 🎤',
-            '    voice        voice controls [on|off|status|rate|pitch|volume]',
-            '    Wake Words:  "Adrian", "Computer", "Terminal", "Hey Adrian"',
-            '    Commands:    "show help", "clear screen", "show projects"',
-            '    Usage:       Click "Voice Ready" → say wake word → speak command',
-            '    Features:    - Speech-to-text transcription',
-            '                 - Direct command execution',
-            '                 - Voice transcripts → terminal input',
-            '                 - Configurable voice synthesis',
-            '',
-            'AUDIO & VISUAL EFFECTS 🎵',
-            '    music        play background music [track]',
-            '    stop         stop currently playing music',
-            '    volume       set music volume [0.0-1.0]',
-            '    effects      particle effects [matrix|stars|rain|fireflies|neural]',
-            '    matrix       toggle matrix rain effect',
-            '    theme        change terminal theme [matrix|cyberpunk|amber|synthwave]',
-            '',
-            'AVAILABLE MUSIC TRACKS',
-            '    ambient      peaceful ambient drones',
-            '    cyberpunk    dark synthwave beats', 
-            '    mathematical algorithmic patterns with drums',
-            '    matrix       digital rain sounds',
-            '    synthwave    retro 80s synthesizer',
-            '',
-            'PARTICLE EFFECTS SYSTEM',
-            '    effects matrix on     - Start matrix digital rain',
-            '    effects stars         - Twinkling starfield',
-            '    effects rain          - Falling rain particles',
-            '    effects fireflies     - Organic floating lights',
-            '    effects neural        - Neural network visualization',
-            '    effects opacity 0.5   - Set effects transparency',
-            '    effects clear         - Stop all effects',
-            '',
-            'SYSTEM MONITORING 📊',
-            '    monitor      system monitor (htop/btop style)',
-            '    split        terminal + monitor split screen (desktop only)',
-            '    weather      Tasmania weather data (BOM API)',
-            '    actions      list GitHub Actions workflows',
-            '    runs         show recent workflow runs',
-            '    trigger      trigger GitHub Actions workflow',
-            '',
-            'TASK MANAGEMENT 📋',
-            '    task         GitHub task/issue management system',
-            '    task create  create new GitHub issue with AI categorization',
+            '  about        Learn about Adrian',
+            '  projects     View technical projects', 
+            '  skills       Technical expertise',
+            '  chat         Start AI conversation',
+            '  weather      Tasmania weather data',
+            '  music        Play background music',
+            '  clear        Clear screen',
+            ''
+        ];
             '    task list    list GitHub issues [state] [labels]',
             '    task update  update issue status/priority/comments',
             '    task close   close issue with completion comment',
@@ -1027,6 +965,128 @@ Current focus: Deep work mode - VERITAS research
             this.addOutput('❌ Could not fetch workflow runs', 'error');
             this.addOutput('GitHub Actions integration may not be available', 'info');
             this.addDebugLog(`GitHub Actions runs command failed: ${_error.message}`, 'error', 'github');
+        }
+    }
+
+    async handleEnhancedWorkflowCommand(args) {
+        this.addDebugLog(`Handling enhanced workflow command with args: ${args.join(' ')}`, 'info', 'github');
+        try {
+            await this.githubActionsManager.init();
+            const enhancedCommands = this.githubActionsManager.getEnhancedCommands();
+            
+            if (args.length === 0) {
+                this.addOutput('🔧 ENHANCED GITHUB ACTIONS WORKFLOW MANAGEMENT', 'success');
+                this.addOutput('', 'info');
+                this.addOutput('Available subcommands:', 'info');
+                this.addOutput('  workflow editor      - Open visual workflow editor', 'feature-highlight');
+                this.addOutput('  workflow analytics   - Show performance analytics', 'feature-highlight');
+                this.addOutput('  workflow monitor     - Start/stop real-time monitoring', 'feature-highlight');
+                this.addOutput('  workflow templates   - List available workflow templates', 'feature-highlight');
+                this.addOutput('', 'info');
+                this.addOutput('Examples:', 'success');
+                this.addOutput('  workflow templates                    - List all templates', 'info');
+                this.addOutput('  workflow analytics 30d               - Show 30-day analytics', 'info');
+                this.addOutput('  workflow monitor start ci-cd         - Monitor CI/CD workflow', 'info');
+                return;
+            }
+
+            const subcommand = args[0];
+            const subArgs = args.slice(1);
+
+            if (enhancedCommands.workflow.subcommands[subcommand]) {
+                const result = await enhancedCommands.workflow.subcommands[subcommand].handler(subArgs);
+                
+                if (result.success) {
+                    this.displayWorkflowResult(result, subcommand);
+                } else {
+                    this.addOutput(`❌ ${result.message}`, 'error');
+                    if (result.suggestion) {
+                        this.addOutput(`💡 ${result.suggestion}`, 'feature-highlight');
+                    }
+                }
+            } else {
+                this.addOutput(`❌ Unknown workflow subcommand: ${subcommand}`, 'error');
+                this.addOutput('Use "workflow" to see available subcommands', 'info');
+            }
+
+            this.addDebugLog('Enhanced workflow command executed successfully', 'success', 'github');
+        } catch (error) {
+            this.addOutput('❌ Could not execute enhanced workflow command', 'error');
+            this.addOutput('GitHub Actions integration may not be available', 'info');
+            this.addDebugLog(`Enhanced workflow command failed: ${error.message}`, 'error', 'github');
+        }
+    }
+
+    displayWorkflowResult(result, subcommand) {
+        this.addOutput('', 'info');
+        
+        switch (subcommand) {
+            case 'templates':
+                this.addOutput('🏗️ WORKFLOW TEMPLATES LIBRARY', 'success');
+                this.addOutput('', 'info');
+                result.templates.forEach(template => {
+                    this.addOutput(`📄 ${template.name}`, 'feature-highlight');
+                    this.addOutput(`   Category: ${template.category}`, 'info');
+                    this.addOutput(`   Description: ${template.description}`, 'info');
+                    this.addOutput('', 'info');
+                });
+                this.addOutput(`Total templates: ${result.total}`, 'success');
+                break;
+
+            case 'analytics':
+                this.addOutput('📊 WORKFLOW PERFORMANCE ANALYTICS', 'success');
+                this.addOutput(`Timeframe: ${result.timeframe}`, 'info');
+                this.addOutput('', 'info');
+                
+                const analytics = result.analytics;
+                this.addOutput(`📈 Total Runs: ${analytics.totalRuns}`, 'info');
+                this.addOutput(`✅ Success Rate: ${analytics.successRate}%`, 'success');
+                this.addOutput(`❌ Failure Rate: ${analytics.failureRate}%`, analytics.failureRate > 10 ? 'error' : 'info');
+                this.addOutput(`⏱️ Average Duration: ${analytics.averageDuration}`, 'info');
+                this.addOutput(`🚀 Fastest Run: ${analytics.fastestRun}`, 'success');
+                this.addOutput(`🐌 Slowest Run: ${analytics.slowestRun}`, 'info');
+                this.addOutput(`📅 Runs per Day: ${analytics.runsPerDay}`, 'info');
+                break;
+
+            case 'monitor':
+                if (result.monitorId) {
+                    this.addOutput('📡 REAL-TIME WORKFLOW MONITORING', 'success');
+                    this.addOutput(`Monitor ID: ${result.monitorId}`, 'info');
+                    this.addOutput(`${result.message}`, 'success');
+                    this.addOutput('', 'info');
+                    this.addOutput('Use "workflow monitor stop <monitor-id>" to stop monitoring', 'feature-highlight');
+                } else {
+                    this.addOutput(`${result.message}`, 'success');
+                }
+                break;
+
+            case 'editor':
+                this.addOutput('🔧 VISUAL WORKFLOW EDITOR', 'success');
+                this.addOutput('', 'info');
+                this.addOutput('Available editor commands:', 'info');
+                Object.entries(result.commands).forEach(([cmd, info]) => {
+                    this.addOutput(`  ${cmd.padEnd(12)} - ${info.description}`, 'feature-highlight');
+                });
+                this.addOutput('', 'info');
+                this.addOutput('Use these commands to create and edit workflows:', 'info');
+                this.addOutput('  workflow new nodejs my-app     - Create Node.js workflow', 'info');
+                this.addOutput('  workflow templates             - See all templates', 'info');
+                break;
+
+            default:
+                if (result.template) {
+                    this.addOutput('📄 WORKFLOW CREATED FROM TEMPLATE', 'success');
+                    this.addOutput(`Name: ${result.workflowName}`, 'info');
+                    this.addOutput(`Description: ${result.description}`, 'info');
+                    this.addOutput('', 'info');
+                    this.addOutput('Generated YAML:', 'feature-highlight');
+                    result.template.split('\n').forEach(line => {
+                        this.addOutput(line, 'info');
+                    });
+                } else {
+                    this.addOutput(result.message || 'Command completed', 'success');
+                }
+                break;
         }
     }
 
