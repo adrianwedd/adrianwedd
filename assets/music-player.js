@@ -135,6 +135,8 @@ class RetroMusicPlayer {
             }
         }, 6000);
     }
+
+    finishInit() {
         // (Optional, visible to devs)
         console.log("You can now call `player.generateDiversePlaylist()` to explore randomized synth textures.");
         // Populate library and autoplay playlist
@@ -829,10 +831,6 @@ class RetroMusicPlayer {
         this.isPlaying = true;
         playNext();
     }
-}
-
-// Export for use in terminal
-window.RetroMusicPlayer = RetroMusicPlayer;
     createDubDelay(delayTime = 0.375, feedbackGain = 0.4, tone = 1200) {
         const delay = this.audioContext.createDelay();
         delay.delayTime.setValueAtTime(delayTime, this.audioContext.currentTime);
@@ -1175,3 +1173,7 @@ window.RetroMusicPlayer = RetroMusicPlayer;
         this.isPlaying = true;
         playNext();
     }
+}
+
+// Export for use in terminal
+window.RetroMusicPlayer = RetroMusicPlayer;
