@@ -1,9 +1,15 @@
 # Page snapshot
 
 ```yaml
-- text: adrian@home:~$ 🎤 Voice ready
-- button "Voice Ready"
-- text: "█████╗ ██████╗ ██████╗ ██╗ █████╗ ███╗ ██╗ ██╔══██╗██╔══██╗██╔══██╗██║██╔══██╗████╗ ██║ ███████║██║ ██║██████╔╝██║███████║██╔██╗ ██║ ██╔══██║██║ ██║██╔══██╗██║██╔══██║██║╚██╗██║ ██║ ██║██████╔╝██║ ██║██║██║ ██║██║ ╚████║ ╚═╝ ╚═╝╚═════╝ ╚═╝ ╚═╝╚═╝╚═╝ ╚═╝╚═╝ ╚═══╝ ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ ▐ RECURSIVE SYSTEMS ARCHITECTURE ▌ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ BIOS: UEFI Boot Manager v2.4.1 Initializing hardware components... CPU: AMD Ryzen 9 7900X @ 4.7GHz [OK] Memory: 64GB DDR5-5600 [OK] Storage: 2TB NVMe SSD Samsung 980 PRO [OK] GPU: NVIDIA RTX 4090 24GB [OK] Network: Gigabit Ethernet [OK] USB: 12 ports detected [OK] Loading kernel modules... systemd: Starting system initialization Loading neural network drivers... AI subsystem: Claude integration [OK] Voice recognition engine [OK] Audio synthesis engine [OK] WebGL renderer [OK] Chart.js visualization [OK] Starting ne 🎤 Voice interface initialized Say \"Adrian\" or \"Computer\" to activate voice commands $ invalidcommand123 Command not found: invalidcommand123. Type 'help' for available commands. adrian@home:~$"
-- textbox
-- text: █
+- link "Skip to main content":
+  - /url: "#main-content"
+- main:
+  - text: "adrian@home:~$ 🎤 Voice ready | Speech: ON"
+  - button "Toggle voice input on or off": Enable Voice
+  - button "Toggle voice output on or off": 🔊
+  - log "Terminal output":
+    - heading "Adrian Wedd - Terminal Interface" [level=1]
+    - text: adrian@home:~$
+    - textbox "Terminal command input": invalidcommand123
+    - text: █
 ```
