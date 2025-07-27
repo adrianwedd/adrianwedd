@@ -2237,6 +2237,11 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         statusLine.innerHTML = 'Ready for interaction: <span class="status-online">ACTIVE</span>';
         bootContainer.appendChild(statusLine);
         
+        // Display Adrian logo after boot completion
+        setTimeout(() => {
+            this.showAdrianLogo();
+        }, 200);
+        
         // Focus the command input
         const commandInput = document.getElementById('commandInput');
         if (commandInput) {
