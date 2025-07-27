@@ -143,11 +143,19 @@ jobs:
             --state open \
             --limit "$MAX_ISSUES" \
             $LABELS \
-            --json number,title,labels,body,url \
-            --jq '.[] | select(.labels | map(.name) | any(. | test("^(draft|wip|blocked)$"; "i")) | not)' \
-            > issues.json
+            --json number,title,labels,body,url > all_issues.json
           
-          ISSUE_COUNT=$(jq length issues.json)
+          # Filter out draft, wip, blocked issues
+          jq '[.[] | select(.labels | map(.name) | any(. | test("^(draft|wip|blocked)$"; "i")) | not)]' all_issues.json > issues.json
+          
+          # Debug: Show what we fetched
+          echo "🔍 Debug: Issues fetched from GitHub:"
+          cat all_issues.json | jq length
+          echo "🔍 Debug: Issues after filtering:"
+          cat issues.json | jq length
+          
+          # Get count with error handling
+          ISSUE_COUNT=$(jq length issues.json 2>/dev/null || echo "0")
           echo "📊 Found $ISSUE_COUNT issues with priority:${PRIORITY_FILTER}"
           
           # Ensure ISSUE_COUNT is a valid integer
@@ -162,11 +170,12 @@ jobs:
               --state open \
               --limit "$MAX_ISSUES" \
               --label priority:medium \
-              --json number,title,labels,body,url \
-              --jq '.[] | select(.labels | map(.name) | any(. | test("^(draft|wip|blocked)$"; "i")) | not)' \
-              > issues.json
+              --json number,title,labels,body,url > all_issues_medium.json
             
-            ISSUE_COUNT=$(jq length issues.json)
+            # Filter out draft, wip, blocked issues
+            jq '[.[] | select(.labels | map(.name) | any(. | test("^(draft|wip|blocked)$"; "i")) | not)]' all_issues_medium.json > issues.json
+            
+            ISSUE_COUNT=$(jq length issues.json 2>/dev/null || echo "0")
             echo "📊 Found $ISSUE_COUNT medium priority issues"
             PRIORITY_FILTER="medium (fallback)"
           fi
