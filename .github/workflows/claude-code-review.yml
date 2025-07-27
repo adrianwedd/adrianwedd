@@ -1,78 +1,212 @@
-name: Claude Code Review
+name: 🔍 Claude Code Review Excellence
 
 on:
   pull_request:
-    types: [opened, synchronize]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+    types: [opened, synchronize, reopened]
+    paths:
+      - "**/*.js"
+      - "**/*.ts" 
+      - "**/*.jsx"
+      - "**/*.tsx"
+      - "**/*.css"
+      - "**/*.html"
+      - "**/*.json"
+      - "**/*.md"
+      - "**/*.yml"
+      - "**/*.yaml"
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
-    
+    name: 🧠 AI-Powered Code Review
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
       issues: read
       id-token: write
     
     steps:
-      - name: Checkout repository
+      - name: 📋 PR Analysis Initialization
+        run: |
+          echo "🔍 **CLAUDE CODE REVIEW INITIATED**"
+          echo "📅 Review started at: $(date +'%Y-%m-%d %H:%M:%S UTC')"
+          echo "👤 Author: ${{ github.event.pull_request.user.login }}"
+          echo "🔀 PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}"
+          echo "🌿 Branch: ${{ github.event.pull_request.head.ref }} → ${{ github.event.pull_request.base.ref }}"
+          echo "📊 Files changed: ${{ github.event.pull_request.changed_files }}"
+          echo "➕ Additions: ${{ github.event.pull_request.additions }}"
+          echo "➖ Deletions: ${{ github.event.pull_request.deletions }}"
+          echo "🎯 Contributor level: ${{ github.event.pull_request.author_association }}"
+          echo ""
+
+      - name: 📥 Repository Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 2
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run Claude Code Review
+      - name: 📊 Pre-Review Analysis
+        run: |
+          echo "🔬 **PERFORMING PRE-REVIEW ANALYSIS**"
+          echo ""
+          
+          # Analyze file changes
+          git diff --name-status HEAD~1 HEAD | while read status file; do
+            case $status in
+              A) echo "✨ NEW: $file" ;;
+              M) echo "🔧 MODIFIED: $file" ;;
+              D) echo "🗑️ DELETED: $file" ;;
+              R*) echo "📝 RENAMED: $file" ;;
+            esac
+          done
+          
+          echo ""
+          echo "📈 **Change Statistics:**"
+          echo "- JavaScript/TypeScript files: $(git diff --name-only HEAD~1 HEAD | grep -E '\.(js|ts|jsx|tsx)$' | wc -l)"
+          echo "- CSS/Style files: $(git diff --name-only HEAD~1 HEAD | grep -E '\.(css|scss|sass)$' | wc -l)"  
+          echo "- Test files: $(git diff --name-only HEAD~1 HEAD | grep -E '\.(test|spec)\.' | wc -l)"
+          echo "- Config files: $(git diff --name-only HEAD~1 HEAD | grep -E '\.(json|yml|yaml|config)' | wc -l)"
+          echo "- Documentation: $(git diff --name-only HEAD~1 HEAD | grep -E '\.md$' | wc -l)"
+          echo ""
+
+      - name: 🧠 Intelligent Claude Code Review
         id: claude-review
         uses: anthropics/claude-code-action@beta
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-
-          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4)
-          # model: "claude-opus-4-20250514"
+          model: "claude-sonnet-4-20250514"
+          use_sticky_comment: true
           
-          # Direct prompt for automated review (no @claude mention needed)
+          # Intelligent context-aware review prompt
           direct_prompt: |
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security concerns
-            - Test coverage
+            🔍 **COMPREHENSIVE CODE REVIEW** - PR #${{ github.event.pull_request.number }}
             
-            Be constructive and helpful in your feedback.
+            **📋 Review Context:**
+            - Author: ${{ github.event.pull_request.user.login }} (${{ github.event.pull_request.author_association }})
+            - Files changed: ${{ github.event.pull_request.changed_files }}
+            - Lines: +${{ github.event.pull_request.additions }}/-${{ github.event.pull_request.deletions }}
+            - Branch: `${{ github.event.pull_request.head.ref }}` → `${{ github.event.pull_request.base.ref }}`
+            
+            **🎯 Review Focus Areas:**
+            
+            **🏗️ Architecture & Design:**
+            - Code organization and structure
+            - Design patterns and best practices
+            - Maintainability and extensibility
+            
+            **🔒 Security & Performance:**
+            - Security vulnerabilities and best practices
+            - Performance implications and optimizations
+            - Resource usage and memory management
+            
+            **✅ Quality & Standards:**
+            - Code quality and readability
+            - Adherence to project coding standards
+            - Error handling and edge cases
+            
+            **🧪 Testing & Coverage:**
+            - Test coverage and quality
+            - Edge case handling
+            - Integration and unit test adequacy
+            
+            **♿ Accessibility & UX:**
+            - Accessibility compliance (WCAG)
+            - User experience considerations
+            - Cross-browser compatibility
+            
+            **📚 Documentation:**
+            - Code comments and documentation
+            - API documentation updates
+            - README and setup instructions
+            
+            **🎨 Specific File Type Guidelines:**
+            - **JavaScript/TypeScript**: Type safety, modern ES features, async/await patterns
+            - **CSS/Styling**: Responsive design, performance, maintainability
+            - **HTML**: Semantic markup, accessibility attributes
+            - **Config files**: Security, environment considerations
+            - **Tests**: Coverage, mocking strategies, test organization
+            
+            **🤝 Review Style:**
+            ${{ github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' && 
+            '- 🌟 **First-time contributor detected!** Be encouraging, provide detailed explanations, and welcome them to the project' ||
+            '- Provide constructive, actionable feedback with specific examples and suggestions' }}
+            
+            - Use emoji for visual organization and engagement
+            - Highlight both strengths and areas for improvement
+            - Suggest specific code improvements when applicable
+            - Reference documentation or examples when helpful
+            
+            **⚡ Advanced Analysis:**
+            - Run linting and type checking if needed
+            - Verify terminal compatibility for UI changes
+            - Check for potential breaking changes
+            - Validate accessibility compliance
+            
+            Begin your comprehensive review now!
 
-          # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
-          # use_sticky_comment: true
+          # Enable comprehensive toolset for thorough analysis
+          allowed_tools: |
+            Bash(npm run lint)
+            Bash(npm run lint:fix)
+            Bash(npm run typecheck)
+            Bash(npm run test:unit)
+            Bash(npm run format-check)
+            Bash(npm run lint:css)
+
+      - name: 📊 Review Completion Summary
+        if: always()
+        run: |
+          echo "🏁 **CODE REVIEW COMPLETED**"
+          echo "📅 Finished at: $(date +'%Y-%m-%d %H:%M:%S UTC')"
+          echo "✅ Review outcome: ${{ steps.claude-review.outcome }}"
+          echo "🔀 PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}"
+          echo ""
           
-          # Optional: Customize review based on file types
-          # direct_prompt: |
-          #   Review this PR focusing on:
-          #   - For TypeScript files: Type safety and proper interface usage
-          #   - For API endpoints: Security, input validation, and error handling
-          #   - For React components: Performance, accessibility, and best practices
-          #   - For tests: Coverage, edge cases, and test quality
+          if [ "${{ steps.claude-review.outcome }}" = "success" ]; then
+            echo "🎉 **Review successfully completed!**"
+            echo "💬 Claude has provided comprehensive feedback on the pull request"
+            echo "📝 Check the PR comments for detailed analysis and suggestions"
+          else
+            echo "⚠️ **Review encountered issues**"
+            echo "🔍 Check the workflow logs for troubleshooting information"
+          fi
           
-          # Optional: Different prompts for different authors
-          # direct_prompt: |
-          #   ${{ github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' && 
-          #   'Welcome! Please review this PR from a first-time contributor. Be encouraging and provide detailed explanations for any suggestions.' ||
-          #   'Please provide a thorough code review focusing on our coding standards and best practices.' }}
+          echo ""
+          echo "📈 **Next Steps:**"
+          echo "- 👀 Review Claude's feedback and suggestions"
+          echo "- 🔧 Address any identified issues or improvements"
+          echo "- ✅ Update tests if necessary"
+          echo "- 📝 Update documentation if applicable"
+          echo "- 🚀 Ready for merge after addressing feedback"
+
+      - name: 📋 Workflow Summary
+        if: always()
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          ## 🔍 Claude Code Review Summary
           
-          # Optional: Add specific tools for running tests or linting
-          # allowed_tools: "Bash(npm run test),Bash(npm run lint),Bash(npm run typecheck)"
+          **📊 Review Details:**
+          - **PR:** #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}
+          - **Author:** ${{ github.event.pull_request.user.login }} (${{ github.event.pull_request.author_association }})
+          - **Branch:** `${{ github.event.pull_request.head.ref }}` → `${{ github.event.pull_request.base.ref }}`
+          - **Files:** ${{ github.event.pull_request.changed_files }} changed (+${{ github.event.pull_request.additions }}/-${{ github.event.pull_request.deletions }})
+          - **Status:** ${{ steps.claude-review.outcome == 'success' && '✅ Completed Successfully' || '⚠️ Issues Encountered' }}
           
-          # Optional: Skip review for certain conditions
-          # if: |
-          #   !contains(github.event.pull_request.title, '[skip-review]') &&
-          #   !contains(github.event.pull_request.title, '[WIP]')
+          **🎯 Review Coverage:**
+          - 🏗️ Architecture & Design Analysis
+          - 🔒 Security & Performance Review  
+          - ✅ Code Quality & Standards Check
+          - 🧪 Testing & Coverage Evaluation
+          - ♿ Accessibility Compliance Review
+          - 📚 Documentation Assessment
+          
+          **💡 Key Features:**
+          - 🧠 AI-powered comprehensive analysis
+          - 🎨 Context-aware file-type specific guidance
+          - 🛠️ Automated linting and type checking
+          - 📊 Detailed metrics and statistics
+          - 🤝 Contributor-level adaptive feedback
+          
+          ${{ steps.claude-review.outcome == 'success' && '🎉 **Claude has completed a thorough review!** Check the PR comments for detailed feedback and actionable suggestions.' || '⚠️ **Review incomplete.** Please check the workflow logs and try again.' }}
+          EOF
 
