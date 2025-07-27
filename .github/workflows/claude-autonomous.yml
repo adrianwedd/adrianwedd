@@ -255,6 +255,7 @@ jobs:
       - name: 🤖 Run Autonomous Claude Code
         if: steps.fetch-issues.outputs.issue_count > 0 && steps.token-check.outputs.proceed == 'true'
         id: claude-autonomous
+        continue-on-error: true
         uses: anthropics/claude-code-action@beta
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -323,6 +324,18 @@ jobs:
             
             Execute with confidence and technical excellence!
 
+      - name: ⚠️ Claude Code Action Failed  
+        if: steps.claude-autonomous.outcome == 'failure'
+        run: |
+          echo "⚠️ **CLAUDE CODE ACTION FAILED**"
+          echo "🔍 Likely issue: Unsupported event type (workflow_dispatch)"
+          echo "💡 Claude Code Action may only support push/pull_request events"
+          echo "🎯 Issues detected: ${{ steps.fetch-issues.outputs.issue_count }}"
+          echo "📋 Manual intervention may be required for:"
+          jq -r '.[] | "  - #\(.number): \(.title)"' issues.json
+          echo ""
+          echo "🔧 Consider triggering via push event or manual processing"
+
       - name: 📊 Autonomous Session Complete
         if: always() && steps.claude-autonomous.outcome != 'skipped'
         run: |
@@ -351,7 +364,8 @@ jobs:
             OUTPUT_TOKENS=$(echo "$TOTAL_TOKENS * 0.4" | bc -l | cut -d. -f1)
             TOKEN_SAVINGS=$(echo "$CACHED_TOKENS * 0.75" | bc -l | cut -d. -f1)  # 75% savings on cached tokens
           elif [ "${{ steps.claude-autonomous.outcome }}" = "failure" ]; then
-            TOTAL_TOKENS=$(({{ steps.token-check.outputs.estimated_usage }} / 2))
+            ESTIMATED_USAGE="${{ steps.token-check.outputs.estimated_usage }}"
+            TOTAL_TOKENS=$((ESTIMATED_USAGE / 2))
             CACHE_HIT_RATIO=0.3   # Lower cache efficiency on failures
             CACHED_TOKENS=$(echo "$TOTAL_TOKENS * $CACHE_HIT_RATIO" | bc -l | cut -d. -f1)
             INPUT_TOKENS=$(echo "$TOTAL_TOKENS * 0.7" | bc -l | cut -d. -f1)

@@ -156,7 +156,7 @@ class Terminal {
 
     // Apply initial theme
     this.applyTheme(this.currentTheme);
-    
+
     // Initialize status panel
     this.updateStatusPanel();
 
@@ -3644,7 +3644,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
     // Trigger CSS transitions
     body.style.transition = 'var(--theme-transition)';
-    
+
     // Update status panel
     this.updateStatusPanel();
 
@@ -3660,7 +3660,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     if (voiceStatus) {
       let status = 'OFF';
       let statusClass = 'error';
-      
+
       if (this.voiceInterface) {
         if (this.voiceInterface.isListening) {
           if (this.voiceInterface.wakeWordActive) {
@@ -3675,7 +3675,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
           statusClass = 'warning';
         }
       }
-      
+
       voiceStatus.textContent = status;
       voiceStatus.className = 'status-value ' + statusClass;
     }
@@ -4918,7 +4918,11 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
       const stored = localStorage.getItem('terminal-history');
       if (stored) {
         this.commandHistory = JSON.parse(stored);
-        this.addDebugLog(`Loaded ${this.commandHistory.length} commands from history`, 'info', 'system');
+        this.addDebugLog(
+          `Loaded ${this.commandHistory.length} commands from history`,
+          'info',
+          'system'
+        );
       }
     } catch (error) {
       this.addDebugLog('Failed to load command history: ' + error.message, 'warning', 'system');
@@ -4935,11 +4939,14 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
   }
 }
 
+// Functions used by HTML onclick handlers
+// eslint-disable-next-line no-unused-vars
 function closeChat() {
   document.getElementById('chatInterface').style.display = 'none';
   document.getElementById('commandInput').focus();
 }
 
+// eslint-disable-next-line no-unused-vars
 function sendMessage() {
   if (window.terminal) {
     window.terminal.sendMessage();
