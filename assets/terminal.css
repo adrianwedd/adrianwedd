@@ -241,6 +241,39 @@ input, textarea, select {
     transition: var(--theme-transition);
 }
 
+.voice-controls-inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    margin-right: 10px;
+}
+
+.voice-controls-inline .voice-indicator {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.voice-controls-inline .voice-toggle,
+.voice-controls-inline .speech-toggle {
+    font-size: 12px;
+    padding: 4px 8px;
+    background: rgba(0, 255, 65, 0.1);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.voice-controls-inline .voice-toggle:hover,
+.voice-controls-inline .speech-toggle:hover {
+    background: rgba(0, 255, 65, 0.2);
+}
+
+.voice-controls-inline .voice-toggle.active {
+    background: rgba(0, 255, 65, 0.3);
+    color: #00ff41;
+}
+
 .debug-panel {
     position: absolute;
     bottom: 80px; /* Above the prompt line */

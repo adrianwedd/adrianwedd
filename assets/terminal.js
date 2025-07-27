@@ -2289,8 +2289,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             const button = document.getElementById('voiceToggle');
             
             if (initialized) {
-                this.addOutput('🎤 Voice interface initialized', 'success');
-                this.addOutput('Say "Adrian" or "Computer" to activate voice commands', 'info');
+                // Voice interface initialized silently
                 
                 // Update button text to show it's ready
                 if (button) {
@@ -2298,7 +2297,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
                     button.classList.remove('error');
                 }
             } else {
-                this.addOutput('⚠️ Voice interface not available', 'error');
+                // Voice interface not available (silent)
                 if (button) {
                     button.textContent = 'Voice Unavailable';
                     button.classList.add('error');
@@ -2306,7 +2305,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             }
         } catch (error) {
             console.error('Voice interface initialization failed:', error);
-            this.addOutput('❌ Voice interface failed to initialize', 'error');
+            // Voice interface failed silently
             const button = document.getElementById('voiceToggle');
             if (button) {
                 button.textContent = 'Voice Error';
@@ -2317,7 +2316,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
     toggleVoice() {
         if (!this.voiceInterface) {
-            this.addOutput('Voice interface not available', 'error');
+            console.log('Voice interface not available');
             return;
         }
 
@@ -2328,19 +2327,18 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             this.voiceEnabled = true;
             button.textContent = 'Disable Voice';
             button.classList.add('active');
-            this.addOutput('🎤 Voice interface activated', 'success');
-            this.addOutput('Say "Adrian", "Computer", or "Hey Adrian" to get my attention', 'info');
+            // Voice interface activated silently
         } else {
             this.voiceEnabled = false;
             button.textContent = 'Voice Ready';
             button.classList.remove('active');
-            this.addOutput('🔇 Voice interface deactivated', 'info');
+            // Voice interface deactivated silently
         }
     }
 
     handleVoiceCommand(args) {
         if (!this.voiceInterface) {
-            this.addOutput('Voice interface not available', 'error');
+            console.log('Voice interface not available');
             return;
         }
 
@@ -2357,9 +2355,9 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
                 if (this.voiceInterface.startListening()) {
                     this.voiceEnabled = true;
                     document.getElementById('voiceToggle').classList.add('active');
-                    this.addOutput('🎤 Voice listening started', 'success');
+                    // Voice listening started silently
                 } else {
-                    this.addOutput('❌ Failed to start voice listening', 'error');
+                    console.error('Failed to start voice listening');
                 }
                 break;
                 
@@ -2413,7 +2411,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
     handleSpeakCommand(args) {
         if (!this.voiceInterface) {
-            this.addOutput('Voice interface not available', 'error');
+            console.log('Voice interface not available');
             return;
         }
 
@@ -2429,7 +2427,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
     showVoiceStatus() {
         if (!this.voiceInterface) {
-            this.addOutput('Voice interface not available', 'error');
+            console.log('Voice interface not available');
             return;
         }
 
@@ -3340,7 +3338,6 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
             `${new Date(Date.now() - 60000).toISOString()} [INFO] Weather data updated`,
             `${new Date(Date.now() - 90000).toISOString()} [INFO] Research streamer loaded`,
             `${new Date(Date.now() - 120000).toISOString()} [INFO] Theme system initialized`,
-            `${new Date(Date.now() - 150000).toISOString()} [INFO] Voice interface ready`,
             `${new Date(Date.now() - 180000).toISOString()} [INFO] Music system loaded`,
             `${new Date(Date.now() - 210000).toISOString()} [INFO] Particle effects initialized`
         ];

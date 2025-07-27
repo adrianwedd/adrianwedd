@@ -21,12 +21,6 @@
                 <span class="control maximize"></span>
             </div>
             <div class="title">adrian@home:~$ </div>
-            <div class="voice-controls">
-                <div class="voice-indicator" id="voiceIndicator">🎤</div>
-                <div class="voice-status" id="voiceStatus">Voice ready | Speech: ON</div>
-                <button class="voice-toggle" id="voiceToggle" onclick="window.terminal && window.terminal.toggleVoice()" aria-label="Toggle voice input on or off" aria-describedby="voiceStatus">Enable Voice</button>
-                <button class="speech-toggle" id="speechToggle" onclick="window.voiceInterface && window.voiceInterface.toggleSpeechOutput()" aria-label="Toggle voice output on or off" title="Toggle automatic speech output">🔊</button>
-            </div>
         </div>
         
         <div class="terminal" id="terminal">
@@ -55,6 +49,11 @@
                 <span class="prompt">adrian@home:~$</span>
                 <input type="text" id="commandInput" class="command-input" autofocus>
                 <span class="cursor">█</span>
+                <div class="voice-controls-inline">
+                    <div class="voice-indicator" id="voiceIndicator">🎤</div>
+                    <button class="voice-toggle" id="voiceToggle" onclick="window.terminal && window.terminal.toggleVoice()" aria-label="Toggle voice input on or off">Voice</button>
+                    <button class="speech-toggle" id="speechToggle" onclick="window.voiceInterface && window.voiceInterface.toggleSpeechOutput()" aria-label="Toggle voice output on or off" title="Toggle automatic speech output">🔊</button>
+                </div>
             </div>
             <div id="debugPanel" class="debug-panel" style="display: none;">
               <div class="debug-header">📊 SYSTEM DEBUG LOG</div>
