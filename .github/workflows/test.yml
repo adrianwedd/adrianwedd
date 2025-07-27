@@ -39,6 +39,24 @@ jobs:
           echo "💫 Commit: ${{ github.sha }}"
           echo "🤖 Triggered by: ${{ github.event_name }}"
           echo ""
+          
+          # Initialize CI logging
+          mkdir -p logs/ci
+          LOG_FILE="logs/ci/test-suite-$(date +'%Y%m%d-%H%M%S').log"
+          echo "📝 Initializing CI log: $LOG_FILE"
+          
+          {
+            echo "🧪 COMPREHENSIVE TEST SUITE LOG"
+            echo "======================================"
+            echo "📅 Started: $(date +'%Y-%m-%d %H:%M:%S UTC')"
+            echo "🎯 Test level: ${{ github.event.inputs.test_level || 'full' }}"
+            echo "🌿 Branch: ${{ github.ref_name }}"
+            echo "💫 Commit: ${{ github.sha }}"
+            echo "🤖 Triggered by: ${{ github.event_name }}"
+            echo ""
+          } > "$LOG_FILE"
+          
+          echo "ci_log_file=$LOG_FILE" >> $GITHUB_ENV
 
       - name: 📥 Repository Checkout
         uses: actions/checkout@v4
@@ -135,6 +153,14 @@ jobs:
           }
           echo "✅ ESLint analysis completed successfully"
           echo ""
+          
+          # Log to persistent file
+          {
+            echo "🔍 ESLint Analysis: SUCCESS"
+            echo "📅 $(date +'%Y-%m-%d %H:%M:%S UTC')"
+            echo "📊 Files analyzed: JavaScript/TypeScript"
+            echo ""
+          } >> "${{ env.ci_log_file }}"
 
       - name: ✨ Code Formatting Validation
         run: |
@@ -423,3 +449,38 @@ jobs:
           
           ${{ (needs.lint.result == 'success' && contains(needs.test.result, 'success')) && '## 🎉 All Tests Passed!\n\n✨ **Excellent work!** Your code meets all quality standards and is ready for deployment.\n\n🚀 **Next Steps:**\n- Merge with confidence\n- Deploy to staging/production\n- Monitor performance metrics' || '## ⚠️ Action Required\n\n🔍 **Some tests failed or have warnings.** Please review the individual job logs and address any issues before proceeding.\n\n🛠️ **Troubleshooting:**\n- Check ESLint/Prettier issues in Code Quality job\n- Review test failures in Test Suite jobs\n- Address performance concerns in Lighthouse results' }}
           EOF
+
+      - name: 📝 Commit CI Logs
+        if: always()
+        run: |
+          if [ -f "${{ env.ci_log_file }}" ]; then
+            echo "📝 **COMMITTING CI LOGS TO REPOSITORY**"
+            
+            # Finalize log file
+            {
+              echo ""
+              echo "🏁 Test Suite Completed: $(date +'%Y-%m-%d %H:%M:%S UTC')"
+              echo "✅ Final Status: ${{ job.status }}"
+              echo "======================================"
+            } >> "${{ env.ci_log_file }}"
+            
+            # Commit logs
+            git config --local user.email "ci-logger@github.com"
+            git config --local user.name "CI Logger Bot"
+            git add logs/
+            
+            if ! git diff --cached --quiet; then
+              git commit -m "📝 CI Logs: Test Suite $(date +'%Y%m%d-%H%M%S')
+
+              🧪 Comprehensive test suite execution log
+              📊 Status: ${{ job.status }}
+              🌿 Branch: ${{ github.ref_name }}
+              💫 Commit: ${{ github.sha }}
+
+              📁 Log saved: ${{ env.ci_log_file }}"
+              
+              git push || echo "⚠️ Could not push logs (likely due to permissions)"
+            else
+              echo "📝 No log changes to commit"
+            fi
+          fi

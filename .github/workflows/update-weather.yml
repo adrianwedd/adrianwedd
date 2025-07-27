@@ -52,23 +52,23 @@ jobs:
           echo "🌍 **ANALYZING TARGET LOCATION PARAMETERS**"
           LOCATION="${{ github.event.inputs.location || 'grove' }}"
           echo "📍 Selected location: $LOCATION"
-        
-        if [ "$LOCATION" = "grove" ]; then
-          # Grove/Cygnet area - closest BOM station
-          BOM_URL="http://reg.bom.gov.au/fwo/IDT60801/IDT60801.95977.json"
-          STATION_NAME="Grove (Cygnet Area)"
-          COORDINATES="-43.1647,147.0584"
-        else
-          # Default to same station for now - could add more locations
-          BOM_URL="http://reg.bom.gov.au/fwo/IDT60801/IDT60801.95977.json"
-          STATION_NAME="Grove (Cygnet Area)"
-          COORDINATES="-43.1647,147.0584"
-        fi
-        
-        echo "bom_url=$BOM_URL" >> $GITHUB_OUTPUT
-        echo "station_name=$STATION_NAME" >> $GITHUB_OUTPUT
-        echo "coordinates=$COORDINATES" >> $GITHUB_OUTPUT
-        echo "location=$LOCATION" >> $GITHUB_OUTPUT
+          
+          if [ "$LOCATION" = "grove" ]; then
+            # Grove/Cygnet area - closest BOM station
+            BOM_URL="http://reg.bom.gov.au/fwo/IDT60801/IDT60801.95977.json"
+            STATION_NAME="Grove (Cygnet Area)"
+            COORDINATES="-43.1647,147.0584"
+          else
+            # Default to same station for now - could add more locations
+            BOM_URL="http://reg.bom.gov.au/fwo/IDT60801/IDT60801.95977.json"
+            STATION_NAME="Grove (Cygnet Area)"
+            COORDINATES="-43.1647,147.0584"
+          fi
+          
+          echo "bom_url=$BOM_URL" >> $GITHUB_OUTPUT
+          echo "station_name=$STATION_NAME" >> $GITHUB_OUTPUT
+          echo "coordinates=$COORDINATES" >> $GITHUB_OUTPUT
+          echo "location=$LOCATION" >> $GITHUB_OUTPUT
 
     - name: 🌦️ Fetch BOM Weather Data
       id: weather
