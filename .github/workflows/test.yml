@@ -194,9 +194,9 @@ jobs:
         if: always()
         run: |
           echo "📋 **CODE QUALITY SUMMARY**"
-          echo "✅ ESLint: ${{ job.steps.eslint.outcome == 'success' && 'PASSED' || 'FAILED' }}"
-          echo "✅ Prettier: ${{ job.steps.prettier.outcome == 'success' && 'PASSED' || 'FAILED' }}"  
-          echo "✅ Stylelint: ${{ job.steps.stylelint.outcome == 'success' && 'PASSED' || 'FAILED' }}"
+          echo "${{ steps.eslint.outcome == 'success' && '✅' || '❌' }} ESLint: ${{ steps.eslint.outcome == 'success' && 'PASSED' || 'FAILED' }}"
+          echo "${{ steps.prettier.outcome == 'success' && '✅' || '❌' }} Prettier: ${{ steps.prettier.outcome == 'success' && 'PASSED' || 'FAILED' }}"  
+          echo "${{ steps.stylelint.outcome == 'success' && '✅' || '❌' }} Stylelint: ${{ steps.stylelint.outcome == 'success' && 'PASSED' || 'FAILED' }}"
           echo ""
       
   test:

@@ -4936,13 +4936,11 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 }
 
 function closeChat() {
-  // eslint-disable-line no-unused-vars
   document.getElementById('chatInterface').style.display = 'none';
   document.getElementById('commandInput').focus();
 }
 
 function sendMessage() {
-  // eslint-disable-line no-unused-vars
   if (window.terminal) {
     window.terminal.sendMessage();
   }

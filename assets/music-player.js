@@ -131,7 +131,6 @@ class RetroMusicPlayer {
       this.visualizer.stop();
     }
   }
-  //eslint-disable-next-line
   createOscillator(frequency, type = 'sine', duration = null) {
     try {
       const oscillator = this.audioContext.createOscillator();
