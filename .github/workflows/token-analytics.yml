@@ -172,7 +172,7 @@ jobs:
             hour: .[0].hour,
             tokens: (map(.total_tokens) | add)
           }) | sort_by(.hour) | map(
-            (.hour | tostring | rpad(2)) + ":00 |" + 
+            (if (.hour < 10) then "0" else "" end) + (.hour | tostring) + ":00 |" + 
             (range(0; (.tokens / 500) | floor) | "█") + 
             " " + (.tokens | tostring)
           ) | join("\n")' "$USAGE_FILE" >> analytics-report.md
