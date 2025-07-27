@@ -523,11 +523,15 @@ input, textarea, select {
 }
 
 .ascii-art {
-    color: #0a2;
+    color: var(--text-color);
     white-space: pre;
+    font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
-    line-height: 1.2;
+    line-height: 1.1;
     margin: 10px 0;
+    overflow-x: auto;
+    word-break: keep-all;
+    text-overflow: clip;
 }
 
 /* Chat Interface */

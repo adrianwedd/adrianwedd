@@ -1919,9 +1919,16 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
         this.addDebugLog('Boot sequence container cleared', 'info', 'system');
 
-        // Show ADRIAN logo first
+        // Show ADRIAN logo first, then continue with boot sequence after delay
         this.showAdrianLogo();
         
+        // Wait for logo to be displayed, then start boot messages
+        setTimeout(() => {
+            this.continueBootSequence();
+        }, 2000); // 2 second delay to show logo first
+    }
+    
+    continueBootSequence() {
         this.currentBootMessages = [
             '',
             'ADRIAN.SYS BIOS v2.1.0',
@@ -3682,8 +3689,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     }
 
     showAdrianLogo() {
-        const adrianAscii = `
- ███         █████████   ██████████   ███████████   █████   █████████   ██████   █████              
+        const adrianAscii = ` ███         █████████   ██████████   ███████████   █████   █████████   ██████   █████              
 ░░░███      ███░░░░░███ ░░███░░░░███ ░░███░░░░░███ ░░███   ███░░░░░███ ░░██████ ░░███               
   ░░░███   ░███    ░███  ░███   ░░███ ░███    ░███  ░███  ░███    ░███  ░███░███ ░███               
     ░░░███ ░███████████  ░███    ░███ ░██████████   ░███  ░███████████  ░███░░███░███               
@@ -3692,13 +3698,20 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
  ███░      █████   █████ ██████████   █████   █████ █████ █████   █████ █████  ░░█████              
 ░░░       ░░░░░   ░░░░░ ░░░░░░░░░░   ░░░░░   ░░░░░ ░░░░░ ░░░░░   ░░░░░ ░░░░░    ░░░░░`;
 
-        this.addOutput('', 'info');
-        // Render the entire ASCII art as one block to preserve formatting
-        this.addOutput(adrianAscii, 'ascii-art');
-        this.addOutput('', 'info');
-        this.addOutput('🚀 >ADRIAN - Recursive Systems Architect & Off-Grid Permanaut', 'feature-highlight');
-        this.addOutput('   Building intelligent systems from Tasmania\'s wilderness', 'info');
-        this.addOutput('', 'info');
+        // Create ASCII art directly as a pre element to preserve exact spacing
+        const terminalOutput = document.getElementById('terminalOutput');
+        if (terminalOutput) {
+            const asciiElement = document.createElement('pre');
+            asciiElement.className = 'ascii-art';
+            asciiElement.textContent = adrianAscii;
+            terminalOutput.appendChild(asciiElement);
+            
+            // Add spacing and description
+            this.addOutput('', 'info');
+            this.addOutput('🚀 >ADRIAN - Recursive Systems Architect & Off-Grid Permanaut', 'feature-highlight');
+            this.addOutput('   Building intelligent systems from Tasmania\'s wilderness', 'info');
+            this.addOutput('', 'info');
+        }
     }
 
     // Task Management System
