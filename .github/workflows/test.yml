@@ -98,8 +98,13 @@ jobs:
         run: |
           echo "🎲 **DETERMINING OPTIMAL TEST STRATEGY**"
           
-          COMPLEXITY=${{ steps.analysis.outputs.complexity }}
+          COMPLEXITY="${{ steps.analysis.outputs.complexity || '0' }}"
           TEST_LEVEL="${{ github.event.inputs.test_level || 'full' }}"
+          
+          # Ensure COMPLEXITY is a valid integer
+          if [ -z "$COMPLEXITY" ] || ! [[ "$COMPLEXITY" =~ ^[0-9]+$ ]]; then
+            COMPLEXITY="0"
+          fi
           
           if [ "$TEST_LEVEL" = "quick" ] || [ "$COMPLEXITY" -lt 50 ]; then
             STRATEGY="quick"
