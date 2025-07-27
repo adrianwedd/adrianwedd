@@ -138,7 +138,7 @@ class SystemMonitor {
                 this.ciData = data.workflow_runs;
                 this.renderCIData();
             }
-        } catch (error) {
+        } catch {
             // Fallback to mock data if API fails
             this.generateMockCIData();
             this.renderCIData();
@@ -154,7 +154,6 @@ class SystemMonitor {
         ];
         
         const statuses = ['completed', 'in_progress', 'failed'];
-        const conclusions = ['success', 'failure', null];
         
         this.ciData = workflows.map((name, i) => {
             const status = i === 1 ? 'in_progress' : statuses[Math.floor(Math.random() * 2)];

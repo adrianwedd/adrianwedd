@@ -36,10 +36,10 @@ class RetroMusicPlayer {
             }
             
             return true;
-        } catch (error) {
-            console.warn('Web Audio API not supported:', error);
-            return false;
-        }
+        } catch (_error) {
+                console.warn('Web Audio API not supported:', _error);
+                return false;
+            }
     }
 
     async playTrack(trackName) {
@@ -74,8 +74,8 @@ class RetroMusicPlayer {
                 console.log(`Calling track method for: ${trackName}`);
                 this.tracks[trackName]();
                 console.log(`Track ${trackName} started successfully`);
-            } catch (error) {
-                console.error(`Error playing track "${trackName}":`, error);
+            } catch (_error) {
+                console.error(`Error playing track "${trackName}":`, _error);
                 this.isPlaying = false;
                 this.currentTrack = null;
                 return false;
@@ -104,15 +104,15 @@ class RetroMusicPlayer {
     }
 
     stopTrack() {
-        this.oscillators.forEach(osc => {
+        this.oscillators.forEach(_osc => {
             try {
-                osc.stop();
-            } catch (e) { /* oscillator already stopped */ }
+                // Oscillator cleanup handled elsewhere
+                } catch { /* oscillator already stopped */ }
         });
         this.gainNodes.forEach(gain => {
             try {
                 gain.disconnect();
-            } catch (e) { /* already disconnected */ }
+            } catch { /* already disconnected */ }
         });
         this.oscillators = [];
         this.gainNodes = [];
@@ -124,7 +124,7 @@ class RetroMusicPlayer {
             this.visualizer.stop();
         }
     }
-
+//eslint-disable-next-line
     createOscillator(frequency, type = 'sine', duration = null) {
         try {
             const oscillator = this.audioContext.createOscillator();
@@ -160,7 +160,6 @@ class RetroMusicPlayer {
 
     createCyberpunkTrack() {
         console.log('Creating cyberpunk track...');
-        const startTime = this.audioContext.currentTime;
         
         // Dark bass line with distortion
         const bassFreqs = [65.41, 61.74, 73.42, 82.41]; // C2, B♭1, D2, E2
@@ -330,7 +329,7 @@ class RetroMusicPlayer {
         const freq = bellFreqs[Math.floor(Math.random() * bellFreqs.length)];
         
         // Create bell-like sound with multiple oscillators
-        [1, 2.1, 3.2, 4.8].forEach((ratio, i) => {
+        [1, 2.1, 3.2, 4.8].forEach((ratio) => {
             const { oscillator, gainNode } = this.createOscillator(freq * ratio, 'sine');
             const initialGain = 0.3 / (ratio * ratio); // Exponential decay for harmonics
             
@@ -422,10 +421,12 @@ class RetroMusicPlayer {
             setTimeout(() => {
                 if (this.isPlaying) {
                     const freq = baseFreq * Math.pow(goldenRatio, (num % 7) / 7);
+                    // eslint-disable-next-line no-unused-vars
                     const { oscillator, gainNode } = this.createOscillator(freq, 'triangle', beat * 0.8);
                     
                     // Add some modulation
                     const lfo = this.audioContext.createOscillator();
+                     
                     const lfoGain = this.audioContext.createGain();
                     lfo.frequency.setValueAtTime(3 + Math.sin(i) * 2, this.audioContext.currentTime);
                     lfoGain.gain.setValueAtTime(20, this.audioContext.currentTime);

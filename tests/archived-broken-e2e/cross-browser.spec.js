@@ -7,7 +7,7 @@ test.describe('Cross‑Browser Compatibility', () => {
   /* ------------------------------------------------------------------ */
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
   });
 
   /* ------------------------------------------------------------------ */
