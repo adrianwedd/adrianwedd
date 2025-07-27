@@ -279,9 +279,12 @@ jobs:
           echo "💰 Token budget: ${{ steps.token-check.outputs.tokens_remaining }} remaining"
           echo ""
           
-          # Check if Anthropic API key is available
-          if [ -n "$ANTHROPIC_API_KEY" ]; then
-            echo "🧠 **USING CLAUDE AI AUTONOMOUS EXECUTOR**"
+          # Check if Claude OAuth token or Anthropic API key is available
+          if [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
+            echo "🧠 **USING CLAUDE AI AUTONOMOUS EXECUTOR (OAuth)**"
+            echo "✅ Claude Max OAuth token detected - full AI-powered automation enabled"
+          elif [ -n "$ANTHROPIC_API_KEY" ]; then
+            echo "🧠 **USING CLAUDE AI AUTONOMOUS EXECUTOR (API Key)**"
             echo "✅ API key detected - full AI-powered automation enabled"
             echo ""
             
@@ -314,8 +317,8 @@ jobs:
           Execute with confidence and technical excellence!
           PROMPT_EOF
             
-            # Execute AI-powered autonomous script
-            AUTONOMOUS_PROMPT="$(cat enhanced_prompt.txt)" ISSUES_JSON="$(cat issues.json)" node .github/scripts/autonomous-executor.js
+            # Execute OAuth-compatible autonomous script
+            AUTONOMOUS_PROMPT="$(cat enhanced_prompt.txt)" ISSUES_JSON="$(cat issues.json)" node .github/scripts/claude-oauth-executor.js
           else
             echo "🔧 **USING RULE-BASED ISSUE PROCESSOR**"
             echo "💡 No API key - using intelligent automation without external APIs"
@@ -325,6 +328,7 @@ jobs:
             ISSUES_JSON="$(cat issues.json)" node .github/scripts/issue-processor.js
           fi
         env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AUTONOMOUS_PROMPT: ${{ steps.fetch-issues.outputs.prompt }}
@@ -339,12 +343,13 @@ jobs:
           echo "📋 Issues that may require manual intervention:"
           jq -r '.[] | "  - #\(.number): \(.title)"' issues.json
           echo ""
-          if [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+          if [ -n "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}" ] || [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
             echo "🧠 Mode: AI-powered autonomous executor"
-            echo "🔧 Check API key configuration and network connectivity"
+            echo "🔧 Check authentication configuration and network connectivity"
+            echo "💡 OAuth token preferred for Claude Max/Pro accounts"
           else
             echo "🔧 Mode: Rule-based issue processor"
-            echo "💡 Consider adding ANTHROPIC_API_KEY secret for AI-powered automation"
+            echo "💡 Add CLAUDE_CODE_OAUTH_TOKEN (Claude Max) or ANTHROPIC_API_KEY for AI automation"
           fi
           echo "📊 Session data available in .github/data/autonomous-sessions/"
 
