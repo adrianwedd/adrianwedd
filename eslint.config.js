@@ -41,7 +41,14 @@ export default [
                 AudioVisualizer: 'readonly',
                 GitHubTaskManager: 'readonly',
                 GitHubActionsManager: 'readonly',
-                ParticleEffects: 'readonly'
+                ParticleEffects: 'readonly',
+                EnhancedResearchStreamer: 'readonly',
+                ScriptEngine: 'readonly',
+                ScriptEditor: 'readonly',
+                // DOM/Browser globals
+                KeyboardEvent: 'readonly',
+                MouseEvent: 'readonly',
+                Event: 'readonly'
             }
         },
         rules: {
@@ -90,9 +97,19 @@ export default [
         },
         languageOptions: {
             globals: {
+                // Playwright globals
                 test: 'readonly',
                 expect: 'readonly',
-                require: 'readonly'
+                require: 'readonly',
+                // Jest globals
+                describe: 'readonly',
+                it: 'readonly',
+                beforeEach: 'readonly',
+                beforeAll: 'readonly',
+                afterEach: 'readonly',
+                afterAll: 'readonly',
+                jest: 'readonly',
+                global: 'readonly'
             }
         }
     }
