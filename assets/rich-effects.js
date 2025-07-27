@@ -67,7 +67,7 @@ class RichEffects {
         } else {
             // Create new element
             this.terminal.addOutput(progressLine, style.color);
-            const outputs = document.querySelectorAll('.output-line');
+            const outputs = document.querySelectorAll('.boot-line');
             progress.element = outputs[outputs.length - 1];
         }
     }

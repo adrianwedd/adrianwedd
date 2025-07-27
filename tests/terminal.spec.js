@@ -269,7 +269,7 @@ test.describe('Adrian Wedd Terminal Interface', () => {
     await page.waitForTimeout(500);
     
     // Check that only boot sequence and prompt remain
-    const outputLines = await page.locator('.output-line').count();
+    const outputLines = await page.locator('.boot-line').count();
     expect(outputLines).toBeLessThan(10); // Should be mostly cleared
     
     // Boot sequence should still be there

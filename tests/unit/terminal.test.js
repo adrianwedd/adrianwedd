@@ -84,12 +84,12 @@ mockElements.terminal.querySelector = jest.fn((selector) => {
 });
 
 mockElements.terminal.querySelectorAll = jest.fn((selector) => {
-  if (selector === '.output-line') return [];
+  if (selector === '.boot-line') return [];
   return [];
 });
 
 mockElements.terminalContent.querySelectorAll = jest.fn((selector) => {
-  if (selector === '.output-line') return [];
+  if (selector === '.boot-line') return [];
   return [];
 });
 
@@ -231,11 +231,11 @@ beforeAll(() => {
         
         // Remove all output lines from terminal content
         if (terminalContent) {
-          const outputs = terminalContent.querySelectorAll('.output-line');
+          const outputs = terminalContent.querySelectorAll('.boot-line');
           outputs.forEach(output => output.remove());
         } else {
           // Fallback: remove all output lines from terminal
-          const outputs = terminal.querySelectorAll('.output-line');
+          const outputs = terminal.querySelectorAll('.boot-line');
           outputs.forEach(output => output.remove());
         }
       }

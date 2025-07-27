@@ -412,7 +412,7 @@ class Terminal {
         this.addDebugLog(`Adding output: ${text.substring(0, 50)}... (class: ${className})`, 'info', 'output');
         const terminal = document.getElementById('terminal');
         const output = document.createElement('div');
-        output.className = `output-line ${className}`;
+        output.className = `boot-line ${className}`;
         
         if (typeof text === 'string') {
             if (allowHTML) {
@@ -494,7 +494,7 @@ class Terminal {
 
     animateTerminalScroll() {
         const terminal = document.getElementById('terminal');
-        const outputs = terminal.querySelectorAll('.output-line');
+        const outputs = terminal.querySelectorAll('.boot-line');
         
         // If we have too many lines, animate them moving up
         if (outputs.length > this.maxLines) {
@@ -1289,12 +1289,12 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         
         // Remove all output lines from terminal content
         if (terminalContent) {
-            const outputs = terminalContent.querySelectorAll('.output-line');
+            const outputs = terminalContent.querySelectorAll('.boot-line');
             outputs.forEach(output => output.remove());
             this.addDebugLog(`Removed ${outputs.length} output lines`, 'info', 'system');
         } else {
             // Fallback: remove all output lines from terminal
-            const outputs = terminal.querySelectorAll('.output-line');
+            const outputs = terminal.querySelectorAll('.boot-line');
             outputs.forEach(output => output.remove());
             this.addDebugLog(`Removed ${outputs.length} output lines (fallback)`, 'info', 'system');
         }
@@ -2424,7 +2424,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
     removeLastOutput() {
         const terminal = document.getElementById('terminal');
-        const outputLines = terminal.querySelectorAll('.output-line');
+        const outputLines = terminal.querySelectorAll('.boot-line');
         if (outputLines.length > 0) {
             const lastOutput = outputLines[outputLines.length - 1];
             if (!lastOutput.classList.contains('prompt-line')) {

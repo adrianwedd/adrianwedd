@@ -204,6 +204,51 @@ input, textarea, select {
     transition: var(--theme-transition);
 }
 
+/* Enhanced boot-line variants for command output */
+.boot-line.prompt {
+    color: var(--prompt-color);
+    font-weight: normal;
+    transition: var(--theme-transition);
+}
+
+.boot-line.success {
+    color: var(--success-color);
+    transition: var(--theme-transition);
+}
+
+.boot-line.error {
+    color: var(--error-color);
+    transition: var(--theme-transition);
+}
+
+.boot-line.warning {
+    color: var(--warning-color);
+    transition: var(--theme-transition);
+}
+
+.boot-line.info {
+    color: var(--info-color);
+    transition: var(--theme-transition);
+}
+
+.boot-line.feature-highlight {
+    color: var(--feature-color);
+    transition: var(--theme-transition);
+}
+
+.boot-line.ai-highlight {
+    color: var(--ai-color);
+    transition: var(--theme-transition);
+}
+
+.boot-line.section-header {
+    color: var(--text-color);
+    font-weight: bold;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    transition: var(--theme-transition);
+}
+
 /* Boot sequence scrollbar */
 .boot-sequence::-webkit-scrollbar {
     width: 4px;
@@ -370,11 +415,7 @@ input, textarea, select {
     transition: var(--theme-transition);
 }
 
-.output-line {
-    margin: 5px 0;
-    color: var(--text-color);
-    transition: var(--theme-transition);
-}
+/* Legacy output-line styles removed - now using boot-line for consistent styling */
 
 .error {
     color: var(--error-color);
