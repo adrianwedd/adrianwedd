@@ -227,11 +227,11 @@ describe('Accessibility Tests', () => {
         .mockReturnValueOnce(mockBootSequence)
         .mockReturnValueOnce(mockVoiceStatus);
       
-      const bootSequence = mockDocument.getElementById('bootSequence');
+      const terminalOutput = mockDocument.getElementById('terminalOutput');
       const voiceStatus = mockDocument.getElementById('voiceStatus');
       
-      if (bootSequence) {
-        const ariaLive = bootSequence.getAttribute('aria-live');
+      if (terminalOutput) {
+        const ariaLive = terminalOutput.getAttribute('aria-live');
         expect(['polite', 'assertive', 'off'].includes(ariaLive) || ariaLive === null).toBeTruthy();
       }
       

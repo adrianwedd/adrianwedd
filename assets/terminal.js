@@ -410,7 +410,7 @@ class Terminal {
 
     addOutput(text, className = '', allowHTML = false) {
         this.addDebugLog(`Adding output: ${text.substring(0, 50)}... (class: ${className})`, 'info', 'output');
-        const terminal = document.getElementById('terminal');
+        const terminalOutput = document.getElementById('terminalOutput');
         const output = document.createElement('div');
         output.className = `boot-line ${className}`;
         
@@ -440,13 +440,15 @@ class Terminal {
             }
         }
         
-        const terminalContent = terminal.querySelector('.terminal-content');
-        if (terminalContent) {
-            terminalContent.appendChild(output);
+        if (terminalOutput) {
+            terminalOutput.appendChild(output);
         } else {
-            // Fallback for backwards compatibility
-            const promptLine = terminal.querySelector('.prompt-line');
-            terminal.insertBefore(output, promptLine);
+            // Fallback: try to find terminal and append there
+            const terminal = document.getElementById('terminal');
+            if (terminal) {
+                const promptLine = terminal.querySelector('.prompt-line');
+                terminal.insertBefore(output, promptLine);
+            }
         }
         
         // Animate the scroll effect
@@ -1300,9 +1302,9 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         }
 
         // Clear boot sequence lines
-        const bootContainer = document.getElementById('bootSequence');
-        if (bootContainer) {
-            bootContainer.innerHTML = '';
+        const terminalContainer = document.getElementById('terminalOutput');
+        if (terminalContainer) {
+            terminalContainer.innerHTML = '';
             this.addDebugLog('Boot sequence container cleared', 'info', 'system');
         }
     }
@@ -1901,8 +1903,8 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     // Boot Sequence Methods
     startBootSequence() {
         this.addDebugLog('Starting boot sequence', 'info', 'system');
-        const bootContainer = document.getElementById('bootSequence');
-        if (!bootContainer) {
+        const terminalContainer = document.getElementById('terminalOutput');
+        if (!terminalContainer) {
             this.addDebugLog('Boot sequence container not found', 'error', 'system');
             return;
         }
@@ -1911,8 +1913,8 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         this.skipBoot = false;
         this.bootTimeouts = [];
 
-        bootContainer.innerHTML = '';
-        bootContainer.addEventListener('click', this.boundBootSkip);
+        terminalContainer.innerHTML = '';
+        terminalContainer.addEventListener('click', this.boundBootSkip);
         document.addEventListener('keydown', this.boundBootKeyDown);
 
         this.addDebugLog('Boot sequence container cleared', 'info', 'system');
@@ -1955,13 +1957,13 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     skipBootSequence() {
         if (!this.isBooting) return;
         this.skipBoot = true;
-        const bootContainer = document.getElementById('bootSequence');
-        bootContainer.innerHTML = '';
+        const terminalContainer = document.getElementById('terminalOutput');
+        terminalContainer.innerHTML = '';
         this.currentBootMessages.forEach(msg => {
             const line = document.createElement('div');
             line.className = 'boot-line';
             line.textContent = msg || ' ';
-            bootContainer.appendChild(line);
+            terminalContainer.appendChild(line);
         });
         this.showBootComplete();
     }
@@ -2192,14 +2194,14 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         }
         
         const message = messages[index];
-        const bootContainer = document.getElementById('bootSequence');
+        const terminalContainer = document.getElementById('terminalOutput');
         
         if (message === '') {
             // Empty line - just add space and continue quickly
             const line = document.createElement('div');
             line.className = 'boot-line';
             line.innerHTML = '&nbsp;';
-            bootContainer.appendChild(line);
+            terminalContainer.appendChild(line);
             this.addDebugLog('Added empty boot line', 'info', 'system');
             
             const id = setTimeout(() => {
@@ -2212,7 +2214,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         // Create line element
         const line = document.createElement('div');
         line.className = 'boot-line';
-        bootContainer.appendChild(line);
+        terminalContainer.appendChild(line);
         
         // Type out the message character by character (fast)
         let charIndex = 0;
@@ -2225,7 +2227,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
                 this.bootTimeouts.push(id);
             } else {
                 // Line complete - scroll and continue to next
-                bootContainer.scrollTop = bootContainer.scrollHeight;
+                terminalContainer.scrollTop = terminalContainer.scrollHeight;
                 this.addDebugLog(`Finished typing line: ${message.substring(0, 50)}...`, 'info', 'system');
 
                 // Short delay before next line (50-150ms)
@@ -2244,9 +2246,9 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         this.isBooting = false;
         localStorage.setItem('bootPlayed', 'true');
 
-        const bootContainer = document.getElementById('bootSequence');
+        const terminalContainer = document.getElementById('terminalOutput');
         document.removeEventListener('keydown', this.boundBootKeyDown);
-        bootContainer.removeEventListener('click', this.boundBootSkip);
+        terminalContainer.removeEventListener('click', this.boundBootSkip);
         this.bootTimeouts.forEach(id => clearTimeout(id));
         this.bootTimeouts = [];
         
@@ -2254,7 +2256,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         const statusLine = document.createElement('div');
         statusLine.className = 'boot-line status-line';
         statusLine.innerHTML = 'Ready for interaction: <span class="status-online">ACTIVE</span>';
-        bootContainer.appendChild(statusLine);
+        terminalContainer.appendChild(statusLine);
         
         // Focus the command input
         const commandInput = document.getElementById('commandInput');
@@ -2265,9 +2267,9 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         
         // Optional: Add subtle completion effect
         setTimeout(() => {
-            bootContainer.style.borderLeft = '3px solid #00ff41';
+            terminalContainer.style.borderLeft = '3px solid #00ff41';
             setTimeout(() => {
-                bootContainer.style.borderLeft = 'none';
+                terminalContainer.style.borderLeft = 'none';
             }, 1000);
         }, 200);
     }

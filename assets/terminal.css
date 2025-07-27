@@ -175,7 +175,7 @@ input, textarea, select {
     justify-content: flex-start; /* Start content at top */
 }
 
-.boot-sequence {
+.terminal-output {
     margin-bottom: 20px;
     max-height: none;
     min-height: 70vh;
@@ -187,7 +187,7 @@ input, textarea, select {
     line-height: 1.3;
     border: none;
     outline: none;
-    cursor: pointer; /* Allow click to skip */
+    cursor: pointer; /* Allow click to skip boot sequence */
 }
 
 .boot-line {
@@ -198,7 +198,7 @@ input, textarea, select {
 }
 
 .boot-line.status-line {
-    color: var(--success-color);
+    color: var(--text-color);
     font-weight: bold;
     margin-top: 10px;
     transition: var(--theme-transition);
@@ -206,38 +206,38 @@ input, textarea, select {
 
 /* Enhanced boot-line variants for command output */
 .boot-line.prompt {
-    color: var(--prompt-color);
+    color: var(--text-color);
     font-weight: normal;
     transition: var(--theme-transition);
 }
 
 .boot-line.success {
-    color: var(--success-color);
+    color: var(--text-color);
     transition: var(--theme-transition);
 }
 
 .boot-line.error {
-    color: var(--error-color);
+    color: var(--text-color);
     transition: var(--theme-transition);
 }
 
 .boot-line.warning {
-    color: var(--warning-color);
+    color: var(--text-color);
     transition: var(--theme-transition);
 }
 
 .boot-line.info {
-    color: var(--info-color);
+    color: var(--text-color);
     transition: var(--theme-transition);
 }
 
 .boot-line.feature-highlight {
-    color: var(--feature-color);
+    color: var(--text-color);
     transition: var(--theme-transition);
 }
 
 .boot-line.ai-highlight {
-    color: var(--ai-color);
+    color: var(--text-color);
     transition: var(--theme-transition);
 }
 
@@ -249,20 +249,20 @@ input, textarea, select {
     transition: var(--theme-transition);
 }
 
-/* Boot sequence scrollbar */
-.boot-sequence::-webkit-scrollbar {
+/* Terminal output scrollbar */
+.terminal-output::-webkit-scrollbar {
     width: 4px;
 }
 
-.boot-sequence::-webkit-scrollbar-track {
+.terminal-output::-webkit-scrollbar-track {
     background: #111;
 }
 
-.boot-sequence::-webkit-scrollbar-thumb {
+.terminal-output::-webkit-scrollbar-thumb {
     background: #333;
 }
 
-.boot-sequence::-webkit-scrollbar-thumb:hover {
+.terminal-output::-webkit-scrollbar-thumb:hover {
     background: #444;
 }
 
