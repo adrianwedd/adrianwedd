@@ -186,26 +186,14 @@ button,
 /* Error and success states */
 .error {
     color: #ff4444;
-    background: rgba(255, 68, 68, 0.1);
-    border: 1px solid #ff4444;
-    padding: 8px;
-    border-radius: 3px;
 }
 
 .success {
     color: #44ff44;
-    background: rgba(68, 255, 68, 0.1);
-    border: 1px solid #44ff44;
-    padding: 8px;
-    border-radius: 3px;
 }
 
 .warning {
     color: #ffaa00;
-    background: rgba(255, 170, 0, 0.1);
-    border: 1px solid #ffaa00;
-    padding: 8px;
-    border-radius: 3px;
 }
 
 /* ARIA live regions styling */
