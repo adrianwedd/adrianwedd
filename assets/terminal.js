@@ -3693,11 +3693,8 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 ░░░       ░░░░░   ░░░░░ ░░░░░░░░░░   ░░░░░   ░░░░░ ░░░░░ ░░░░░   ░░░░░ ░░░░░    ░░░░░`;
 
         this.addOutput('', 'info');
-        adrianAscii.split('\n').forEach(line => {
-            if (line.trim()) {
-                this.addOutput(line, 'success');
-            }
-        });
+        // Render the entire ASCII art as one block to preserve formatting
+        this.addOutput(adrianAscii, 'ascii-art');
         this.addOutput('', 'info');
         this.addOutput('🚀 >ADRIAN - Recursive Systems Architect & Off-Grid Permanaut', 'feature-highlight');
         this.addOutput('   Building intelligent systems from Tasmania\'s wilderness', 'info');
