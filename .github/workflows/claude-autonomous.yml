@@ -540,6 +540,34 @@ jobs:
           SESSION_UTC=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
           AUTH_METHOD="${{ steps.token-check.outputs.auth_method }}"
           
+          echo "🔍 Debug: AUTH_METHOD is: $AUTH_METHOD"
+          echo "🔍 Debug: OAuth token present: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}"
+          echo "🔍 Debug: API key present: ${{ secrets.ANTHROPIC_API_KEY != '' }}"
+          
+          # Ensure usage file exists with proper structure
+          mkdir -p .github/data
+          if [ ! -f "$USAGE_FILE" ]; then
+            echo '{
+              "auth_method": "'$AUTH_METHOD'",
+              "session_usage": [],
+              "five_hour_sessions": [],
+              "last_session_reset": "'$SESSION_UTC'",
+              "metadata": {
+                "max_pro_limits": {
+                  "pro_prompts_per_5h": 40,
+                  "max_5x_prompts_per_5h": 200,
+                  "max_20x_prompts_per_5h": 800,
+                  "session_length_hours": 5
+                },
+                "api_limits": {
+                  "daily_tokens": 100000
+                },
+                "created": "'$SESSION_UTC'",
+                "version": "2.0"
+              }
+            }' > "$USAGE_FILE"
+          fi
+          
           # Record usage based on authentication method
           if [ "$AUTH_METHOD" = "claude-max-oauth" ]; then
             # Max/Pro account - record prompt usage
@@ -712,6 +740,8 @@ jobs:
           echo "- Token Savings: $TOKEN_SAVINGS"
           echo "- Cost Efficiency: $(echo "scale=1; $TOKEN_SAVINGS * 100 / $TOTAL_TOKENS" | bc -l)%"
         env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: 📊 Autonomous Session Summary
