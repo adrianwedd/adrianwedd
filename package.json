@@ -72,7 +72,7 @@
     "*.css": "stylelint --fix"
   },
   "dependencies": {
-    "@sentry/browser": "^9.41.0",
+    "@sentry/browser": "^9.42.0",
     "@sentry/tracing": "^7.120.3"
   }
 }
