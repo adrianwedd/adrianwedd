@@ -166,17 +166,14 @@ input, textarea, select {
 
 .terminal-content {
     flex: 1;
-    overflow-y: visible; /* Allow content to be visible */
     display: flex;
     flex-direction: column;
     min-height: 0; /* Allow shrinking */
-    justify-content: flex-start; /* Start content at top */
+    overflow: hidden; /* Prevent overflow from terminal-content */
 }
 
 .terminal-output {
-    margin-bottom: 20px;
-    max-height: none;
-    min-height: 70vh;
+    flex: 1;
     overflow-y: auto;
     padding: 10px;
     background: rgba(0, 0, 0, 0.9);
@@ -186,6 +183,7 @@ input, textarea, select {
     border: none;
     outline: none;
     cursor: pointer; /* Allow click to skip boot sequence */
+    margin-bottom: 0;
 }
 
 .boot-line {
@@ -274,8 +272,9 @@ input, textarea, select {
     display: flex;
     align-items: center;
     padding: 20px;
-    flex-shrink: 0; /* Never shrink */
+    flex-shrink: 0; /* Never shrink - always stay at bottom */
     background: var(--terminal-bg);
+    border-top: 1px solid rgba(0, 255, 65, 0.1); /* Subtle separator */
     transition: var(--theme-transition);
 }
 
