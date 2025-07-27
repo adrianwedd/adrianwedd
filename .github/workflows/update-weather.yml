@@ -1,32 +1,57 @@
-name: 🌤️ Tasmania Weather Update
+name: 🌤️ Tasmania Weather Intelligence System
+
 on:
   schedule:
-    - cron: '0 */3 * * *' # Every 3 hours
-  workflow_dispatch: # Manual trigger
+    - cron: '0 */3 * * *' # Automated weather updates every 3 hours
+  workflow_dispatch:
     inputs:
       location:
-        description: 'Weather location (grove/cygnet)'
+        description: 'Weather monitoring location'
         required: false
         default: 'grove'
         type: choice
         options:
-        - grove
-        - cygnet
+          - grove
+          - cygnet
+      force_update:
+        description: 'Force weather data refresh'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  WEATHER_UPDATE_VERSION: "v2.0"
+  TASMANIA_TIMEZONE: "Australia/Tasmania"
 
 jobs:
-  update-weather:
+  weather-intelligence:
+    name: 🌦️ Weather Data Intelligence
     runs-on: ubuntu-latest
     permissions:
       contents: write
     
     steps:
-    - name: 🚀 Checkout Repository
-      uses: actions/checkout@v4
-      
-    - name: 🌍 Determine Location
-      id: location
-      run: |
-        LOCATION="${{ github.event.inputs.location || 'grove' }}"
+      - name: 🌤️ Weather System Initialization
+        run: |
+          echo "🌤️ **TASMANIA WEATHER INTELLIGENCE SYSTEM ACTIVATED**"
+          echo "📅 Update cycle: $(TZ='${{ env.TASMANIA_TIMEZONE }}' date +'%Y-%m-%d %H:%M %Z')"
+          echo "🌍 Target location: ${{ github.event.inputs.location || 'grove' }}"
+          echo "🔄 Force update: ${{ github.event.inputs.force_update || 'false' }}"
+          echo "🤖 Triggered by: ${{ github.event_name }}"
+          echo "📊 System version: ${{ env.WEATHER_UPDATE_VERSION }}"
+          echo ""
+
+      - name: 📥 Repository Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🌍 Location Intelligence Analysis
+        id: location
+        run: |
+          echo "🌍 **ANALYZING TARGET LOCATION PARAMETERS**"
+          LOCATION="${{ github.event.inputs.location || 'grove' }}"
+          echo "📍 Selected location: $LOCATION"
         
         if [ "$LOCATION" = "grove" ]; then
           # Grove/Cygnet area - closest BOM station
