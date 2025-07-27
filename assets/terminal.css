@@ -149,7 +149,6 @@ input, textarea, select {
 .terminal {
     flex: 1;
     padding: 20px;
-    padding-bottom: 80px; /* Space for prompt line */
     background: var(--terminal-bg);
     overflow-y: auto; /* Allow scrolling when content overflows */
     overflow-x: hidden; /* Prevent horizontal overflow */
@@ -171,7 +170,6 @@ input, textarea, select {
     display: flex;
     flex-direction: column;
     min-height: 0; /* Allow shrinking */
-    padding-bottom: 80px; /* Space for prompt line */
     justify-content: flex-start; /* Start content at top */
 }
 
@@ -275,16 +273,9 @@ input, textarea, select {
 .prompt-line {
     display: flex;
     align-items: center;
-    margin-top: auto; /* Push to bottom */
     padding: 20px;
     flex-shrink: 0; /* Never shrink */
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    background: var(--terminal-bg); /* Ensure visibility over content */
-    z-index: 10;
+    background: var(--terminal-bg);
     transition: var(--theme-transition);
 }
 

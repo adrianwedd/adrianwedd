@@ -45,16 +45,16 @@
                 <div class="terminal-output" id="terminalOutput">
                     <!-- Dynamic terminal output will be populated here -->
                 </div>
-            </div>
-            
-            <div class="prompt-line">
-                <span class="prompt">adrian@home:~$</span>
-                <input type="text" id="commandInput" class="command-input" autofocus>
-                <span class="cursor">█</span>
-                <div class="voice-controls-inline">
-                    <div class="voice-indicator" id="voiceIndicator">🎤</div>
-                    <button class="voice-toggle" id="voiceToggle" onclick="window.terminal && window.terminal.toggleVoice()" aria-label="Toggle voice input on or off">Voice</button>
-                    <button class="speech-toggle" id="speechToggle" onclick="window.voiceInterface && window.voiceInterface.toggleSpeechOutput()" aria-label="Toggle voice output on or off" title="Toggle automatic speech output">🔊</button>
+                
+                <div class="prompt-line">
+                    <span class="prompt">adrian@home:~$</span>
+                    <input type="text" id="commandInput" class="command-input" autofocus>
+                    <span class="cursor">█</span>
+                    <div class="voice-controls-inline">
+                        <div class="voice-indicator" id="voiceIndicator">🎤</div>
+                        <button class="voice-toggle" id="voiceToggle" onclick="window.terminal && window.terminal.toggleVoice()" aria-label="Toggle voice input on or off">Voice</button>
+                        <button class="speech-toggle" id="speechToggle" onclick="window.voiceInterface && window.voiceInterface.toggleSpeechOutput()" aria-label="Toggle voice output on or off" title="Toggle automatic speech output">🔊</button>
+                    </div>
                 </div>
             </div>
             <div id="debugPanel" class="debug-panel" style="display: none;">
