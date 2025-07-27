@@ -119,7 +119,7 @@ class Terminal {
     this.currentTheme = 'default'; // Default theme
 
     this.init();
-    this.loadHistoryFromStorage();
+    this.loadCommandHistory();
     this.addDebugLog('Terminal initialized', 'info', 'system');
   }
 
@@ -157,12 +157,8 @@ class Terminal {
     // Apply initial theme
     this.applyTheme(this.currentTheme);
 
-    // Start boot sequence only on first visit
-    if (!localStorage.getItem('bootPlayed')) {
-      this.startBootSequence();
-    } else {
-      this.showBootComplete();
-    }
+    // Always start boot sequence on page load
+    this.startBootSequence();
   }
 
   handleKeydown(event) {
@@ -190,6 +186,7 @@ class Terminal {
           this.executeCommand(command);
           this.commandHistory.push(command);
           this.historyIndex = this.commandHistory.length;
+          this.saveCommandHistory();
         }
       }
       input.value = '';
@@ -2021,6 +2018,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
     // Also add to main terminal history for consistency
     this.commandHistory.push(command);
     this.historyIndex = this.commandHistory.length;
+    this.saveCommandHistory();
     this.addDebugLog(`Split command executed, history updated`, 'info', 'command');
   }
 
@@ -2454,7 +2452,7 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
   showBootComplete() {
     this.addDebugLog('Boot sequence completed, showing prompt', 'success', 'system');
     this.isBooting = false;
-    localStorage.setItem('bootPlayed', 'true');
+    // Boot sequence complete
 
     const terminalContainer = document.getElementById('terminalOutput');
     document.removeEventListener('keydown', this.boundBootKeyDown);
@@ -4862,6 +4860,28 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
       '🔗 View detailed runs at: https://github.com/adrianwedd/adrianwedd/actions',
       'info'
     );
+  }
+
+  // Command history management
+  loadCommandHistory() {
+    try {
+      const stored = localStorage.getItem('terminal-history');
+      if (stored) {
+        this.commandHistory = JSON.parse(stored);
+        this.addDebugLog(`Loaded ${this.commandHistory.length} commands from history`, 'info', 'system');
+      }
+    } catch (error) {
+      this.addDebugLog('Failed to load command history: ' + error.message, 'warning', 'system');
+      this.commandHistory = [];
+    }
+  }
+
+  saveCommandHistory() {
+    try {
+      localStorage.setItem('terminal-history', JSON.stringify(this.commandHistory));
+    } catch (error) {
+      this.addDebugLog('Failed to save command history: ' + error.message, 'warning', 'system');
+    }
   }
 }
 
