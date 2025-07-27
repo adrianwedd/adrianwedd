@@ -286,8 +286,18 @@ async function main() {
   const prompt = process.env.AUTONOMOUS_PROMPT || process.argv[2];
   const issuesJson = process.env.ISSUES_JSON || process.argv[3];
 
+  console.log('🔍 **DEBUGGING INPUT PARAMETERS**');
+  console.log(`Prompt length: ${prompt ? prompt.length : 'undefined'} characters`);
+  console.log(`Issues JSON length: ${issuesJson ? issuesJson.length : 'undefined'} characters`);
+  console.log(`API Key present: ${executor.apiKey ? 'Yes' : 'No'}`);
+  console.log('');
+
   if (!prompt || !issuesJson) {
     console.error('❌ Missing required arguments: prompt and issues JSON');
+    console.error('Available environment variables:');
+    console.error('- AUTONOMOUS_PROMPT:', !!process.env.AUTONOMOUS_PROMPT);
+    console.error('- ISSUES_JSON:', !!process.env.ISSUES_JSON);
+    console.error('Command line args:', process.argv.slice(2));
     process.exit(1);
   }
 
@@ -298,17 +308,25 @@ async function main() {
 
   try {
     const issues = JSON.parse(issuesJson);
+    console.log(`📋 **PARSED ${issues.length} ISSUES SUCCESSFULLY**`);
+    console.log('');
+    
     const result = await executor.executeAutonomousSession(prompt, issues);
     
     if (result.success) {
       console.log('🎉 **AUTONOMOUS EXECUTION SUCCESSFUL**');
+      console.log(`📊 Token usage: ${result.tokenUsage.total} total (${result.tokenUsage.input} input, ${result.tokenUsage.output} output)`);
+      console.log(`🎯 Session ID: ${result.sessionId}`);
       process.exit(0);
     } else {
       console.error('❌ **AUTONOMOUS EXECUTION FAILED**');
+      console.error(`Error: ${result.error}`);
+      console.error(`🎯 Session ID: ${result.sessionId}`);
       process.exit(1);
     }
   } catch (error) {
     console.error('❌ **FATAL ERROR:**', error.message);
+    console.error('Stack trace:', error.stack);
     process.exit(1);
   }
 }

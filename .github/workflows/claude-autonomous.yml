@@ -279,8 +279,9 @@ jobs:
           echo "💰 Token budget: ${{ steps.token-check.outputs.tokens_remaining }} remaining"
           echo ""
           
-          # Prepare enhanced prompt with session context
-          ENHANCED_PROMPT="🤖 **AUTONOMOUS EXECUTION SESSION** - $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')
+          # Create enhanced prompt file to avoid shell parsing issues
+          cat > enhanced_prompt.txt << 'PROMPT_EOF'
+          🤖 **AUTONOMOUS EXECUTION SESSION** - $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')
           
           ## 📊 **Session Context**
           - Session #${{ steps.token-check.outputs.session_number }}/6
@@ -304,10 +305,11 @@ jobs:
           - Create comprehensive issue closure summaries
           - Commit changes with descriptive messages
           
-          Execute with confidence and technical excellence!"
+          Execute with confidence and technical excellence!
+          PROMPT_EOF
           
-          # Execute custom autonomous script
-          node .github/scripts/autonomous-executor.js "$ENHANCED_PROMPT" "$(cat issues.json)"
+          # Execute custom autonomous script using environment variables
+          AUTONOMOUS_PROMPT="$(cat enhanced_prompt.txt)" ISSUES_JSON="$(cat issues.json)" node .github/scripts/autonomous-executor.js
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
