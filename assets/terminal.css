@@ -84,6 +84,20 @@ input, textarea, button, select {
     outline: none;
 }
 
+/* Comprehensive focus styling to prevent blue outlines */
+input:focus, textarea:focus, button:focus, select:focus,
+*:focus {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Custom focus styling for accessibility */
+.command-input:focus {
+    background: rgba(0, 255, 65, 0.05);
+    transition: background 0.2s ease;
+}
+
 body {
     background: var(--background-color);
     font-family: 'JetBrains Mono', monospace;
@@ -140,6 +154,54 @@ input, textarea, select {
     flex-direction: column;
     min-height: 0; /* Allow shrinking */
     overflow: hidden; /* Prevent overflow from terminal-content */
+}
+
+/* Status Panel */
+.status-panel {
+    background: rgba(0, 20, 0, 0.8);
+    border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+    padding: 8px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    flex-shrink: 0;
+    transition: var(--theme-transition);
+}
+
+.status-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-label {
+    color: var(--info-color);
+    font-size: 10px;
+    letter-spacing: 0.5px;
+}
+
+.status-value {
+    color: var(--primary-color);
+    text-shadow: 0 0 5px var(--primary-color);
+    font-size: 11px;
+    animation: status-glow 3s ease-in-out infinite alternate;
+}
+
+.status-value.error {
+    color: var(--error-color);
+    text-shadow: 0 0 5px var(--error-color);
+}
+
+.status-value.warning {
+    color: #fa0;
+    text-shadow: 0 0 5px #fa0;
 }
 
 .terminal-output {
@@ -747,6 +809,15 @@ input, textarea, select {
     }
     100% {
         text-shadow: 0 0 12px var(--primary-color), 0 0 25px var(--primary-color), 0 0 35px var(--primary-color);
+    }
+}
+
+@keyframes status-glow {
+    0% {
+        text-shadow: 0 0 3px var(--primary-color);
+    }
+    100% {
+        text-shadow: 0 0 6px var(--primary-color), 0 0 10px var(--primary-color);
     }
 }
 

@@ -156,6 +156,9 @@ class Terminal {
 
     // Apply initial theme
     this.applyTheme(this.currentTheme);
+    
+    // Initialize status panel
+    this.updateStatusPanel();
 
     // Always start boot sequence on page load
     this.startBootSequence();
@@ -3636,9 +3639,34 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
     // Trigger CSS transitions
     body.style.transition = 'var(--theme-transition)';
+    
+    // Update status panel
+    this.updateStatusPanel();
 
     // Debug: Log the current theme attribute
     console.log('Applied theme:', themeName, 'data-theme:', body.getAttribute('data-theme'));
+  }
+
+  updateStatusPanel() {
+    const voiceStatus = document.getElementById('voiceStatus');
+    const systemStatus = document.getElementById('systemStatus');
+    const themeStatus = document.getElementById('themeStatus');
+
+    if (voiceStatus) {
+      const isVoiceReady = this.voiceInterface && this.voiceInterface.isListening;
+      voiceStatus.textContent = isVoiceReady ? 'LISTENING' : 'READY';
+      voiceStatus.className = 'status-value ' + (isVoiceReady ? '' : 'warning');
+    }
+
+    if (systemStatus) {
+      systemStatus.textContent = 'ACTIVE';
+      systemStatus.className = 'status-value';
+    }
+
+    if (themeStatus) {
+      themeStatus.textContent = this.currentTheme.toUpperCase();
+      themeStatus.className = 'status-value';
+    }
   }
 
   showAvailableThemes() {
