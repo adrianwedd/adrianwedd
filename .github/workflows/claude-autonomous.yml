@@ -354,7 +354,6 @@ jobs:
       - name: 🤖 Run Autonomous Processing
         if: steps.fetch-issues.outputs.issue_count > 0 && steps.token-check.outputs.proceed == 'true'
         id: claude-autonomous
-        continue-on-error: true
         run: |
           echo "🤖 **LAUNCHING AUTONOMOUS PROCESSING**"
           echo "📋 Processing ${{ steps.fetch-issues.outputs.issue_count }} issues"
