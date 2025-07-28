@@ -613,30 +613,54 @@ jobs:
             echo "- Session Outcome: ${{ steps.claude-autonomous.outcome }}"
             echo "- Issues Processed: ${{ steps.fetch-issues.outputs.issue_count }}"
             
-            # Update usage file with prompt-based tracking
-            jq --arg time "$SESSION_TIME" \
-               --arg utc "$SESSION_UTC" \
-               --arg prompts "$PROMPTS_USED" \
-               --arg outcome "${{ steps.claude-autonomous.outcome }}" \
-               --arg issues "${{ steps.fetch-issues.outputs.issue_count }}" \
-               --arg auth "$AUTH_METHOD" \
-               '. as $root |
-               .five_hour_sessions += [{
-                 "timestamp": $time,
-                 "utc_timestamp": $utc,
-                 "prompts_used": ($prompts | tonumber),
-                 "outcome": $outcome,
-                 "issues_processed": ($issues | tonumber),
-                 "auth_method": $auth
-               }] |
-               .session_usage += [{
-                 "timestamp": $time,
-                 "type": "claude_max_pro",
-                 "prompts_used": ($prompts | tonumber),
-                 "outcome": $outcome,
-                 "issues_count": ($issues | tonumber)
-               }]' "$USAGE_FILE" > "$USAGE_FILE.tmp"
-            mv "$USAGE_FILE.tmp" "$USAGE_FILE"
+            # Update usage file with prompt-based tracking (with validation)
+            OUTCOME="${{ steps.claude-autonomous.outcome }}"
+            ISSUE_COUNT="${{ steps.fetch-issues.outputs.issue_count }}"
+            
+            # Provide fallback values for empty variables
+            OUTCOME="${OUTCOME:-unknown}"
+            ISSUE_COUNT="${ISSUE_COUNT:-0}"
+            PROMPTS_USED="${PROMPTS_USED:-0}"
+            
+            echo "🔍 Debug: Variables before jq:"
+            echo "  SESSION_TIME: $SESSION_TIME"
+            echo "  SESSION_UTC: $SESSION_UTC"
+            echo "  PROMPTS_USED: $PROMPTS_USED"
+            echo "  OUTCOME: $OUTCOME"
+            echo "  ISSUE_COUNT: $ISSUE_COUNT"
+            echo "  AUTH_METHOD: $AUTH_METHOD"
+            
+            # Update usage file with proper error handling
+            if ! jq --arg time "$SESSION_TIME" \
+                   --arg utc "$SESSION_UTC" \
+                   --arg prompts "$PROMPTS_USED" \
+                   --arg outcome "$OUTCOME" \
+                   --arg issues "$ISSUE_COUNT" \
+                   --arg auth "$AUTH_METHOD" \
+                   '. as $root |
+                   .five_hour_sessions += [{
+                     "timestamp": $time,
+                     "utc_timestamp": $utc,
+                     "prompts_used": ($prompts | tonumber),
+                     "outcome": $outcome,
+                     "issues_processed": ($issues | tonumber),
+                     "auth_method": $auth
+                   }] |
+                   .session_usage += [{
+                     "timestamp": $time,
+                     "type": "claude_max_pro",
+                     "prompts_used": ($prompts | tonumber),
+                     "outcome": $outcome,
+                     "issues_count": ($issues | tonumber)
+                   }]' "$USAGE_FILE" > "$USAGE_FILE.tmp"; then
+              echo "❌ jq command failed, attempting manual JSON creation"
+              # Fallback to manual JSON creation if jq fails
+              cp "$USAGE_FILE" "$USAGE_FILE.backup"
+              echo "⚠️ Usage tracking update failed, keeping original file"
+            else
+              mv "$USAGE_FILE.tmp" "$USAGE_FILE"
+              echo "✅ Usage tracking updated successfully"
+            fi
             
           elif [ "$AUTH_METHOD" = "anthropic-api" ]; then
             # API account - estimate token usage
@@ -661,33 +685,46 @@ jobs:
             echo "- Cached Tokens: $CACHED_TOKENS"
             echo "- Token Savings: $TOKEN_SAVINGS"
             
-            # Update usage file with token-based tracking
-            jq --arg time "$SESSION_TIME" \
-               --arg utc "$SESSION_UTC" \
-               --arg total "$TOTAL_TOKENS" \
-               --arg input "$INPUT_TOKENS" \
-               --arg output "$OUTPUT_TOKENS" \
-               --arg cached "$CACHED_TOKENS" \
-               --arg savings "$TOKEN_SAVINGS" \
-               --arg cache_ratio "$CACHE_HIT_RATIO" \
-               --arg outcome "${{ steps.claude-autonomous.outcome }}" \
-               --arg issues "${{ steps.fetch-issues.outputs.issue_count }}" \
-               --arg auth "$AUTH_METHOD" \
-               '. as $root |
-               .session_usage += [{
-                 "timestamp": $time,
-                 "utc_timestamp": $utc,
-                 "total_tokens": ($total | tonumber),
-                 "input_tokens": ($input | tonumber),
-                 "output_tokens": ($output | tonumber),
-                 "cached_tokens": ($cached | tonumber),
-                 "cache_hit_ratio": ($cache_ratio | tonumber),
-                 "token_savings": ($savings | tonumber),
-                 "outcome": $outcome,
-                 "issues_processed": ($issues | tonumber),
-                 "auth_method": $auth
-               }]' "$USAGE_FILE" > "$USAGE_FILE.tmp"
-            mv "$USAGE_FILE.tmp" "$USAGE_FILE"
+            # Update usage file with token-based tracking (with validation)
+            OUTCOME="${{ steps.claude-autonomous.outcome }}"
+            ISSUE_COUNT="${{ steps.fetch-issues.outputs.issue_count }}"
+            
+            # Provide fallback values
+            OUTCOME="${OUTCOME:-unknown}"
+            ISSUE_COUNT="${ISSUE_COUNT:-0}"
+            
+            # Update usage file with proper error handling
+            if ! jq --arg time "$SESSION_TIME" \
+                   --arg utc "$SESSION_UTC" \
+                   --arg total "$TOTAL_TOKENS" \
+                   --arg input "$INPUT_TOKENS" \
+                   --arg output "$OUTPUT_TOKENS" \
+                   --arg cached "$CACHED_TOKENS" \
+                   --arg savings "$TOKEN_SAVINGS" \
+                   --arg cache_ratio "$CACHE_HIT_RATIO" \
+                   --arg outcome "$OUTCOME" \
+                   --arg issues "$ISSUE_COUNT" \
+                   --arg auth "$AUTH_METHOD" \
+                   '. as $root |
+                   .session_usage += [{
+                     "timestamp": $time,
+                     "utc_timestamp": $utc,
+                     "total_tokens": ($total | tonumber),
+                     "input_tokens": ($input | tonumber),
+                     "output_tokens": ($output | tonumber),
+                     "cached_tokens": ($cached | tonumber),
+                     "cache_hit_ratio": ($cache_ratio | tonumber),
+                     "token_savings": ($savings | tonumber),
+                     "outcome": $outcome,
+                     "issues_processed": ($issues | tonumber),
+                     "auth_method": $auth
+                   }]' "$USAGE_FILE" > "$USAGE_FILE.tmp"; then
+              echo "❌ jq command failed, keeping original file"
+              cp "$USAGE_FILE" "$USAGE_FILE.backup"
+            else
+              mv "$USAGE_FILE.tmp" "$USAGE_FILE"
+              echo "✅ Usage tracking updated successfully"
+            fi
             
           else
             # No auth - record rule-based processing
@@ -695,70 +732,113 @@ jobs:
             echo "- Mode: API-free issue analysis"
             echo "- Issues Analyzed: ${{ steps.fetch-issues.outputs.issue_count }}"
             
-            jq --arg time "$SESSION_TIME" \
-               --arg utc "$SESSION_UTC" \
-               --arg outcome "${{ steps.claude-autonomous.outcome }}" \
-               --arg issues "${{ steps.fetch-issues.outputs.issue_count }}" \
-               --arg auth "$AUTH_METHOD" \
-               '. as $root |
-               .session_usage += [{
-                 "timestamp": $time,
-                 "utc_timestamp": $utc,
-                 "type": "rule_based",
-                 "outcome": $outcome,
-                 "issues_analyzed": ($issues | tonumber),
-                 "auth_method": $auth
-               }]' "$USAGE_FILE" > "$USAGE_FILE.tmp"
-            mv "$USAGE_FILE.tmp" "$USAGE_FILE"
+            # Update usage file with rule-based tracking (with validation)
+            OUTCOME="${{ steps.claude-autonomous.outcome }}"
+            ISSUE_COUNT="${{ steps.fetch-issues.outputs.issue_count }}"
+            
+            # Provide fallback values
+            OUTCOME="${OUTCOME:-unknown}"
+            ISSUE_COUNT="${ISSUE_COUNT:-0}"
+            
+            # Update usage file with proper error handling
+            if ! jq --arg time "$SESSION_TIME" \
+                   --arg utc "$SESSION_UTC" \
+                   --arg outcome "$OUTCOME" \
+                   --arg issues "$ISSUE_COUNT" \
+                   --arg auth "$AUTH_METHOD" \
+                   '. as $root |
+                   .session_usage += [{
+                     "timestamp": $time,
+                     "utc_timestamp": $utc,
+                     "type": "rule_based",
+                     "outcome": $outcome,
+                     "issues_analyzed": ($issues | tonumber),
+                     "auth_method": $auth
+                   }]' "$USAGE_FILE" > "$USAGE_FILE.tmp"; then
+              echo "❌ jq command failed, keeping original file"
+              cp "$USAGE_FILE" "$USAGE_FILE.backup"
+            else
+              mv "$USAGE_FILE.tmp" "$USAGE_FILE"
+              echo "✅ Usage tracking updated successfully"
+            fi
           fi
           
-          # Update comprehensive usage tracking with cache analytics
-          jq --arg time "$SESSION_TIME" \
-             --arg utc "$SESSION_UTC" \
-             --arg total "$TOTAL_TOKENS" \
-             --arg input "$INPUT_TOKENS" \
-             --arg output "$OUTPUT_TOKENS" \
-             --arg cached "$CACHED_TOKENS" \
-             --arg savings "$TOKEN_SAVINGS" \
-             --arg cache_ratio "$CACHE_HIT_RATIO" \
-             --arg outcome "${{ steps.claude-autonomous.outcome }}" \
-             --arg issues "${{ steps.fetch-issues.outputs.issue_count }}" \
-             --arg session "${{ steps.token-check.outputs.session_number }}" \
-             '. as $root |
-             .session_usage += [{
-               "timestamp": $time,
-               "utc_timestamp": $utc,
-               "session_number": ($session | tonumber),
-               "total_tokens": ($total | tonumber),
-               "input_tokens": ($input | tonumber),
-               "output_tokens": ($output | tonumber),
-               "cached_tokens": ($cached | tonumber),
-               "cache_hit_ratio": ($cache_ratio | tonumber),
-               "token_savings": ($savings | tonumber),
-               "outcome": $outcome,
-               "issues_processed": ($issues | tonumber)
-             }] |
-             .daily_usage += [{
-               "hour": ($time | split(" ")[1] | split(":")[0] | tonumber),
-               "total_tokens": ($total | tonumber),
-               "cached_tokens": ($cached | tonumber),
-               "token_savings": ($savings | tonumber)
-             }] |
-             .cache_efficiency += [{
-               "timestamp": $utc,
-               "cache_hit_ratio": ($cache_ratio | tonumber),
-               "tokens_saved": ($savings | tonumber),
-               "efficiency_score": (($savings | tonumber) / ($total | tonumber))
-             }] |
-             .token_savings += [{
-               "timestamp": $utc,
-               "session": ($session | tonumber),
-               "base_cost": ($total | tonumber),
-               "actual_cost": (($total | tonumber) - ($savings | tonumber)),
-               "savings": ($savings | tonumber),
-               "savings_percentage": ((($savings | tonumber) / ($total | tonumber)) * 100)
-             }]' "$USAGE_FILE" > "$USAGE_FILE.tmp"
-          mv "$USAGE_FILE.tmp" "$USAGE_FILE"
+          # Update comprehensive usage tracking with cache analytics (if variables available)
+          if [ -n "$TOTAL_TOKENS" ] && [ -n "$SESSION_TIME" ]; then
+            FINAL_OUTCOME="${{ steps.claude-autonomous.outcome }}"
+            FINAL_ISSUE_COUNT="${{ steps.fetch-issues.outputs.issue_count }}"
+            FINAL_SESSION_NUMBER="${{ steps.token-check.outputs.session_number }}"
+            
+            # Provide fallback values
+            FINAL_OUTCOME="${FINAL_OUTCOME:-unknown}"
+            FINAL_ISSUE_COUNT="${FINAL_ISSUE_COUNT:-0}"
+            FINAL_SESSION_NUMBER="${FINAL_SESSION_NUMBER:-1}"
+            
+            # Skip comprehensive tracking if basic values are missing
+            if [ -z "$TOTAL_TOKENS" ]; then
+              TOTAL_TOKENS=0
+              INPUT_TOKENS=0
+              OUTPUT_TOKENS=0
+              CACHED_TOKENS=0
+              TOKEN_SAVINGS=0
+              CACHE_HIT_RATIO=0
+            fi
+            
+            # Update comprehensive usage tracking with error handling
+            if ! jq --arg time "$SESSION_TIME" \
+                   --arg utc "$SESSION_UTC" \
+                   --arg total "$TOTAL_TOKENS" \
+                   --arg input "$INPUT_TOKENS" \
+                   --arg output "$OUTPUT_TOKENS" \
+                   --arg cached "$CACHED_TOKENS" \
+                   --arg savings "$TOKEN_SAVINGS" \
+                   --arg cache_ratio "$CACHE_HIT_RATIO" \
+                   --arg outcome "$FINAL_OUTCOME" \
+                   --arg issues "$FINAL_ISSUE_COUNT" \
+                   --arg session "$FINAL_SESSION_NUMBER" \
+                   '. as $root |
+                   .session_usage += [{
+                     "timestamp": $time,
+                     "utc_timestamp": $utc,
+                     "session_number": ($session | tonumber),
+                     "total_tokens": ($total | tonumber),
+                     "input_tokens": ($input | tonumber),
+                     "output_tokens": ($output | tonumber),
+                     "cached_tokens": ($cached | tonumber),
+                     "cache_hit_ratio": ($cache_ratio | tonumber),
+                     "token_savings": ($savings | tonumber),
+                     "outcome": $outcome,
+                     "issues_processed": ($issues | tonumber)
+                   }] |
+                   .daily_usage += [{
+                     "hour": ($time | split(" ")[1] | split(":")[0] | tonumber),
+                     "total_tokens": ($total | tonumber),
+                     "cached_tokens": ($cached | tonumber),
+                     "token_savings": ($savings | tonumber)
+                   }] |
+                   .cache_efficiency += [{
+                     "timestamp": $utc,
+                     "cache_hit_ratio": ($cache_ratio | tonumber),
+                     "tokens_saved": ($savings | tonumber),
+                     "efficiency_score": (if ($total | tonumber) > 0 then (($savings | tonumber) / ($total | tonumber)) else 0 end)
+                   }] |
+                   .token_savings += [{
+                     "timestamp": $utc,
+                     "session": ($session | tonumber),
+                     "base_cost": ($total | tonumber),
+                     "actual_cost": (($total | tonumber) - ($savings | tonumber)),
+                     "savings": ($savings | tonumber),
+                     "savings_percentage": (if ($total | tonumber) > 0 then ((($savings | tonumber) / ($total | tonumber)) * 100) else 0 end)
+                   }]' "$USAGE_FILE" > "$USAGE_FILE.tmp"; then
+              echo "❌ Comprehensive tracking failed, keeping original file"
+              cp "$USAGE_FILE" "$USAGE_FILE.backup"
+            else
+              mv "$USAGE_FILE.tmp" "$USAGE_FILE"
+              echo "✅ Comprehensive usage tracking updated"
+            fi
+          else
+            echo "⚠️ Skipping comprehensive tracking due to missing variables"
+          fi
           
           echo "📊 Token Usage Analytics:"
           echo "- Total Tokens: $TOTAL_TOKENS"
