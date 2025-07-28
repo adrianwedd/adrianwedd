@@ -366,6 +366,39 @@ jobs:
           if [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
             echo "🧠 **USING CLAUDE AI AUTONOMOUS EXECUTOR (OAuth)**"
             echo "✅ Claude Max OAuth token detected - full AI-powered automation enabled"
+            echo ""
+            
+            # Create enhanced prompt file to avoid shell parsing issues
+            cat > enhanced_prompt.txt << 'PROMPT_EOF'
+          🤖 **AUTONOMOUS EXECUTION SESSION** - $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')
+          
+          ## 📊 **Session Context**
+          - Session #${{ steps.token-check.outputs.session_number }}/6
+          - Token budget: ${{ steps.token-check.outputs.tokens_remaining }} remaining
+          - Target usage: ${{ steps.token-check.outputs.estimated_usage }} tokens
+          - Issues to process: ${{ steps.fetch-issues.outputs.issue_count }}
+          
+          ## 🎯 **Enhanced Instructions**
+          ${{ steps.fetch-issues.outputs.prompt }}
+          
+          ## ⚡ **Efficiency Guidelines**
+          - Use prompt caching extensively for repeated contexts
+          - Implement efficient, focused solutions  
+          - Prioritize high-impact, low-complexity tasks when token budget is limited
+          - Track and report: input_tokens, output_tokens for analysis
+          
+          ## 🔧 **Technical Excellence**
+          - Follow existing code patterns and architecture
+          - Use sophisticated emoji for enhanced readability
+          - Comprehensive issue closure summaries with proper emoji
+          - Test implementations before closing issues
+          - Proper issue closure with comprehensive summaries
+          
+          Begin autonomous task completion now. Use your best judgment for technical decisions and implementation approaches.
+          PROMPT_EOF
+            
+            # Execute OAuth-compatible autonomous script
+            AUTONOMOUS_PROMPT="$(cat enhanced_prompt.txt)" ISSUES_JSON="$(cat issues.json)" node .github/scripts/claude-oauth-executor.js
           elif [ -n "$ANTHROPIC_API_KEY" ]; then
             echo "🧠 **USING CLAUDE AI AUTONOMOUS EXECUTOR (API Key)**"
             echo "✅ API key detected - full AI-powered automation enabled"
