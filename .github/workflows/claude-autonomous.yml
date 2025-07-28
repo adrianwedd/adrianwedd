@@ -861,43 +861,67 @@ jobs:
       - name: 🔔 Notify on Completion
         if: always() && (steps.fetch-issues.outputs.issue_count > 0 || steps.token-check.outputs.proceed == 'false')
         run: |
-          # Create a workflow summary
-          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          # Create a workflow summary with proper command expansion
+          SESSION_TIME=$(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')
+          NEXT_SESSION=$(TZ='Australia/Sydney' date -d '+4 hours' +'%Y-%m-%d %H:%M AEST')
+          
+          # Generate analytics if file exists
+          if [ -f ".github/data/usage-tracking.json" ]; then
+            ANALYTICS=$(cat .github/data/usage-tracking.json | jq -r '
+              "**Total Sessions Today:** " + (.session_usage | length | tostring) + "/6" + "\n" +
+              "**Tokens Spent Today:** " + (.session_usage | map(.total_tokens // 0) | add | tostring) + "\n" +
+              "**Tokens Saved (Cache):** " + (.session_usage | map(.token_savings // 0) | add | tostring) + "\n" +
+              "**Average Cache Hit Ratio:** " + ((.session_usage | map(.cache_hit_ratio // 0) | add / length // 0) * 100 | floor | tostring) + "%" + "\n" +
+              "**Cost Efficiency:** " + ((.session_usage | map(if .total_tokens > 0 then (.token_savings // 0) / .total_tokens * 100 else 0 end) | add / length // 0) | floor | tostring) + "% savings"
+            ' 2>/dev/null || echo "**Analytics:** Processing first session...")
+          else
+            ANALYTICS="**Analytics:** Not available yet"
+          fi
+          
+          # Generate issues list
+          if [ -f "issues.json" ]; then
+            ISSUES_LIST=$(jq -r '.[] | "- **#\(.number):** \(.title)"' issues.json)
+          else
+            ISSUES_LIST="No issues found for processing"
+          fi
+          
+          # Generate recent sessions
+          if [ -f ".github/data/usage-tracking.json" ]; then
+            RECENT_SESSIONS=$(cat .github/data/usage-tracking.json | jq -r '
+              if (.session_usage | length) > 0 then
+                "**Recent Sessions:**\n" +
+                (.session_usage | reverse | .[0:3] | map(
+                  "- " + (.timestamp // "Unknown") + ": " + ((.total_tokens // 0) | tostring) + " tokens (" + ((.cache_hit_ratio // 0) * 100 | floor | tostring) + "% cached, " + ((.token_savings // 0) | tostring) + " saved)"
+                ) | join("\n"))
+              else
+                "No session data available yet."
+              end
+            ' 2>/dev/null || echo "Analytics data will be available after first session.")
+          else
+            RECENT_SESSIONS="Analytics data will be available after first session."
+          fi
+          
+          cat >> $GITHUB_STEP_SUMMARY << EOF
           ## 🤖 Autonomous Task Completion Results
           
-          **Session:** $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST') (#${{ steps.token-check.outputs.session_number }}/6)  
+          **Session:** $SESSION_TIME (#${{ steps.token-check.outputs.session_number }}/6)  
           **Issues Processed:** ${{ steps.fetch-issues.outputs.issue_count || '0' }}  
           **Priority Level:** ${{ steps.fetch-issues.outputs.actual_priority || github.event.inputs.priority_filter || 'high' }}  
           **Token Budget:** ${{ steps.token-check.outputs.tokens_remaining || 'Unknown' }} remaining  
           **Estimated Usage:** ${{ steps.token-check.outputs.estimated_usage || 'Unknown' }} tokens
           
           ### 📈 Token Analytics:
-          $(cat .github/data/token-usage.json 2>/dev/null | jq -r '
-            "**Total Sessions Today:** " + (.session_usage | length | tostring) + "/6" + "\n" +
-            "**Tokens Spent Today:** " + (.daily_usage | map(.total_tokens) | add // 0 | tostring) + "\n" +
-            "**Tokens Saved (Cache):** " + (.daily_usage | map(.token_savings) | add // 0 | tostring) + "\n" +
-            "**Average Cache Hit Ratio:** " + ((.cache_efficiency | map(.cache_hit_ratio) | add / length // 0) * 100 | floor | tostring) + "%" + "\n" +
-            "**Cost Efficiency:** " + ((.token_savings | map(.savings_percentage) | add / length // 0) | floor | tostring) + "% savings"
-          ' || echo "**Analytics:** Not available yet")
+          $ANALYTICS
           
           ### 📋 Issues Targeted:
-          $(if [ -f "issues.json" ]; then jq -r '.[] | "- **#\(.number):** \(.title)"' issues.json; else echo "No issues found for processing"; fi)
+          $ISSUES_LIST
           
           ### ✅ Results:
           ${{ steps.token-check.outputs.proceed == 'false' && '⚠️ **Session skipped** due to insufficient token budget. Will resume when tokens are available.' || 'Check the [Claude Code Action logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for detailed implementation results and issue closure summaries.' }}
           
           ### ⏰ Next Session:
-          The next autonomous session will run in 4 hours at: **$(TZ='Australia/Sydney' date -d '+4 hours' +'%Y-%m-%d %H:%M AEST')**
+          The next autonomous session will run in 4 hours at: **$NEXT_SESSION**
           
           ### 📊 Token Usage Trends:
-          $(cat .github/data/token-usage.json 2>/dev/null | jq -r '
-            if (.session_usage | length) > 0 then
-              "**Recent Sessions:**\n" +
-              (.session_usage | reverse | .[0:3] | map(
-                "- " + .timestamp + ": " + (.total_tokens | tostring) + " tokens (" + (.cache_hit_ratio * 100 | floor | tostring) + "% cached, " + (.token_savings | tostring) + " saved)"
-              ) | join("\n"))
-            else
-              "No session data available yet."
-            end
-          ' || echo "Analytics data will be available after first session.")
+          $RECENT_SESSIONS
           EOF
