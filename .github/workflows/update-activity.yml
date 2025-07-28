@@ -340,28 +340,7 @@ jobs:
             STRATEGY="${{ needs.pre-activity-analysis.outputs.update-strategy }}"
             HEALTH="${{ needs.pre-activity-analysis.outputs.system-health }}"
             
-            git commit -m "$(cat <<EOF
-📊 Activity Intelligence Update $(date +'%Y%m%d-%H%M')
-
-🎯 Strategy: $STRATEGY
-📈 System Health: $HEALTH
-📅 Analysis Cycle: $(TZ='${{ env.UPDATE_TIMEZONE }}' date +'%Y-%m-%d %H:%M %Z')
-
-## 📊 Intelligence Summary
-- 🤖 Automated activity analysis completed
-- 📈 Profile metrics updated and enhanced
-- 📊 Terminal statistics refreshed
-- 🔍 Activity insights generated
-
-## 🚀 System Enhancements
-- ✅ Advanced GitHub API integration
-- ✅ Multi-dimensional activity analysis
-- ✅ Intelligent update strategies
-- ✅ Comprehensive logging system
-
-Updated via GitHub Activity Intelligence System v${{ env.ACTIVITY_SYSTEM_VERSION }}
-EOF
-)"
+            git commit -m "📊 Activity Intelligence Update $(date +'%Y%m%d-%H%M') - Strategy: $STRATEGY - Health: $HEALTH - Updated via GitHub Activity Intelligence System v${{ env.ACTIVITY_SYSTEM_VERSION }}"
             
             git push
             echo "✅ Activity intelligence updates committed and pushed"
