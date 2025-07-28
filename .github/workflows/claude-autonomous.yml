@@ -1,23 +1,47 @@
 name: 🤖 Autonomous Task Completion
 
+# 🎯 **WORKFLOW OVERVIEW**
+# This workflow provides automated issue processing using Claude AI with sophisticated
+# token management, priority filtering, and comprehensive analytics tracking.
+# 
+# 🔄 **EXECUTION SCHEDULE**: Every 6 hours (00:00, 06:00, 12:00, 18:00 AEST)
+# 📊 **TOKEN OPTIMIZATION**: Intelligent caching and usage prediction
+# 🎯 **PRIORITY HANDLING**: Dynamic fallback from high→medium→low priority
+# 📈 **ANALYTICS**: Comprehensive token usage and cache efficiency tracking
+# 
+# 🔧 **CONFIGURATION**:
+# - Supports both API key and OAuth authentication methods
+# - Automatic tier detection (free/paid) with appropriate limits
+# - Intelligent session management for Max/Pro accounts
+# - Robust error handling and detailed failure analysis
+# 
+# 📋 **WORKFLOW STEPS**:
+# 1. Usage history analysis and limit validation
+# 2. Repository checkout and issue fetching with priority filtering
+# 3. Autonomous Claude processing with enhanced prompting
+# 4. Comprehensive usage tracking and analytics
+# 5. Detailed session summaries and next-session scheduling
+
 on:
   schedule:
-    # Run every 4 hours starting at midnight AEST (14:00 UTC)
-    - cron: '0 14,18,22,2,6,10 * * *'
+    # 🕐 Run every 6 hours starting at midnight AEST (14:00 UTC) 
+    # Schedule: 00:00, 06:00, 12:00, 18:00 AEST daily
+    # This provides 4 processing windows per day for comprehensive autonomous task completion
+    - cron: '0 14,20,2,8 * * *'
   workflow_dispatch:
     inputs:
       max_issues:
-        description: 'Maximum number of issues to process'
+        description: '📊 Maximum number of issues to process per session'
         required: false
         default: '1'
         type: string
       generate_report:
-        description: 'Generate detailed token usage report'
+        description: '📈 Generate detailed token usage and analytics report'
         required: false
         default: true
         type: boolean
       priority_filter:
-        description: 'Priority filter (critical, high, medium, low, all)'
+        description: '🎯 Priority filter with automatic fallback (critical→high→medium→low)'
         required: false
         default: 'critical'
         type: choice
@@ -30,6 +54,13 @@ on:
 
 jobs:
   autonomous-tasks:
+    # 🖥️ **JOB CONFIGURATION**
+    # Runs on latest Ubuntu with comprehensive GitHub permissions for:
+    # - Repository content modification (contents: write)
+    # - Pull request creation and management (pull-requests: write) 
+    # - Issue processing and closure (issues: write)
+    # - OIDC token generation for secure authentication (id-token: write)
+    # - Workflow run analysis and reporting (actions: read)
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -39,6 +70,10 @@ jobs:
       actions: read
 
     steps:
+      # 📊 **STEP 1: USAGE ANALYSIS & LIMIT VALIDATION**
+      # Comprehensive token usage tracking compatible with both Claude Max/Pro accounts
+      # and Anthropic API keys. Implements intelligent tier detection, session boundary
+      # management, and automatic limit calculation based on usage patterns.
       - name: 📊 Check Usage History (Max/Pro Compatible)
         id: token-check
         run: |
@@ -288,7 +323,7 @@ jobs:
         if: steps.fetch-issues.outputs.issue_count > 0 && steps.token-check.outputs.proceed == 'true'
         run: |
           echo "🤖 **AUTONOMOUS SESSION STARTING**"
-          echo "📅 Session #${{ steps.token-check.outputs.session_number }}/6 at $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')"
+          echo "📅 Session #${{ steps.token-check.outputs.session_number }}/4 at $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')"
           echo "🎯 Processing ${{ steps.fetch-issues.outputs.issue_count }} issues with priority: ${{ steps.fetch-issues.outputs.actual_priority }}"
           echo "💰 Token budget: ${{ steps.token-check.outputs.tokens_remaining }} remaining"
           echo "📊 Estimated usage: ${{ steps.token-check.outputs.estimated_usage }} tokens"
@@ -320,7 +355,7 @@ jobs:
         run: |
           echo "🤖 **LAUNCHING AUTONOMOUS PROCESSING**"
           echo "📋 Processing ${{ steps.fetch-issues.outputs.issue_count }} issues"
-          echo "🎯 Session #${{ steps.token-check.outputs.session_number }}/6"
+          echo "🎯 Session #${{ steps.token-check.outputs.session_number }}/4"
           echo "💰 Token budget: ${{ steps.token-check.outputs.tokens_remaining }} remaining"
           echo ""
           
@@ -335,7 +370,7 @@ jobs:
           🤖 **AUTONOMOUS EXECUTION SESSION** - $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')
           
           ## 📊 **Session Context**
-          - Session #${{ steps.token-check.outputs.session_number }}/6
+          - Session #${{ steps.token-check.outputs.session_number }}/4
           - Token budget: ${{ steps.token-check.outputs.tokens_remaining }} remaining
           - Target usage: ${{ steps.token-check.outputs.estimated_usage }} tokens
           - Issues to process: ${{ steps.fetch-issues.outputs.issue_count }}
@@ -817,11 +852,11 @@ jobs:
           echo "🤖 **Autonomous Task Completion Summary** - $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')"
           echo ""
           echo "**Session Metrics:**"
-          echo "- Session: #${{ steps.token-check.outputs.session_number || 'N/A' }}/6"
+          echo "- Session: #${{ steps.token-check.outputs.session_number || 'N/A' }}/4"
           echo "- Issues Available: ${{ steps.fetch-issues.outputs.issue_count || 'N/A' }}"
           echo "- Priority Filter: ${{ steps.fetch-issues.outputs.actual_priority || github.event.inputs.priority_filter || 'high' }}"
           echo "- Max Issues: ${{ steps.token-check.outputs.max_issues || github.event.inputs.max_issues || '3' }}"
-          echo "- Trigger: ${{ github.event_name == 'schedule' && 'Scheduled (4-hour cycle)' || 'Manual dispatch' }}"
+          echo "- Trigger: ${{ github.event_name == 'schedule' && 'Scheduled (6-hour cycle)' || 'Manual dispatch' }}"
           echo "- Token Budget: ${{ steps.token-check.outputs.tokens_remaining || 'Unknown' }} remaining"
           echo "- Estimated Usage: ${{ steps.token-check.outputs.estimated_usage || 'Unknown' }} tokens"
           
@@ -846,7 +881,7 @@ jobs:
           
           if [ "${{ steps.token-check.outputs.proceed }}" = "false" ]; then
             echo "⚠️ Session skipped due to insufficient token budget"
-            echo "💡 Token conservation active - will resume next cycle or tomorrow"
+            echo "💡 Token conservation active - will resume next 6-hour cycle or tomorrow"
           elif [ "${{ steps.fetch-issues.outputs.issue_count || '0' }}" -gt 0 ]; then
             echo "✅ Claude autonomous session executed successfully"
             echo "🔍 Check the Claude Code action logs for detailed implementation results"
@@ -856,19 +891,19 @@ jobs:
           fi
           
           echo ""
-          echo "**Next autonomous session:** $(TZ='Australia/Sydney' date -d '+4 hours' +'%Y-%m-%d %H:%M AEST')"
+          echo "**Next autonomous session:** $(TZ='Australia/Sydney' date -d '+6 hours' +'%Y-%m-%d %H:%M AEST')"
 
       - name: 🔔 Notify on Completion
         if: always() && (steps.fetch-issues.outputs.issue_count > 0 || steps.token-check.outputs.proceed == 'false')
         run: |
           # Create a workflow summary with proper command expansion
           SESSION_TIME=$(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')
-          NEXT_SESSION=$(TZ='Australia/Sydney' date -d '+4 hours' +'%Y-%m-%d %H:%M AEST')
+          NEXT_SESSION=$(TZ='Australia/Sydney' date -d '+6 hours' +'%Y-%m-%d %H:%M AEST')
           
           # Generate analytics if file exists
           if [ -f ".github/data/usage-tracking.json" ]; then
             ANALYTICS=$(cat .github/data/usage-tracking.json | jq -r '
-              "**Total Sessions Today:** " + (.session_usage | length | tostring) + "/6" + "\n" +
+              "**Total Sessions Today:** " + (.session_usage | length | tostring) + "/4" + "\n" +
               "**Tokens Spent Today:** " + (.session_usage | map(.total_tokens // 0) | add | tostring) + "\n" +
               "**Tokens Saved (Cache):** " + (.session_usage | map(.token_savings // 0) | add | tostring) + "\n" +
               "**Average Cache Hit Ratio:** " + ((.session_usage | map(.cache_hit_ratio // 0) | add / length // 0) * 100 | floor | tostring) + "%" + "\n" +
@@ -913,7 +948,7 @@ jobs:
           cat >> $GITHUB_STEP_SUMMARY << EOF
           ## 🤖 Autonomous Task Completion Results
           
-          **Session:** $SESSION_TIME (#$SESSION_NUM/6)  
+          **Session:** $SESSION_TIME (#$SESSION_NUM/4)  
           **Issues Processed:** $ISSUE_COUNT  
           **Priority Level:** $PRIORITY  
           **Token Budget:** $TOKEN_BUDGET remaining  
@@ -929,8 +964,132 @@ jobs:
           Check the [Claude Code Action logs](https://github.com/$REPO/actions/runs/$RUN_ID) for detailed implementation results and issue closure summaries.
           
           ### ⏰ Next Session:
-          The next autonomous session will run in 4 hours at: **$NEXT_SESSION**
+          The next autonomous session will run in 6 hours at: **$NEXT_SESSION**
           
           ### 📊 Token Usage Trends:
           $RECENT_SESSIONS
           EOF
+
+      # 🔍 **STEP 6: WORKFLOW INSPECTION TASK CREATION**
+      # Creates a comprehensive GitHub issue for thorough workflow analysis and enhancement
+      # suggestions. This task is created periodically to ensure continuous improvement.
+      - name: 📋 Create Workflow Inspection Task
+        if: always() && github.event_name == 'schedule' && steps.token-check.outputs.session_number == '1'
+        run: |
+          echo "🔍 **CREATING WORKFLOW INSPECTION TASK**"
+          echo "📅 Scheduled workflow inspection for comprehensive analysis"
+          echo ""
+          
+          # Generate comprehensive workflow analysis prompt
+          INSPECTION_TITLE="🔍 Comprehensive Workflow Analysis: Claude Autonomous Processing System"
+          INSPECTION_BODY="## 🎯 **Workflow Inspection & Enhancement Request**
+
+          **Created:** $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')  
+          **Trigger:** Automated periodic inspection  
+          **Scope:** Complete autonomous workflow analysis
+
+          ### 📋 **Inspection Objectives**
+
+          Please conduct a thorough analysis of the Claude Autonomous workflow (\`.github/workflows/claude-autonomous.yml\`) and provide detailed enhancement suggestions.
+
+          ### 🔍 **Analysis Areas**
+
+          #### 1. **Schedule Optimization**
+          - **Current:** 6-hour intervals (00:00, 06:00, 12:00, 18:00 AEST)
+          - **Analysis Required:** Evaluate optimal timing for maximum effectiveness
+          - **Consider:** Token regeneration cycles, GitHub API limits, usage patterns
+
+          #### 2. **Token Management Efficiency**
+          - **Current:** Intelligent tier detection with fallback limits
+          - **Analysis Required:** Review caching strategies and usage prediction
+          - **Consider:** Claude Max/Pro vs API key optimization opportunities
+
+          #### 3. **Priority & Filtering Logic**
+          - **Current:** Dynamic fallback (critical→high→medium→low)
+          - **Analysis Required:** Effectiveness of current priority system
+          - **Consider:** Issue complexity scoring, time-based prioritization
+
+          #### 4. **Error Handling & Recovery**
+          - **Current:** Comprehensive failure analysis with detailed logging
+          - **Analysis Required:** Recovery mechanisms and retry strategies
+          - **Consider:** Circuit breaker patterns, graceful degradation
+
+          #### 5. **Analytics & Monitoring**
+          - **Current:** Session tracking, token usage, cache efficiency
+          - **Analysis Required:** Additional metrics for workflow optimization
+          - **Consider:** Performance baselines, success rate tracking
+
+          ### 🚀 **Enhancement Suggestions Requested**
+
+          #### **Performance Optimizations**
+          - Workflow execution speed improvements
+          - Resource utilization optimization
+          - Parallel processing opportunities
+
+          #### **Reliability Improvements**
+          - Enhanced error recovery mechanisms
+          - Better handling of edge cases
+          - Improved authentication management
+
+          #### **Feature Enhancements**
+          - Additional automation capabilities
+          - Enhanced reporting and analytics
+          - Integration with other workflows
+
+          #### **Code Quality**
+          - Documentation improvements
+          - Code organization and modularity
+          - Testing and validation enhancements
+
+          ### 📊 **Current Workflow Metrics**
+          - **Schedule:** Every 6 hours (4 sessions/day)
+          - **Processing Capacity:** 1-3 issues per session
+          - **Token Optimization:** Intelligent caching with efficiency tracking
+          - **Priority Handling:** Multi-tier fallback system
+          - **Error Recovery:** Comprehensive failure analysis
+
+          ### ✅ **Acceptance Criteria**
+
+          - [ ] **Schedule Analysis:** Evaluate current 6-hour intervals vs alternatives
+          - [ ] **Token Efficiency:** Review and suggest caching improvements
+          - [ ] **Priority System:** Analyze effectiveness of current filtering logic
+          - [ ] **Error Handling:** Suggest enhanced recovery mechanisms
+          - [ ] **Performance:** Identify workflow execution optimizations
+          - [ ] **Monitoring:** Recommend additional analytics and metrics
+          - [ ] **Documentation:** Update inline documentation where needed
+          - [ ] **Future-Proofing:** Consider scalability and maintainability
+
+          ### 🔧 **Implementation Guidelines**
+
+          - Focus on **incremental improvements** that maintain current functionality
+          - Ensure **backwards compatibility** with existing configuration
+          - Prioritize **reliability and stability** over experimental features
+          - Provide **detailed rationale** for each suggested enhancement
+          - Consider **resource constraints** and GitHub Actions limits
+
+          ### 📈 **Success Metrics**
+
+          - Improved workflow reliability and error recovery
+          - Enhanced token efficiency and cost optimization
+          - Better issue processing throughput and accuracy
+          - Clearer documentation and maintainability
+          - Future-ready architecture for emerging Claude features
+
+          ---
+
+          🤖 **Automated Task Creation** - Generated by Claude Autonomous Workflow  
+          📋 **Priority:** High - Workflow optimization directly impacts autonomous effectiveness  
+          🔄 **Frequency:** Created periodically for continuous improvement"
+
+          # Create the GitHub issue
+          gh issue create \
+            --title "$INSPECTION_TITLE" \
+            --body "$INSPECTION_BODY" \
+            --label "enhancement,workflow,automation,high-priority" \
+            --assignee "@me"
+            
+          echo "✅ Workflow inspection task created successfully"
+          echo "🎯 Issue assigned for comprehensive workflow analysis"
+          echo "📋 Labels: enhancement, workflow, automation, high-priority"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
