@@ -71,7 +71,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. 🔒 Closed issue [#84](https://github.com/adrianwedd/adrianwedd/issues/84) in [adrianwedd/adrianwedd](https://github.com/adrianwedd/adrianwedd)
+1. 🗣 Commented on [#442](https://github.com/adrianwedd/TEL3SIS/issues/442#issuecomment-3126191395) in [adrianwedd/TEL3SIS](https://github.com/adrianwedd/TEL3SIS)
 <!--END_SECTION:activity-->
 
 ---
