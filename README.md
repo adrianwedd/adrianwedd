@@ -71,7 +71,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. 🎉 Merged PR [#74](https://github.com/adrianwedd/adrianwedd/pull/74) in [adrianwedd/adrianwedd](https://github.com/adrianwedd/adrianwedd)
+1. 🔒 Closed issue [#84](https://github.com/adrianwedd/adrianwedd/issues/84) in [adrianwedd/adrianwedd](https://github.com/adrianwedd/adrianwedd)
 <!--END_SECTION:activity-->
 
 ---
