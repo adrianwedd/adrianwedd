@@ -9,19 +9,20 @@ on:
       max_issues:
         description: 'Maximum number of issues to process'
         required: false
-        default: '3'
+        default: '1'
         type: string
       generate_report:
         description: 'Generate detailed token usage report'
         required: false
-        default: false
+        default: true
         type: boolean
       priority_filter:
-        description: 'Priority filter (high, medium, low, all)'
+        description: 'Priority filter (critical, high, medium, low, all)'
         required: false
-        default: 'high'
+        default: 'critical'
         type: choice
         options:
+          - critical
           - high
           - medium 
           - low
