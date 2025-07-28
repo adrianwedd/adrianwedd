@@ -126,6 +126,7 @@ jobs:
             
             echo "estimated_usage=prompt_based" >> $GITHUB_OUTPUT
             echo "prompts_remaining=$PROMPTS_REMAINING" >> $GITHUB_OUTPUT
+            echo "tokens_remaining=$PROMPTS_REMAINING" >> $GITHUB_OUTPUT  # For compatibility
             
           elif [ "$AUTH_METHOD" = "anthropic-api" ]; then
             # API key - token-based daily limits (detect tier based on usage patterns)
@@ -183,6 +184,7 @@ jobs:
             echo "max_issues=5" >> $GITHUB_OUTPUT
             echo "estimated_usage=none" >> $GITHUB_OUTPUT
             echo "limit_reason=none" >> $GITHUB_OUTPUT
+            echo "tokens_remaining=unlimited" >> $GITHUB_OUTPUT  # For compatibility
           fi
           
           echo "auth_method=$AUTH_METHOD" >> $GITHUB_OUTPUT
