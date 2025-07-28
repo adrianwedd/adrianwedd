@@ -47,10 +47,7 @@ jobs:
           USAGE_FILE=".github/data/usage-tracking.json"
           
           # Detect authentication method for proper limit calculation
-          if [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
-            AUTH_METHOD="claude-max-oauth"
-            echo "🔐 Detected Claude Max/Pro OAuth authentication"
-          elif [ -n "$ANTHROPIC_API_KEY" ]; then
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
             AUTH_METHOD="anthropic-api"
             echo "🔐 Detected Anthropic API key authentication"
           else
@@ -95,41 +92,7 @@ jobs:
           fi
           
           # Calculate usage limits based on authentication method
-          if [ "$AUTH_METHOD" = "claude-max-oauth" ]; then
-            # Max/Pro account - message-based limits per 5-hour session
-            SESSION_PROMPTS_TODAY=$(jq '.five_hour_sessions | length' "$USAGE_FILE")
-            
-            # Conservative estimates for autonomous workflow (assume Max 5x plan)
-            MAX_PROMPTS_PER_SESSION=200
-            PROMPTS_REMAINING=$((MAX_PROMPTS_PER_SESSION - SESSION_PROMPTS_TODAY))
-            
-            echo "📊 Claude Max/Pro Usage Analysis:"
-            echo "- Account Type: Max/Pro (5-hour sessions)"
-            echo "- Session Prompts Used: $SESSION_PROMPTS_TODAY"
-            echo "- Estimated Session Limit: $MAX_PROMPTS_PER_SESSION prompts"
-            echo "- Prompts Remaining: $PROMPTS_REMAINING"
-            echo "- Session resets every 5 hours"
-            
-            # Determine if we should proceed (conservative approach)
-            if [ "$PROMPTS_REMAINING" -lt 10 ]; then
-              echo "⚠️ Approaching 5-hour session limit, waiting for reset"
-              echo "proceed=false" >> $GITHUB_OUTPUT
-              echo "limit_reason=session_limit" >> $GITHUB_OUTPUT
-            elif [ "$PROMPTS_REMAINING" -lt 50 ]; then
-              echo "💡 Limited prompts remaining, reducing scope"
-              echo "proceed=true" >> $GITHUB_OUTPUT
-              echo "max_issues=1" >> $GITHUB_OUTPUT
-            else
-              echo "✅ Sufficient prompts available in current session"
-              echo "proceed=true" >> $GITHUB_OUTPUT
-              echo "max_issues=3" >> $GITHUB_OUTPUT
-            fi
-            
-            echo "estimated_usage=prompt_based" >> $GITHUB_OUTPUT
-            echo "prompts_remaining=$PROMPTS_REMAINING" >> $GITHUB_OUTPUT
-            echo "tokens_remaining=$PROMPTS_REMAINING" >> $GITHUB_OUTPUT  # For compatibility
-            
-          elif [ "$AUTH_METHOD" = "anthropic-api" ]; then
+          if [ "$AUTH_METHOD" = "anthropic-api" ]; then
             # API key - token-based daily limits (detect tier based on usage patterns)
             TOKENS_USED_TODAY=$(jq '.session_usage | map(.total_tokens // 0) | add // 0' "$USAGE_FILE")
             
@@ -191,7 +154,6 @@ jobs:
           echo "auth_method=$AUTH_METHOD" >> $GITHUB_OUTPUT
           echo "session_number=1" >> $GITHUB_OUTPUT
         env:
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
@@ -399,32 +361,6 @@ jobs:
             
             # Execute OAuth-compatible autonomous script (API key fallback)
             AUTONOMOUS_PROMPT="$(cat enhanced_prompt.txt)" ISSUES_JSON="$(cat issues.json)" node .github/scripts/claude-oauth-executor.js
-          elif [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
-            echo "🧠 **CLAUDE OAUTH TOKEN DETECTED**"
-            echo "⚠️ OAuth authentication not yet supported by Anthropic API"
-            echo "💡 The workflow will notify you when OAuth support becomes available!"
-            echo "🔧 For now, please use ANTHROPIC_API_KEY for autonomous execution"
-            echo ""
-            echo "📋 **Current OAuth Status Check:**"
-            
-            # Test OAuth support status
-            echo "🔍 Testing OAuth support..."
-            OAUTH_TEST=$(curl -s -X POST "https://api.anthropic.com/v1/messages" \
-              -H "Content-Type: application/json" \
-              -H "Authorization: Bearer $CLAUDE_CODE_OAUTH_TOKEN" \
-              -H "anthropic-version: 2023-06-01" \
-              -d '{"model": "claude-sonnet-4-20250514", "max_tokens": 10, "messages": [{"role": "user", "content": "test"}]}' | jq -r '.error.message // "success"')
-            
-            if [ "$OAUTH_TEST" = "OAuth authentication is currently not supported." ]; then
-              echo "❌ OAuth still not supported (confirmed via API test)"
-              echo "📅 Status checked: $(date +'%Y-%m-%d %H:%M UTC')"
-            elif [ "$OAUTH_TEST" = "success" ]; then
-              echo "🎉 **OAUTH SUPPORT DETECTED!** 🎉"
-              echo "🚀 OAuth authentication is now working!"
-              echo "💡 Please update the workflow to enable OAuth execution"
-            else
-              echo "🔍 OAuth test result: $OAUTH_TEST"
-            fi
           else
             echo "🔧 **USING RULE-BASED ISSUE PROCESSOR**"
             echo "💡 No API key - using intelligent automation without external APIs"
@@ -434,7 +370,6 @@ jobs:
             ISSUES_JSON="$(cat issues.json)" node .github/scripts/issue-processor.js
           fi
         env:
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AUTONOMOUS_PROMPT: ${{ steps.fetch-issues.outputs.prompt }}
@@ -454,11 +389,7 @@ jobs:
           
           # Authentication method diagnosis
           echo "🔐 **Authentication Analysis**:"
-          if [ -n "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}" ]; then
-            echo "  ✅ Claude OAuth Token: Present (Claude Max/Pro account)"
-            echo "  📋 Account Type: ${{ steps.token-check.outputs.auth_method }}"
-            echo "  🎯 Usage Limit: ${{ steps.token-check.outputs.prompts_remaining || 'Unknown' }} prompts remaining in session"
-          elif [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+          if [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
             echo "  ✅ Anthropic API Key: Present"
             echo "  📋 Account Type: ${{ steps.token-check.outputs.auth_method }}"
             echo "  🎯 Token Budget: ${{ steps.token-check.outputs.tokens_remaining || 'Unknown' }} tokens remaining"
@@ -522,7 +453,7 @@ jobs:
           
           # Network and API diagnostics
           echo "🌐 **Network & API Diagnostics**:"
-          if [ -n "${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}" ] || [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+          if [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
             echo "  🔍 Testing Anthropic API connectivity..."
             if curl -s --max-time 10 https://api.anthropic.com > /dev/null; then
               echo "  ✅ Anthropic API endpoint reachable"
@@ -588,7 +519,6 @@ jobs:
           AUTH_METHOD="${{ steps.token-check.outputs.auth_method }}"
           
           echo "🔍 Debug: AUTH_METHOD is: $AUTH_METHOD"
-          echo "🔍 Debug: OAuth token present: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' }}"
           echo "🔍 Debug: API key present: ${{ secrets.ANTHROPIC_API_KEY != '' }}"
           
           # Ensure usage file exists with proper structure
@@ -872,9 +802,12 @@ jobs:
           echo "- Cached Tokens: $CACHED_TOKENS"
           echo "- Cache Hit Ratio: $(echo "$CACHE_HIT_RATIO * 100" | bc -l | cut -d. -f1)%"
           echo "- Token Savings: $TOKEN_SAVINGS"
-          echo "- Cost Efficiency: $(echo "scale=1; $TOKEN_SAVINGS * 100 / $TOTAL_TOKENS" | bc -l)%"
+          if [ "$TOTAL_TOKENS" -gt 0 ]; then
+            echo "- Cost Efficiency: $(echo "scale=1; $TOKEN_SAVINGS * 100 / $TOTAL_TOKENS" | bc -l)%"
+          else
+            echo "- Cost Efficiency: 0%"
+          fi
         env:
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
