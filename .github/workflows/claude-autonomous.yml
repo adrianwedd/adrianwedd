@@ -901,14 +901,23 @@ jobs:
             RECENT_SESSIONS="Analytics data will be available after first session."
           fi
           
+          # Pre-define GitHub variables to avoid substitution issues
+          REPO="${{ github.repository }}"
+          RUN_ID="${{ github.run_id }}"
+          SESSION_NUM="${{ steps.token-check.outputs.session_number }}"
+          ISSUE_COUNT="${{ steps.fetch-issues.outputs.issue_count || '0' }}"
+          PRIORITY="${{ steps.fetch-issues.outputs.actual_priority || github.event.inputs.priority_filter || 'high' }}"
+          TOKEN_BUDGET="${{ steps.token-check.outputs.tokens_remaining || 'Unknown' }}"
+          EST_USAGE="${{ steps.token-check.outputs.estimated_usage || 'Unknown' }}"
+          
           cat >> $GITHUB_STEP_SUMMARY << EOF
           ## 🤖 Autonomous Task Completion Results
           
-          **Session:** $SESSION_TIME (#${{ steps.token-check.outputs.session_number }}/6)  
-          **Issues Processed:** ${{ steps.fetch-issues.outputs.issue_count || '0' }}  
-          **Priority Level:** ${{ steps.fetch-issues.outputs.actual_priority || github.event.inputs.priority_filter || 'high' }}  
-          **Token Budget:** ${{ steps.token-check.outputs.tokens_remaining || 'Unknown' }} remaining  
-          **Estimated Usage:** ${{ steps.token-check.outputs.estimated_usage || 'Unknown' }} tokens
+          **Session:** $SESSION_TIME (#$SESSION_NUM/6)  
+          **Issues Processed:** $ISSUE_COUNT  
+          **Priority Level:** $PRIORITY  
+          **Token Budget:** $TOKEN_BUDGET remaining  
+          **Estimated Usage:** $EST_USAGE tokens
           
           ### 📈 Token Analytics:
           $ANALYTICS
@@ -917,7 +926,7 @@ jobs:
           $ISSUES_LIST
           
           ### ✅ Results:
-          ${{ steps.token-check.outputs.proceed == 'false' && '⚠️ **Session skipped** due to insufficient token budget. Will resume when tokens are available.' || 'Check the [Claude Code Action logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for detailed implementation results and issue closure summaries.' }}
+          Check the [Claude Code Action logs](https://github.com/$REPO/actions/runs/$RUN_ID) for detailed implementation results and issue closure summaries.
           
           ### ⏰ Next Session:
           The next autonomous session will run in 4 hours at: **$NEXT_SESSION**
