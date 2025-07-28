@@ -362,10 +362,10 @@ jobs:
           echo "💰 Token budget: ${{ steps.token-check.outputs.tokens_remaining }} remaining"
           echo ""
           
-          # Check if Claude OAuth token or Anthropic API key is available
-          if [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
-            echo "🧠 **USING CLAUDE AI AUTONOMOUS EXECUTOR (OAuth)**"
-            echo "✅ Claude Max OAuth token detected - full AI-powered automation enabled"
+          # Check API key first (currently supported), then OAuth (future support)
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            echo "🧠 **USING CLAUDE AI AUTONOMOUS EXECUTOR (API Key)**"
+            echo "✅ Anthropic API key detected - full AI-powered automation enabled"
             echo ""
             
             # Create enhanced prompt file to avoid shell parsing issues
@@ -397,44 +397,34 @@ jobs:
           Begin autonomous task completion now. Use your best judgment for technical decisions and implementation approaches.
           PROMPT_EOF
             
-            # Execute OAuth-compatible autonomous script
+            # Execute OAuth-compatible autonomous script (API key fallback)
             AUTONOMOUS_PROMPT="$(cat enhanced_prompt.txt)" ISSUES_JSON="$(cat issues.json)" node .github/scripts/claude-oauth-executor.js
-          elif [ -n "$ANTHROPIC_API_KEY" ]; then
-            echo "🧠 **USING CLAUDE AI AUTONOMOUS EXECUTOR (API Key)**"
-            echo "✅ API key detected - full AI-powered automation enabled"
+          elif [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
+            echo "🧠 **CLAUDE OAUTH TOKEN DETECTED**"
+            echo "⚠️ OAuth authentication not yet supported by Anthropic API"
+            echo "💡 The workflow will notify you when OAuth support becomes available!"
+            echo "🔧 For now, please use ANTHROPIC_API_KEY for autonomous execution"
             echo ""
+            echo "📋 **Current OAuth Status Check:**"
             
-            # Create enhanced prompt file to avoid shell parsing issues
-            cat > enhanced_prompt.txt << 'PROMPT_EOF'
-          🤖 **AUTONOMOUS EXECUTION SESSION** - $(TZ='Australia/Sydney' date +'%Y-%m-%d %H:%M AEST')
-          
-          ## 📊 **Session Context**
-          - Session #${{ steps.token-check.outputs.session_number }}/6
-          - Token budget: ${{ steps.token-check.outputs.tokens_remaining }} remaining
-          - Target usage: ${{ steps.token-check.outputs.estimated_usage }} tokens
-          - Issues to process: ${{ steps.fetch-issues.outputs.issue_count }}
-          
-          ## 🎯 **Enhanced Instructions**
-          ${{ steps.fetch-issues.outputs.prompt }}
-          
-          ## ⚡ **Efficiency Guidelines**
-          - Use prompt caching extensively for repeated contexts
-          - Implement efficient, focused solutions  
-          - Prioritize high-impact, low-complexity tasks when token budget is limited
-          - Track and report: input_tokens, output_tokens for analysis
-          
-          ## 🔧 **Technical Excellence**
-          - Follow existing code patterns and architecture
-          - Use sophisticated emoji for enhanced readability
-          - Run tests and ensure code quality
-          - Create comprehensive issue closure summaries
-          - Commit changes with descriptive messages
-          
-          Execute with confidence and technical excellence!
-          PROMPT_EOF
+            # Test OAuth support status
+            echo "🔍 Testing OAuth support..."
+            OAUTH_TEST=$(curl -s -X POST "https://api.anthropic.com/v1/messages" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer $CLAUDE_CODE_OAUTH_TOKEN" \
+              -H "anthropic-version: 2023-06-01" \
+              -d '{"model": "claude-sonnet-4-20250514", "max_tokens": 10, "messages": [{"role": "user", "content": "test"}]}' | jq -r '.error.message // "success"')
             
-            # Execute OAuth-compatible autonomous script
-            AUTONOMOUS_PROMPT="$(cat enhanced_prompt.txt)" ISSUES_JSON="$(cat issues.json)" node .github/scripts/claude-oauth-executor.js
+            if [ "$OAUTH_TEST" = "OAuth authentication is currently not supported." ]; then
+              echo "❌ OAuth still not supported (confirmed via API test)"
+              echo "📅 Status checked: $(date +'%Y-%m-%d %H:%M UTC')"
+            elif [ "$OAUTH_TEST" = "success" ]; then
+              echo "🎉 **OAUTH SUPPORT DETECTED!** 🎉"
+              echo "🚀 OAuth authentication is now working!"
+              echo "💡 Please update the workflow to enable OAuth execution"
+            else
+              echo "🔍 OAuth test result: $OAUTH_TEST"
+            fi
           else
             echo "🔧 **USING RULE-BASED ISSUE PROCESSOR**"
             echo "💡 No API key - using intelligent automation without external APIs"
