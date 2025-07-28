@@ -71,7 +71,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. 🗣 Commented on [#442](https://github.com/adrianwedd/TEL3SIS/issues/442#issuecomment-3126191395) in [adrianwedd/TEL3SIS](https://github.com/adrianwedd/TEL3SIS)
+1. 🗣 Commented on [#41](https://github.com/adrianwedd/home-assistant-obsidian/issues/41#issuecomment-3126652414) in [adrianwedd/home-assistant-obsidian](https://github.com/adrianwedd/home-assistant-obsidian)
 <!--END_SECTION:activity-->
 
 ---
