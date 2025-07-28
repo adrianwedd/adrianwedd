@@ -435,13 +435,18 @@ class Terminal {
             }
         }
         
-        const terminalContent = terminal.querySelector('.terminal-content');
-        if (terminalContent) {
-            terminalContent.appendChild(output);
+        const terminalOutput = document.getElementById('terminalOutput');
+        if (terminalOutput) {
+            terminalOutput.appendChild(output);
         } else {
             // Fallback for backwards compatibility
-            const promptLine = terminal.querySelector('.prompt-line');
-            terminal.insertBefore(output, promptLine);
+            const terminalContent = terminal.querySelector('.terminal-content');
+            if (terminalContent) {
+                terminalContent.appendChild(output);
+            } else {
+                const promptLine = terminal.querySelector('.prompt-line');
+                terminal.insertBefore(output, promptLine);
+            }
         }
         
         // Animate the scroll effect
@@ -1450,23 +1455,29 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
 
     clearTerminal() {
         this.addDebugLog('Clearing terminal content', 'info', 'system');
-        const terminal = document.getElementById('terminal');
-        const terminalContent = terminal.querySelector('.terminal-content');
-        // const promptLine = terminal.querySelector('.prompt-line'); // Unused variable
+        const terminalOutput = document.getElementById('terminalOutput');
         
         // Clear terminal lines array
         this.terminalLines = [];
         
-        // Remove all output lines from terminal content
-        if (terminalContent) {
-            const outputs = terminalContent.querySelectorAll('.output-line');
+        // Remove all output lines from terminal output
+        if (terminalOutput) {
+            const outputs = terminalOutput.querySelectorAll('.output-line');
             outputs.forEach(output => output.remove());
             this.addDebugLog(`Removed ${outputs.length} output lines`, 'info', 'system');
         } else {
-            // Fallback: remove all output lines from terminal
-            const outputs = terminal.querySelectorAll('.output-line');
-            outputs.forEach(output => output.remove());
-            this.addDebugLog(`Removed ${outputs.length} output lines (fallback)`, 'info', 'system');
+            // Fallback: remove all output lines from terminal content
+            const terminal = document.getElementById('terminal');
+            const terminalContent = terminal.querySelector('.terminal-content');
+            if (terminalContent) {
+                const outputs = terminalContent.querySelectorAll('.output-line');
+                outputs.forEach(output => output.remove());
+                this.addDebugLog(`Removed ${outputs.length} output lines from fallback`, 'info', 'system');
+            } else {
+                const outputs = terminal.querySelectorAll('.output-line');
+                outputs.forEach(output => output.remove());
+                this.addDebugLog(`Removed ${outputs.length} output lines (double fallback)`, 'info', 'system');
+            }
         }
     }
 
@@ -2282,13 +2293,18 @@ drwxr-xr-x  adrian adrian  4096 Jul 24 14:20 research/
         const outputElement = document.createElement('div');
         outputElement.className = 'output-line chat-ai';
         
-        const terminalContent = terminal.querySelector('.terminal-content');
-        if (terminalContent) {
-            terminalContent.appendChild(outputElement);
+        const terminalOutput = document.getElementById('terminalOutput');
+        if (terminalOutput) {
+            terminalOutput.appendChild(outputElement);
         } else {
             // Fallback for backwards compatibility
-            const promptLine = terminal.querySelector('.prompt-line');
-            terminal.insertBefore(outputElement, promptLine);
+            const terminalContent = terminal.querySelector('.terminal-content');
+            if (terminalContent) {
+                terminalContent.appendChild(outputElement);
+            } else {
+                const promptLine = terminal.querySelector('.prompt-line');
+                terminal.insertBefore(outputElement, promptLine);
+            }
         }
         
         // Stream the response with typing effect
