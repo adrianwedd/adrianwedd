@@ -902,7 +902,12 @@ jobs:
             echo "- Total Tokens Saved: $TOTAL_SAVED"
             echo "- Total Tokens Spent: $TOTAL_SPENT"
             echo "- Average Cache Hit Ratio: $(echo "scale=1; $AVG_CACHE_RATIO * 100" | bc -l)%"
-            echo "- Overall Efficiency: $(echo "scale=1; $TOTAL_SAVED * 100 / ($TOTAL_SPENT + $TOTAL_SAVED)" | bc -l)%"
+            TOTAL_OPERATIONS=$((TOTAL_SPENT + TOTAL_SAVED))
+            if [ "$TOTAL_OPERATIONS" -gt 0 ]; then
+              echo "- Overall Efficiency: $(echo "scale=1; $TOTAL_SAVED * 100 / $TOTAL_OPERATIONS" | bc -l)%"
+            else
+              echo "- Overall Efficiency: 0%"
+            fi
           fi
           echo ""
           
