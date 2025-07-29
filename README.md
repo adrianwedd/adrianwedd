@@ -71,7 +71,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. 🗣 Commented on [#41](https://github.com/adrianwedd/home-assistant-obsidian/issues/41#issuecomment-3126652414) in [adrianwedd/home-assistant-obsidian](https://github.com/adrianwedd/home-assistant-obsidian)
+1. ❗ Opened issue [#50](https://github.com/adrianwedd/home-assistant-obsidian/issues/50) in [adrianwedd/home-assistant-obsidian](https://github.com/adrianwedd/home-assistant-obsidian)
 <!--END_SECTION:activity-->
 
 ---
