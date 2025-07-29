@@ -71,7 +71,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. ❗ Opened issue [#50](https://github.com/adrianwedd/home-assistant-obsidian/issues/50) in [adrianwedd/home-assistant-obsidian](https://github.com/adrianwedd/home-assistant-obsidian)
+1. 🗣 Commented on [#101](https://github.com/adrianwedd/ModelAtlas/issues/101#issuecomment-3132169276) in [adrianwedd/ModelAtlas](https://github.com/adrianwedd/ModelAtlas)
 <!--END_SECTION:activity-->
 
 ---
