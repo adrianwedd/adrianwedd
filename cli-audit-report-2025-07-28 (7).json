@@ -1,0 +1,175 @@
+{
+  "total": 20,
+  "passed": 0,
+  "failed": 0,
+  "errors": 0,
+  "noOutput": 20,
+  "details": {
+    "help": {
+      "status": "no-output",
+      "time": 5754,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:46:57.972Z",
+      "category": "basic"
+    },
+    "about": {
+      "status": "no-output",
+      "time": 5713,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:47:05.186Z",
+      "category": "basic"
+    },
+    "whoami": {
+      "status": "no-output",
+      "time": 5716,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:47:12.403Z",
+      "category": "basic"
+    },
+    "pwd": {
+      "status": "no-output",
+      "time": 5711,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:47:19.615Z",
+      "category": "basic"
+    },
+    "clear": {
+      "status": "no-output",
+      "time": 5716,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:47:26.833Z",
+      "category": "basic"
+    },
+    "projects": {
+      "status": "no-output",
+      "time": 5713,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:47:34.048Z",
+      "category": "content"
+    },
+    "skills": {
+      "status": "no-output",
+      "time": 5714,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:47:41.262Z",
+      "category": "content"
+    },
+    "home": {
+      "status": "no-output",
+      "time": 5717,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:47:48.480Z",
+      "category": "content"
+    },
+    "ls": {
+      "status": "no-output",
+      "time": 5710,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:47:55.692Z",
+      "category": "content"
+    },
+    "uptime": {
+      "status": "no-output",
+      "time": 5715,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:48:02.909Z",
+      "category": "system"
+    },
+    "neofetch": {
+      "status": "no-output",
+      "time": 5715,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:48:10.125Z",
+      "category": "system"
+    },
+    "ps": {
+      "status": "no-output",
+      "time": 5712,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:48:17.341Z",
+      "category": "system"
+    },
+    "history": {
+      "status": "no-output",
+      "time": 5714,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:48:24.557Z",
+      "category": "interactive"
+    },
+    "theme list": {
+      "status": "no-output",
+      "time": 5714,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:48:31.772Z",
+      "category": "interactive"
+    },
+    "matrix": {
+      "status": "no-output",
+      "time": 5713,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:48:38.986Z",
+      "category": "effects"
+    },
+    "theme matrix": {
+      "status": "no-output",
+      "time": 5717,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:48:46.204Z",
+      "category": "effects"
+    },
+    "cache stats": {
+      "status": "no-output",
+      "time": 5731,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:48:53.436Z",
+      "category": "ai"
+    },
+    "tokens": {
+      "status": "no-output",
+      "time": 5718,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:49:00.655Z",
+      "category": "ai"
+    },
+    "script list": {
+      "status": "no-output",
+      "time": 5716,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:49:07.873Z",
+      "category": "dev"
+    },
+    "debug on": {
+      "status": "no-output",
+      "time": 5720,
+      "output": "",
+      "fullOutput": "",
+      "timestamp": "2025-07-28T07:49:15.094Z",
+      "category": "dev"
+    }
+  },
+  "testRun": {
+    "timestamp": "2025-07-28T07:49:57.416Z",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36",
+    "url": "../index.html",
+    "version": "1.0"
+  }
+}
