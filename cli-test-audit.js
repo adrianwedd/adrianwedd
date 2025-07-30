@@ -7,7 +7,17 @@
  * Adrian Wedd terminal interface. Tests command functionality, error handling,
  * and provides detailed reporting on command status.
  *
- * Usage: node cli-test-audit.js [--headless] [--command=specific_command]
+ * Usage: node cli-test-audit.js [options]
+ *
+ * Options:
+ *   --headless              Run in headless mode (default: true)
+ *   --headed                Run with browser UI visible
+ *   --command=<cmd>         Test only a specific command
+ *   --timeout=<ms>          Set timeout in milliseconds (default: 10000)
+ *   --url=<url>             Set target URL (default: http://localhost:3000)
+ *   --report=<file>         Set custom report filename
+ *   --no-issues             Don't generate GitHub issues for failures
+ *   --verbose               Enable verbose logging
  */
 
 const puppeteer = require('puppeteer');
@@ -20,7 +30,10 @@ class CLITestAudit {
       timeout: options.timeout || 10000,
       targetCommand: options.command || null,
       baseUrl: options.baseUrl || 'http://localhost:3000',
-      reportFile: options.reportFile || 'cli-audit-report.json',
+      reportFile:
+        options.reportFile || `cli-audit-report-${new Date().toISOString().split('T')[0]}.json`,
+      generateIssues: options.generateIssues !== false,
+      verbose: options.verbose || false,
     };
 
     // All terminal commands based on terminal.js analysis
@@ -70,6 +83,12 @@ class CLITestAudit {
         failed: 0,
         errors: 0,
         skipped: 0,
+      },
+      performance: {
+        averageResponseTime: 0,
+        fastestCommand: { name: '', time: Infinity },
+        slowestCommand: { name: '', time: 0 },
+        totalExecutionTime: 0,
       },
       details: {},
       errors: [],
@@ -191,6 +210,9 @@ class CLITestAudit {
 
     try {
       console.log(`  🔧 Testing: ${command}`);
+      if (this.options.verbose) {
+        console.log(`    ⚙️  Category: ${category}, Timeout: ${this.options.timeout}ms`);
+      }
 
       // Wait for any previous commands to complete
       await page.waitForTimeout(5000);
@@ -284,8 +306,32 @@ class CLITestAudit {
     this.results.details[command] = testResult;
     this.results.summary.total++;
 
+    // Update performance metrics
+    this.updatePerformanceMetrics(command, testResult.executionTime);
+
     // Longer delay between commands
     await page.waitForTimeout(2000);
+  }
+
+  updatePerformanceMetrics(command, executionTime) {
+    const perf = this.results.performance;
+
+    // Update total execution time
+    perf.totalExecutionTime += executionTime;
+
+    // Update fastest command
+    if (executionTime < perf.fastestCommand.time) {
+      perf.fastestCommand = { name: command, time: executionTime };
+    }
+
+    // Update slowest command
+    if (executionTime > perf.slowestCommand.time) {
+      perf.slowestCommand = { name: command, time: executionTime };
+    }
+
+    // Calculate running average
+    const totalCommands = this.results.summary.total + 1;
+    perf.averageResponseTime = perf.totalExecutionTime / totalCommands;
   }
 
   async generateReport() {
@@ -303,6 +349,22 @@ class CLITestAudit {
     console.log(`💥 Errors: ${errors}`);
     console.log(`⚠️  No Output: ${skipped}`);
     console.log('='.repeat(60));
+
+    // Performance metrics
+    const perf = this.results.performance;
+    if (total > 0) {
+      console.log('\n⚡ PERFORMANCE METRICS');
+      console.log('='.repeat(40));
+      console.log(`⚡ Average Response Time: ${Math.round(perf.averageResponseTime)}ms`);
+      console.log(
+        `🚀 Fastest Command: ${perf.fastestCommand.name} (${perf.fastestCommand.time}ms)`
+      );
+      console.log(
+        `🐌 Slowest Command: ${perf.slowestCommand.name} (${perf.slowestCommand.time}ms)`
+      );
+      console.log(`⏱️  Total Execution Time: ${(perf.totalExecutionTime / 1000).toFixed(1)}s`);
+      console.log('='.repeat(40));
+    }
 
     // Show failed commands
     if (failed > 0 || errors > 0) {
@@ -340,10 +402,13 @@ class CLITestAudit {
       console.log(`\n📄 Detailed report saved: ${this.options.reportFile}`);
 
       // Create GitHub issues for failures if requested
-      if (failed > 0 || errors > 0) {
+      if ((failed > 0 || errors > 0) && this.options.generateIssues) {
         console.log(`\n🐙 Found ${failed + errors} failed commands.`);
         console.log('GitHub issue URLs will be generated...\n');
         this.generateGitHubIssues();
+      } else if ((failed > 0 || errors > 0) && !this.options.generateIssues) {
+        console.log(`\n🐙 Found ${failed + errors} failed commands.`);
+        console.log('GitHub issue generation disabled (--no-issues flag used).\n');
       }
     } catch (error) {
       console.error(`Failed to save report: ${error.message}`);
@@ -445,6 +510,12 @@ async function main() {
       options.timeout = parseInt(arg.split('=')[1]);
     } else if (arg.startsWith('--url=')) {
       options.baseUrl = arg.split('=')[1];
+    } else if (arg === '--no-issues') {
+      options.generateIssues = false;
+    } else if (arg === '--verbose') {
+      options.verbose = true;
+    } else if (arg.startsWith('--report=')) {
+      options.reportFile = arg.split('=')[1];
     }
   }
 
