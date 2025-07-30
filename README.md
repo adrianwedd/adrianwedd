@@ -71,7 +71,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. 🗣 Commented on [#148](https://github.com/adrianwedd/ModelAtlas/issues/148#issuecomment-3132856300) in [adrianwedd/ModelAtlas](https://github.com/adrianwedd/ModelAtlas)
+1. ❗ Opened issue [#32](https://github.com/adrianwedd/cv/issues/32) in [adrianwedd/cv](https://github.com/adrianwedd/cv)
 <!--END_SECTION:activity-->
 
 ---
