@@ -59,7 +59,7 @@ export default [
     },
   },
   {
-    files: ['**/*.cjs', 'tests/fixtures/*.js'],
+    files: ['**/*.cjs', 'tests/fixtures/*.js', 'cli-test-audit.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'script',
