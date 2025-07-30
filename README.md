@@ -71,7 +71,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. 🔒 Closed issue [#56](https://github.com/adrianwedd/cv/issues/56) in [adrianwedd/cv](https://github.com/adrianwedd/cv)
+1. 🔒 Closed issue [#57](https://github.com/adrianwedd/cv/issues/57) in [adrianwedd/cv](https://github.com/adrianwedd/cv)
 <!--END_SECTION:activity-->
 
 ---
