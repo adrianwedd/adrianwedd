@@ -42,8 +42,43 @@ class VoiceInterface {
     this.init();
   }
 
+  async requestMicrophonePermission() {
+    try {
+      // Check if permissions API is available
+      if ('permissions' in navigator) {
+        const permission = await navigator.permissions.query({ name: 'microphone' });
+
+        if (permission.state === 'denied') {
+          this.showVoiceError(
+            'Microphone access denied. Please enable microphone permissions in browser settings.'
+          );
+          return false;
+        }
+
+        if (permission.state === 'prompt') {
+          // The permission will be requested when we try to start recognition
+          this.showVoiceInfo('Click the voice button to enable microphone access.');
+        }
+
+        return true;
+      } else {
+        // Fallback for browsers without permissions API
+        return true;
+      }
+    } catch (error) {
+      console.warn('Could not check microphone permissions:', error);
+      return true; // Continue anyway
+    }
+  }
+
   async init() {
     try {
+      // Check for HTTPS requirement
+      if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+        this.showVoiceError('Voice interface requires HTTPS connection');
+        return false;
+      }
+
       // Initialize Speech Recognition
       if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -55,8 +90,14 @@ class VoiceInterface {
         this.recognition.maxAlternatives = 3;
 
         this.setupRecognitionEvents();
+
+        // Request microphone permissions proactively
+        await this.requestMicrophonePermission();
       } else {
-        console.warn('Speech Recognition not supported');
+        this.showVoiceError(
+          'Speech Recognition not supported in this browser. Please use Chrome or Edge.'
+        );
+        return false;
       }
 
       // Initialize Speech Synthesis
@@ -74,8 +115,11 @@ class VoiceInterface {
 
         // Check for accessibility preferences
         this.detectAccessibilityNeeds();
+
+        this.showVoiceInfo('Text-to-speech ready');
       } else {
-        console.warn('Speech Synthesis not supported');
+        this.showVoiceError('Speech Synthesis not supported in this browser');
+        return false;
       }
 
       return true;
@@ -183,11 +227,34 @@ class VoiceInterface {
       console.warn('Speech recognition error:', event.error);
       this.updateVoiceIndicator('error');
 
-      // Handle different error types
-      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-        this.showVoiceError('Microphone access required for voice interface');
-      } else if (event.error === 'network') {
-        this.showVoiceError('Network error - check internet connection');
+      // Handle different error types with specific guidance
+      switch (event.error) {
+        case 'not-allowed':
+        case 'service-not-allowed':
+          this.showVoiceError(
+            'Microphone access denied. Click the microphone icon in your browser address bar to enable access.'
+          );
+          break;
+        case 'network':
+          this.showVoiceError('Network error - Speech recognition requires internet connection');
+          break;
+        case 'audio-capture':
+          this.showVoiceError('No microphone detected. Please connect a microphone and try again.');
+          break;
+        case 'no-speech':
+          this.showVoiceInfo('No speech detected. Try speaking closer to your microphone.');
+          // Don't treat this as a critical error, just restart listening
+          setTimeout(() => {
+            if (this.isActive && !this.isListening) {
+              this.startListening();
+            }
+          }, 1000);
+          break;
+        case 'aborted':
+          this.showVoiceInfo('Voice recognition stopped');
+          break;
+        default:
+          this.showVoiceError(`Voice recognition error: ${event.error}`);
       }
     };
 
@@ -462,6 +529,27 @@ class VoiceInterface {
     utterance.onerror = (event) => {
       console.error('Speech synthesis error:', event.error);
       this.updateVoiceIndicator('error');
+
+      // Provide specific error messages for speech synthesis issues
+      switch (event.error) {
+        case 'network':
+          this.showVoiceError('Speech synthesis network error - check internet connection');
+          break;
+        case 'synthesis-unavailable':
+          this.showVoiceError('Speech synthesis unavailable - try a different voice or browser');
+          break;
+        case 'synthesis-failed':
+          this.showVoiceError('Speech synthesis failed - retrying with simpler text');
+          break;
+        case 'audio-busy':
+          this.showVoiceError('Audio system busy - speech synthesis will retry');
+          break;
+        case 'not-allowed':
+          this.showVoiceError('Speech synthesis not allowed - check browser permissions');
+          break;
+        default:
+          this.showVoiceError(`Speech synthesis error: ${event.error}`);
+      }
     };
 
     this.synthesis.speak(utterance);
@@ -559,6 +647,12 @@ class VoiceInterface {
     }
 
     try {
+      // Check if already listening to avoid errors
+      if (this.isListening) {
+        this.showVoiceInfo('Voice recognition is already active');
+        return true;
+      }
+
       this.isActive = true;
       this.recognition.start();
 
@@ -567,10 +661,25 @@ class VoiceInterface {
         window.terminal.updateStatusPanel();
       }
 
+      this.showVoiceInfo(
+        'Voice recognition started. Say "Adrian" or "Computer" to activate commands.'
+      );
       return true;
     } catch (error) {
       console.error('Failed to start listening:', error);
-      this.showVoiceError('Failed to start voice recognition');
+
+      // Provide specific error messages
+      if (error.name === 'InvalidStateError') {
+        this.showVoiceError('Voice recognition is already running');
+      } else if (error.name === 'NotAllowedError') {
+        this.showVoiceError(
+          'Microphone access denied. Please allow microphone access and try again.'
+        );
+      } else {
+        this.showVoiceError(`Failed to start voice recognition: ${error.message}`);
+      }
+
+      this.isActive = false;
       return false;
     }
   }
@@ -660,8 +769,17 @@ class VoiceInterface {
   }
 
   showVoiceError(message) {
+    console.error('Voice Error:', message);
     if (window.terminal) {
       window.terminal.addOutput(`🎤 Voice Error: ${message}`, 'error');
+    }
+    this.updateVoiceIndicator('error', message);
+  }
+
+  showVoiceInfo(message) {
+    console.log('Voice Info:', message);
+    if (window.terminal) {
+      window.terminal.addOutput(`🎤 ${message}`, 'info');
     }
   }
 
