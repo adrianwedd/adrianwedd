@@ -169,7 +169,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. 🔒 Closed issue [#118](https://github.com/adrianwedd/cv/issues/118) in [adrianwedd/cv](https://github.com/adrianwedd/cv)
+1. ❗ Opened issue [#20](https://github.com/adrianwedd/emdr-agent/issues/20) in [adrianwedd/emdr-agent](https://github.com/adrianwedd/emdr-agent)
 <!--END_SECTION:activity-->
 
 ---
