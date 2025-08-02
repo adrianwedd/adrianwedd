@@ -169,7 +169,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. 🔒 Closed issue [#136](https://github.com/adrianwedd/cv/issues/136) in [adrianwedd/cv](https://github.com/adrianwedd/cv)
+1. ❗ Opened issue [#12](https://github.com/adrianwedd/lunar_tools_prototypes/issues/12) in [adrianwedd/lunar_tools_prototypes](https://github.com/adrianwedd/lunar_tools_prototypes)
 <!--END_SECTION:activity-->
 
 ---
