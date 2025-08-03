@@ -169,7 +169,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. ❗ Opened issue [#220](https://github.com/adrianwedd/cv/issues/220) in [adrianwedd/cv](https://github.com/adrianwedd/cv)
+1. 🗣 Commented on [#242](https://github.com/adrianwedd/cv/issues/242#issuecomment-3148606617) in [adrianwedd/cv](https://github.com/adrianwedd/cv)
 <!--END_SECTION:activity-->
 
 ---
