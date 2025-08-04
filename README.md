@@ -169,7 +169,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. ❗ Opened issue [#253](https://github.com/adrianwedd/cv/issues/253) in [adrianwedd/cv](https://github.com/adrianwedd/cv)
+1. 🗣 Commented on [#33](https://github.com/adrianwedd/ordr.fm/issues/33#issuecomment-3149980071) in [adrianwedd/ordr.fm](https://github.com/adrianwedd/ordr.fm)
 <!--END_SECTION:activity-->
 
 ---
