@@ -169,7 +169,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. ❗ Opened issue [#420](https://github.com/adrianwedd/Agentic-Index/issues/420) in [adrianwedd/Agentic-Index](https://github.com/adrianwedd/Agentic-Index)
+1. ❗ Opened issue [#7](https://github.com/adrianwedd/ADHDo/issues/7) in [adrianwedd/ADHDo](https://github.com/adrianwedd/ADHDo)
 <!--END_SECTION:activity-->
 
 ---
