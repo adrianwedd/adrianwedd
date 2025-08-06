@@ -169,7 +169,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. 🗣 Commented on [#308](https://github.com/adrianwedd/Dx0/issues/308#issuecomment-3153303753) in [adrianwedd/Dx0](https://github.com/adrianwedd/Dx0)
+1. 🔒 Closed issue [#21](https://github.com/adrianwedd/ordr.fm/issues/21) in [adrianwedd/ordr.fm](https://github.com/adrianwedd/ordr.fm)
 <!--END_SECTION:activity-->
 
 ---
