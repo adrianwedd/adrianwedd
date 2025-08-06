@@ -169,7 +169,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. 🗣 Commented on [#21](https://github.com/adrianwedd/ADHDo/issues/21#issuecomment-3159090803) in [adrianwedd/ADHDo](https://github.com/adrianwedd/ADHDo)
+1. 🔒 Closed issue [#266](https://github.com/adrianwedd/cv/issues/266) in [adrianwedd/cv](https://github.com/adrianwedd/cv)
 <!--END_SECTION:activity-->
 
 ---
