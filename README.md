@@ -169,7 +169,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. 🔒 Closed issue [#21](https://github.com/adrianwedd/ordr.fm/issues/21) in [adrianwedd/ordr.fm](https://github.com/adrianwedd/ordr.fm)
+1. 🗣 Commented on [#21](https://github.com/adrianwedd/ADHDo/issues/21#issuecomment-3159090803) in [adrianwedd/ADHDo](https://github.com/adrianwedd/ADHDo)
 <!--END_SECTION:activity-->
 
 ---
