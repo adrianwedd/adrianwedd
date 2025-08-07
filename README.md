@@ -169,7 +169,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. 🔒 Closed issue [#266](https://github.com/adrianwedd/cv/issues/266) in [adrianwedd/cv](https://github.com/adrianwedd/cv)
+1. 🔒 Closed issue [#26](https://github.com/adrianwedd/ADHDo/issues/26) in [adrianwedd/ADHDo](https://github.com/adrianwedd/ADHDo)
 <!--END_SECTION:activity-->
 
 ---
