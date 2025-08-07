@@ -169,7 +169,7 @@
 ### 🔥 Latest Activity
 
 <!--START_SECTION:activity-->
-1. ❗ Opened issue [#106](https://github.com/adrianwedd/ordr.fm/issues/106) in [adrianwedd/ordr.fm](https://github.com/adrianwedd/ordr.fm)
+1. ❗ Opened issue [#126](https://github.com/adrianwedd/ordr.fm/issues/126) in [adrianwedd/ordr.fm](https://github.com/adrianwedd/ordr.fm)
 <!--END_SECTION:activity-->
 
 ---
