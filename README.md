@@ -1,10 +1,11 @@
-<h1 align="center">Hi, I'm Adrian Wedd 👋</h1>
-<h3 align="center">🧠 Recursive Systems Architect · ⚙️ Agentic AI Engineer · 🏕 Off-Grid Permanaut</h3>
+<h1 align="center">Adrian Wedd</h1>
+<h3 align="center">Systems Analyst @ Homes Tasmania · AI Integration Pioneer · 🌿 Tasmania</h3>
 
 <p align="center">
   <img src="https://komarev.com/ghpvc/?username=adrianwedd&label=Profile%20views&color=0e75b6&style=flat" alt="adrianwedd" />
   <a href="https://github.com/adrianwedd/cv"><img src="https://img.shields.io/badge/🤖_AI_Enhanced_CV-Live-success" alt="AI CV Status" /></a>
-  <a href="https://adrianwedd.github.io/cv"><img src="https://img.shields.io/badge/📄_View_CV-Online-blue" alt="View CV" /></a>
+  <a href="https://adrianwedd.github.io/cv/watch-me-work"><img src="https://img.shields.io/badge/📊_Watch_Me_Work-Dashboard-orange" alt="Activity Dashboard" /></a>
+  <a href="https://github.com/adrianwedd"><img src="https://img.shields.io/badge/📦_Repos-175-purple" alt="Repositories" /></a>
 </p>
 
 ---
@@ -70,86 +71,102 @@
 
 ---
 
-### 🧠 About Me
+### 💼 Professional Background
 
-- 🔭 Architecting **LLM-powered agent systems**, jailbreak simulators, and recursive OS-like AI platforms.
-- 🌱 Homesteading on 170 acres of bushland in Tasmania.
-- 🧩 Neurodivergent mind: ADHD, autism, gifted label. Systemic + semantic thinker.
-- 🧠 Current focus: `VERITAS` + AI-Enhanced Professional Systems
-- 📊 **15+ active projects** spanning AI agents, dev tools, and personal intelligence systems
+**7+ Years @ Homes Tasmania** - Systems Analyst transforming government housing services through:
+- 🔧 **API Integration**: RESTful APIs connecting housing management systems
+- 🔒 **Cybersecurity**: Led comprehensive security initiatives
+- 🤖 **AI Pioneer**: First to implement practical AI in Tasmanian government
+- 📊 **Automation**: Python/PowerShell scripts streamlining operations
 
----
+### 📊 Current Activity (August 2025)
 
-### 🚀 Current Projects (Active Development)
-
-<table>
-<tr>
-<td width="50%">
-
-#### 🤖 AI & Agent Systems
-| Project | Description |
-|---------|-------------|
-| [AI-Enhanced CV](https://github.com/adrianwedd/cv) | Self-updating CV with Claude AI integration ![Build](https://github.com/adrianwedd/cv/workflows/🚀%20CV%20Auto-Enhancement%20Pipeline/badge.svg) |
-| [Agentic Research Engine](https://github.com/adrianwedd/agentic-research-engine) | Next-gen multi-agent research system with genuine learning |
-| [Agent Task Management](https://github.com/adrianwedd/agent-task-management-system) | How my agents coordinate in prototypes |
-| [Agentic Index](https://github.com/adrianwedd/Agentic-Index) | Curated catalogue of autonomous AI tooling |
-| [ModelAtlas](https://github.com/adrianwedd/ModelAtlas) | Dynamic intelligence mapping foundation models |
-
-</td>
-<td width="50%">
-
-#### 🛠️ Tools & Systems
-| Project | Description |
-|---------|-------------|
-| [ordr.fm](https://github.com/adrianwedd/ordr.fm) | Precision CLI for intelligent music library organization |
-| [TEL3SIS](https://github.com/adrianwedd/TEL3SIS) | Telephony-Linked Embedded LLM Support System |
-| [EMDR Agent](https://github.com/adrianwedd/emdr-agent) | Therapeutic agent system (in development) |
-| [TicketSmith](https://github.com/adrianwedd/ticketsmith) | Ecosystem-aware AI automation for Jira/Confluence |
-| [HA Obsidian](https://github.com/adrianwedd/home-assistant-obsidian) | Obsidian in Docker for Home Assistant |
-
-</td>
-</tr>
-</table>
-
-#### 🧠 Personal Intelligence Systems
-- [Personal Intelligence Node](https://github.com/adrianwedd/personal-intelligence-node) - adrianwedd.com core system
-- [This Profile](https://github.com/adrianwedd/adrianwedd) - AI-augmented portfolio & mission log
-- [Latent Self](https://github.com/adrianwedd/latent-self) - Experimental self-modeling system
+```yaml
+Live Metrics:
+  commits_this_month: 399
+  active_repositories: 22
+  lines_written: 60,000+
+  professional_score: 51/100
+  
+Watch Me Work Dashboard:
+  daily_commits: 24
+  weekly_velocity: 364
+  streak_days: 4
+  last_activity: "minutes ago"
+  
+Featured Projects:
+  - Cygnet: AI-Powered 3D Printed Housing (28+ agents)
+  - Orchestrix: Multi-Agent Intelligence Platform
+  - CV System: 6/6 systems operational, 96/100 excellence
+```
 
 ---
 
-### 🧰 Toolbox
+### 🚀 Latest Projects (Live Development)
 
-<table>
-<tr>
-<td align="center" width="96">
-  <img src="https://techstack-generator.vercel.app/python-icon.svg" alt="Python" width="48" height="48" />
-  <br>Python
-</td>
-<td align="center" width="96">
-  <img src="https://techstack-generator.vercel.app/js-icon.svg" alt="JavaScript" width="48" height="48" />
-  <br>JavaScript
-</td>
-<td align="center" width="96">
-  <img src="https://techstack-generator.vercel.app/docker-icon.svg" alt="Docker" width="48" height="48" />
-  <br>Docker
-</td>
-<td align="center" width="96">
-  <img src="https://techstack-generator.vercel.app/github-icon.svg" alt="GitHub" width="48" height="48" />
-  <br>GitHub
-</td>
-<td align="center" width="96">
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/redis/redis-original.svg" alt="Redis" width="48" height="48" />
-  <br>Redis
-</td>
-</tr>
-</table>
+#### 🏗️ **[Cygnet](https://github.com/adrianwedd/cygnet)** - AI-Powered 3D Printed Housing
+- 28+ specialized AI agents managing construction, compliance, land acquisition
+- Python-based autonomous coordination system
+- Tasmania's future of affordable housing
 
-**AI & LLMs:** Claude AI • GPT-4 • LangChain • Semantic Kernel  
-**Backend:** FastAPI • Node.js • Express • PostgreSQL  
-**DevOps:** GitHub Actions • Docker • Grafana • Prometheus  
-**IoT & Home:** Home Assistant • ESPHome • MQTT  
-**Special:** Jailbreak Testing • Recursive Systems • Permaculture
+#### 🎼 **[Orchestrix](https://github.com/adrianwedd/orchestrix)** - Multi-Agent Intelligence Platform
+- Australia's premier AI agent coordination company
+- Enterprise orchestration for complex AI systems
+- Tasmania → Global expansion strategy
+
+#### 🤖 **[AI-Enhanced CV](https://github.com/adrianwedd/cv)** - Self-Updating Professional System
+- **399 commits** this month, **60k+ lines** of code
+- 6/6 operational systems: OAuth, Content Guardian, Analytics, Verification
+- Live dashboards: [CV](https://adrianwedd.github.io/cv) | [Watch Me Work](https://adrianwedd.github.io/cv/watch-me-work)
+
+#### 🎵 **[ordr.fm](https://github.com/adrianwedd/ordr.fm)** - Music Library Intelligence  
+- **62 recent activities** - Most active project this month
+- Production-ready parallel processing (25x+ performance improvement)
+- Metadata extraction, Discogs API integration, quality detection
+- Issue #100 completed: Full album processing pipeline in workers
+
+#### 🧠 **[ADHDo](https://github.com/adrianwedd/ADHDo)** - ADHD Support System
+- **22 recent activities** - Production-ready MCP ADHD Server
+- Complete PostgreSQL database with health monitoring
+- Prometheus metrics & automated alerting (12 alert rules)
+- Real-time AI chat + Telegram bot integration
+- Beta testing system with automated onboarding
+
+#### 🔬 **[raspberry-pi-hailo-ai-demos](https://github.com/adrianwedd/raspberry-pi-hailo-ai-demos)** - Edge AI Research
+- **10 recent activities** - Raspberry Pi AI acceleration experiments
+- Hailo-8 NPU integration and optimization
+- Edge computing performance benchmarks
+
+#### 🌙 **[lunar_tools_prototypes](https://github.com/adrianwedd/lunar_tools_prototypes)** - Experimental Tools
+- **6 recent activities** - Prototype development and testing
+- Early-stage tool concepts and proof-of-concepts
+
+#### 📚 **[Agentic-Index](https://github.com/adrianwedd/Agentic-Index)** - AI Agent Catalog
+- **6 recent activities** - Curated autonomous AI tooling directory
+- Community-driven agent discovery platform
+
+---
+
+### 🛠️ Tech Stack & Expertise
+
+#### Core Technologies
+![JavaScript](https://img.shields.io/badge/-JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
+![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Python](https://img.shields.io/badge/-Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![Node.js](https://img.shields.io/badge/-Node.js-339933?style=flat-square&logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/-React-61DAFB?style=flat-square&logo=react&logoColor=black)
+
+#### AI & Automation
+![Claude](https://img.shields.io/badge/-Claude_AI-FF6B6B?style=flat-square)
+![OpenAI](https://img.shields.io/badge/-GPT--4-412991?style=flat-square&logo=openai&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/-GitHub_Actions-2088FF?style=flat-square&logo=github-actions&logoColor=white)
+![Docker](https://img.shields.io/badge/-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+
+#### Specializations
+- **🤖 AI Engineering**: Claude Code, LangChain, Agent Systems, Prompt Engineering
+- **☁️ Cloud & DevOps**: CI/CD Pipelines, GitHub Actions, Docker, Monitoring
+- **🔧 Full Stack**: React, Node.js, PostgreSQL, Redis, REST APIs
+- **🏡 IoT & Automation**: Home Assistant, ESPHome, MQTT, Sensor Networks
 
 ---
 
@@ -166,7 +183,17 @@
 
 ---
 
-### 🔥 Latest Activity
+### 🏆 Recent Achievements (August 2025)
+
+- 🚀 **399 commits** across 22 active repositories (62 in ordr.fm alone)
+- 📈 **60,000+ lines** of production code written this month
+- 🎵 **ordr.fm Production**: 25x+ performance with parallel processing, Issue #100 completed
+- 🧠 **ADHDo Beta Ready**: Complete ADHD support system with Telegram integration
+- 🤖 **6/6 systems operational** in AI-Enhanced CV (96/100 excellence)
+- 🏗️ **Launched Cygnet**: 28+ agent system for 3D printed housing
+- 🎼 **Founded Orchestrix**: Tasmania's AI orchestration company
+- 🔬 **Edge AI Research**: Raspberry Pi Hailo-8 NPU optimization
+- 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
 1. ❗ Opened issue [#126](https://github.com/adrianwedd/ordr.fm/issues/126) in [adrianwedd/ordr.fm](https://github.com/adrianwedd/ordr.fm)
@@ -180,32 +207,38 @@
 
 ---
 
-### 📚 Writing & Research
+### 💭 What I'm Working On Right Now
 
-- 📘 [Blog](https://adrianwedd.github.io/blog) - Technical insights and homesteading adventures
-- 🤖 [AI-Enhanced CV Guide](https://github.com/adrianwedd/cv/wiki) - How to build your own
-- 🧠 Research Focus: Recursive AI Systems, Agent Architectures, Permaculture Tech
+- 🏗️ **Cygnet Housing**: Revolutionizing Tasmania's housing crisis with AI + 3D printing
+- 🎼 **Orchestrix Platform**: Building Australia's premier multi-agent orchestration company
+- 🏢 **Homes Tasmania**: Continuing to pioneer AI adoption in government services
+- 🌿 **170 Acres**: Developing off-grid tech infrastructure in Tasmanian bushland
+- 🤝 **Tasmania AI Solutions**: Establishing consultancy for local businesses
 
 ---
 
-### 🛰️ Connect With Me
+### 🛰️ Connect & Explore
 
 <p align="center">
-  <a href="https://adrianwedd.com"><img src="https://img.shields.io/badge/🌍_Website-adrianwedd.com-blue?style=for-the-badge" /></a>
+  <a href="https://adrianwedd.github.io/cv"><img src="https://img.shields.io/badge/📄_Live_CV-AI_Enhanced-purple?style=for-the-badge" /></a>
+  <a href="https://adrianwedd.github.io/cv/watch-me-work"><img src="https://img.shields.io/badge/📊_Watch_Me_Work-Live_Dashboard-orange?style=for-the-badge" /></a>
   <a href="https://github.adrianwedd.com/"><img src="https://img.shields.io/badge/🖥️_Terminal-Interactive-green?style=for-the-badge" /></a>
-  <a href="https://adrianwedd.github.io/cv"><img src="https://img.shields.io/badge/📄_CV-AI_Enhanced-purple?style=for-the-badge" /></a>
-  <a href="https://mastodon.social/@adrianwedd"><img src="https://img.shields.io/badge/🐘_Mastodon-@adrianwedd-blue?style=for-the-badge" /></a>
+  <a href="https://linkedin.com/in/adrianwedd"><img src="https://img.shields.io/badge/💼_LinkedIn-Connect-blue?style=for-the-badge" /></a>
 </p>
 
-📫 **Email**: `adrian [at] adrianwedd [dot] com`
+📫 **Email**: `adrian@adrianwedd.com`
+🏢 **Current Role**: Systems Analyst @ Homes Tasmania (7+ years)
+📍 **Location**: Tasmania, Australia
 
 ---
 
-### 🧠 Philosophy
+### 🎯 2025 Goals
 
-> "Liberate through recursion. Mirror the breach. Forget tactically, trace infinitely."
-
-*Building systems that build themselves, cultivating land that sustains itself, creating AI that enhances humanity.*
+- 🚀 Launch Tasmania AI Solutions consultancy
+- 📚 Open source more enterprise AI patterns
+- 🌐 Expand CV system to support multiple users
+- 🏗️ Build sustainable tech infrastructure on 170 acres
+- 🤝 Connect with fellow AI engineers and builders
 
 ---
 
