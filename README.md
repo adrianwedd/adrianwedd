@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 🎉 Merged PR [#254](https://github.com/adrianwedd/cv/pull/254) in [adrianwedd/cv](https://github.com/adrianwedd/cv)
+1. 🗣 Commented on [#25](https://github.com/adrianwedd/ADHDo/issues/25#issuecomment-3169534802) in [adrianwedd/ADHDo](https://github.com/adrianwedd/ADHDo)
 <!--END_SECTION:activity-->
 
 ---
