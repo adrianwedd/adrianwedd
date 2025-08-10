@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. ❗ Opened issue [#175](https://github.com/adrianwedd/ordr.fm/issues/175) in [adrianwedd/ordr.fm](https://github.com/adrianwedd/ordr.fm)
+1. ❗ Opened issue [#55](https://github.com/adrianwedd/ADHDo/issues/55) in [adrianwedd/ADHDo](https://github.com/adrianwedd/ADHDo)
 <!--END_SECTION:activity-->
 
 ---
