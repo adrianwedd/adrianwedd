@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 🗣 Commented on [#65](https://github.com/adrianwedd/ADHDo/issues/65#issuecomment-3172955180) in [adrianwedd/ADHDo](https://github.com/adrianwedd/ADHDo)
+1. 🗣 Commented on [#78](https://github.com/adrianwedd/ADHDo/issues/78#issuecomment-3173143098) in [adrianwedd/ADHDo](https://github.com/adrianwedd/ADHDo)
 <!--END_SECTION:activity-->
 
 ---
