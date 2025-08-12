@@ -8,7 +8,7 @@ export class UIController {
     this.outputElement = options.outputElement || document.getElementById('output');
     this.inputElement = options.inputElement || document.getElementById('cli-input');
     this.promptElement = options.promptElement || document.getElementById('prompt');
-    
+
     this.currentTheme = 'matrix';
     this.outputBuffer = [];
     this.maxOutputLines = 1000;
@@ -30,22 +30,22 @@ export class UIController {
   addOutput(text, className = '', options = {}) {
     const outputDiv = document.createElement('div');
     outputDiv.className = `output-line ${className}`;
-    
+
     if (options.isHTML) {
       outputDiv.innerHTML = text;
     } else {
       outputDiv.textContent = text;
     }
-    
+
     if (options.animate) {
       this.animateText(outputDiv, text);
     } else {
       this.outputElement.appendChild(outputDiv);
     }
-    
+
     this.trimOutput();
     this.scrollToBottom();
-    
+
     return outputDiv;
   }
 
@@ -77,13 +77,13 @@ export class UIController {
     this.isAnimating = true;
     element.textContent = '';
     this.outputElement.appendChild(element);
-    
+
     for (let i = 0; i < text.length; i++) {
       element.textContent += text[i];
       await this.sleep(speed);
       this.scrollToBottom();
     }
-    
+
     this.isAnimating = false;
   }
 
@@ -93,13 +93,13 @@ export class UIController {
   async streamText(text, className = '', chunkSize = 50) {
     const element = this.addOutput('', className);
     const chunks = this.chunkText(text, chunkSize);
-    
+
     for (const chunk of chunks) {
       element.textContent += chunk;
       this.scrollToBottom();
       await this.sleep(20);
     }
-    
+
     return element;
   }
 
@@ -110,18 +110,18 @@ export class UIController {
     const loadingDiv = this.addOutput('', 'loading');
     const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
     let frameIndex = 0;
-    
+
     const interval = setInterval(() => {
       loadingDiv.textContent = `${frames[frameIndex]} ${message}`;
       frameIndex = (frameIndex + 1) % frames.length;
     }, 80);
-    
+
     return {
       element: loadingDiv,
       stop: () => {
         clearInterval(interval);
         loadingDiv.remove();
-      }
+      },
     };
   }
 
@@ -164,33 +164,33 @@ export class UIController {
         '--primary-color': '#00ff00',
         '--bg-color': '#0a0a0a',
         '--text-color': '#00ff00',
-        '--secondary-color': '#008800'
+        '--secondary-color': '#008800',
       },
       ocean: {
         '--primary-color': '#00ccff',
         '--bg-color': '#001525',
         '--text-color': '#00ccff',
-        '--secondary-color': '#0066aa'
+        '--secondary-color': '#0066aa',
       },
       sunset: {
         '--primary-color': '#ff6b35',
         '--bg-color': '#1a0f0a',
         '--text-color': '#ff6b35',
-        '--secondary-color': '#cc4422'
+        '--secondary-color': '#cc4422',
       },
       neon: {
         '--primary-color': '#ff00ff',
         '--bg-color': '#0a0015',
         '--text-color': '#ff00ff',
-        '--secondary-color': '#aa00aa'
-      }
+        '--secondary-color': '#aa00aa',
+      },
     };
-    
+
     const themeColors = themes[theme] || themes.matrix;
     Object.entries(themeColors).forEach(([key, value]) => {
       root.style.setProperty(key, value);
     });
-    
+
     this.currentTheme = theme;
     localStorage.setItem('terminal-theme', theme);
   }
@@ -282,7 +282,7 @@ export class UIController {
    * Utility: Sleep
    */
   sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**
@@ -299,24 +299,23 @@ export class UIController {
    * Show formatted table
    */
   showTable(headers, rows) {
-    const maxLengths = headers.map((h, i) => 
-      Math.max(h.length, ...rows.map(r => String(r[i]).length))
+    const maxLengths = headers.map((h, i) =>
+      Math.max(h.length, ...rows.map((r) => String(r[i]).length))
     );
-    
-    const separator = '+' + maxLengths.map(l => '-'.repeat(l + 2)).join('+') + '+';
+
+    const separator = '+' + maxLengths.map((l) => '-'.repeat(l + 2)).join('+') + '+';
     const headerRow = '|' + headers.map((h, i) => ` ${h.padEnd(maxLengths[i])} `).join('|') + '|';
-    
+
     let table = separator + '\n' + headerRow + '\n' + separator;
-    
-    rows.forEach(row => {
-      const dataRow = '|' + row.map((cell, i) => 
-        ` ${String(cell).padEnd(maxLengths[i])} `
-      ).join('|') + '|';
+
+    rows.forEach((row) => {
+      const dataRow =
+        '|' + row.map((cell, i) => ` ${String(cell).padEnd(maxLengths[i])} `).join('|') + '|';
       table += '\n' + dataRow;
     });
-    
+
     table += '\n' + separator;
-    
+
     return this.addOutput(table, 'table');
   }
 }

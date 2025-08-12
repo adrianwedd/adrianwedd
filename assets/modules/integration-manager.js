@@ -17,7 +17,7 @@ export class IntegrationManager {
     if (typeof integration.init !== 'function') {
       throw new Error(`Integration ${name} must have an init method`);
     }
-    
+
     this.integrations.set(name, integration);
     this.configs.set(name, integration.config || {});
   }
@@ -30,9 +30,9 @@ export class IntegrationManager {
     if (!integration) {
       throw new Error(`Integration ${name} not found`);
     }
-    
+
     const mergedConfig = { ...this.configs.get(name), ...config };
-    
+
     try {
       const connection = await integration.init(mergedConfig);
       this.activeConnections.set(name, connection);
@@ -63,11 +63,11 @@ export class IntegrationManager {
   async disconnect(name) {
     const connection = this.activeConnections.get(name);
     const integration = this.integrations.get(name);
-    
+
     if (connection && integration?.disconnect) {
       await integration.disconnect(connection);
     }
-    
+
     this.activeConnections.delete(name);
   }
 
@@ -77,20 +77,20 @@ export class IntegrationManager {
   async fetchGitHubData(endpoint, options = {}) {
     const baseUrl = 'https://api.github.com';
     const url = `${baseUrl}${endpoint}`;
-    
+
     try {
       const response = await fetch(url, {
         headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          ...options.headers
+          Accept: 'application/vnd.github.v3+json',
+          ...options.headers,
         },
-        ...options
+        ...options,
       });
-      
+
       if (!response.ok) {
         throw new Error(`GitHub API error: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('GitHub API error:', error);
@@ -103,13 +103,13 @@ export class IntegrationManager {
    */
   async fetchWeatherData(_location = 'Tasmania') {
     const weatherEndpoint = '/api/weather'; // Local proxy endpoint
-    
+
     try {
       const response = await fetch(weatherEndpoint);
       if (!response.ok) {
         throw new Error(`Weather API error: ${response.status}`);
       }
-      
+
       const data = await response.json();
       return this.formatWeatherData(data);
     } catch (error) {
@@ -124,28 +124,28 @@ export class IntegrationManager {
    */
   async sendAIRequest(prompt, options = {}) {
     const aiEndpoint = '/api/chat';
-    
+
     try {
       const response = await fetch(aiEndpoint, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           prompt,
-          ...options
-        })
+          ...options,
+        }),
       });
-      
+
       if (!response.ok) {
         throw new Error(`AI API error: ${response.status}`);
       }
-      
+
       // Handle streaming response if enabled
       if (options.stream) {
         return this.handleStreamingResponse(response);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('AI API error:', error);
@@ -160,18 +160,18 @@ export class IntegrationManager {
     const reader = response.body.getReader();
     const decoder = new window.TextDecoder();
     const chunks = [];
-    
+
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      
+
       const chunk = decoder.decode(value);
       chunks.push(chunk);
-      
+
       // Emit chunk event for real-time processing
       this.emit('ai-chunk', chunk);
     }
-    
+
     return chunks.join('');
   }
 
@@ -185,7 +185,7 @@ export class IntegrationManager {
       if (!response.ok) {
         throw new Error(`Monitor API error: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Monitor API error:', error);
@@ -201,7 +201,7 @@ export class IntegrationManager {
     if (!data || !data.current) {
       return null;
     }
-    
+
     return {
       location: data.location || 'Tasmania',
       temperature: data.current.temp_c,
@@ -209,7 +209,7 @@ export class IntegrationManager {
       humidity: data.current.humidity,
       windSpeed: data.current.wind_kph,
       icon: this.getWeatherIcon(data.current.condition?.code),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -218,18 +218,18 @@ export class IntegrationManager {
    */
   getWeatherIcon(code) {
     const icons = {
-      1000: '☀️',  // Sunny
-      1003: '⛅',  // Partly cloudy
-      1006: '☁️',  // Cloudy
-      1009: '🌫️',  // Overcast
-      1030: '🌁',  // Mist
-      1063: '🌦️',  // Patchy rain
-      1183: '🌧️',  // Light rain
-      1195: '⛈️',  // Heavy rain
-      1225: '🌨️',  // Snow
-      1273: '⛈️'   // Thunderstorm
+      1000: '☀️', // Sunny
+      1003: '⛅', // Partly cloudy
+      1006: '☁️', // Cloudy
+      1009: '🌫️', // Overcast
+      1030: '🌁', // Mist
+      1063: '🌦️', // Patchy rain
+      1183: '🌧️', // Light rain
+      1195: '⛈️', // Heavy rain
+      1225: '🌨️', // Snow
+      1273: '⛈️', // Thunderstorm
     };
-    
+
     return icons[code] || '🌡️';
   }
 
@@ -262,10 +262,10 @@ export class IntegrationManager {
       disk: Math.random() * 100,
       network: {
         upload: Math.random() * 1000,
-        download: Math.random() * 1000
+        download: Math.random() * 1000,
       },
       processes: Math.floor(Math.random() * 200) + 100,
-      uptime: Date.now() - (Math.random() * 86400000)
+      uptime: Date.now() - Math.random() * 86400000,
     };
   }
 
@@ -290,7 +290,7 @@ export class IntegrationManager {
     for (const [name] of this.activeConnections) {
       await this.disconnect(name);
     }
-    
+
     this.integrations.clear();
     this.configs.clear();
     this.activeConnections.clear();

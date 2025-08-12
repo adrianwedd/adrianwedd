@@ -11,13 +11,13 @@ import { StateManager } from './state-manager.js';
 export class TerminalCore {
   constructor(config = {}) {
     this.config = config;
-    
+
     // Initialize core modules
     this.commandRouter = new CommandRouter();
     this.ui = new UIController(config.ui);
     this.integrations = new IntegrationManager();
     this.state = new StateManager();
-    
+
     // Track initialization
     this.initialized = false;
     this.modules = new Map();
@@ -30,36 +30,38 @@ export class TerminalCore {
     if (this.initialized) {
       return;
     }
-    
+
     try {
+      // Set session start time
+      window.sessionStart = Date.now();
+      
       // Initialize UI
       this.ui.init();
-      
+
       // Register core commands
       this.registerCoreCommands();
-      
+
       // Load external modules
       await this.loadModules();
-      
+
       // Setup event listeners
       this.setupEventListeners();
-      
+
       // Initialize integrations
       await this.initializeIntegrations();
-      
+
       // Update state
       this.state.setState('terminal', {
         isReady: true,
         currentDirectory: '~',
         user: 'guest',
-        hostname: 'adrianwedd.com'
+        hostname: 'adrianwedd.com',
       });
-      
+
       // Show welcome message
       this.showWelcome();
-      
+
       this.initialized = true;
-      
     } catch (error) {
       console.error('Terminal initialization failed:', error);
       this.ui.showError('Failed to initialize terminal');
@@ -71,40 +73,54 @@ export class TerminalCore {
    */
   registerCoreCommands() {
     // Help command
-    this.commandRouter.register('help', async () => {
-      const commands = this.commandRouter.getCommands();
-      const helpText = this.formatHelp(commands);
-      this.ui.addOutput(helpText, 'help');
-    }, {
-      description: 'Show available commands',
-      aliases: ['h', '?']
-    });
-    
-    // Clear command
-    this.commandRouter.register('clear', async () => {
-      this.ui.clearOutput();
-    }, {
-      description: 'Clear terminal output',
-      aliases: ['cls']
-    });
-    
-    // Theme command
-    this.commandRouter.register('theme', async (args) => {
-      if (args.length === 0) {
-        this.ui.showInfo(`Current theme: ${this.ui.currentTheme}`);
-        this.ui.showInfo('Available themes: matrix, ocean, sunset, neon');
-      } else {
-        this.ui.setTheme(args[0]);
-        this.ui.showSuccess(`Theme changed to: ${args[0]}`);
+    this.commandRouter.register(
+      'help',
+      async () => {
+        const commands = this.commandRouter.getCommands();
+        const helpText = this.formatHelp(commands);
+        this.ui.addOutput(helpText, 'help');
+      },
+      {
+        description: 'Show available commands',
+        aliases: ['h', '?'],
       }
-    }, {
-      description: 'Change terminal theme',
-      usage: 'theme [matrix|ocean|sunset|neon]'
-    });
-    
+    );
+
+    // Clear command
+    this.commandRouter.register(
+      'clear',
+      async () => {
+        this.ui.clearOutput();
+      },
+      {
+        description: 'Clear terminal output',
+        aliases: ['cls'],
+      }
+    );
+
+    // Theme command
+    this.commandRouter.register(
+      'theme',
+      async (args) => {
+        if (args.length === 0) {
+          this.ui.showInfo(`Current theme: ${this.ui.currentTheme}`);
+          this.ui.showInfo('Available themes: matrix, ocean, sunset, neon');
+        } else {
+          this.ui.setTheme(args[0]);
+          this.ui.showSuccess(`Theme changed to: ${args[0]}`);
+        }
+      },
+      {
+        description: 'Change terminal theme',
+        usage: 'theme [matrix|ocean|sunset|neon]',
+      }
+    );
+
     // About command
-    this.commandRouter.register('about', async () => {
-      const about = `
+    this.commandRouter.register(
+      'about',
+      async () => {
+        const about = `
 ╔══════════════════════════════════════╗
 ║     Adrian Wedd - Digital Nexus     ║
 ╠══════════════════════════════════════╣
@@ -120,61 +136,85 @@ export class TerminalCore {
 ║                                      ║
 ║ Type 'help' for available commands   ║
 ╚══════════════════════════════════════╝`;
-      this.ui.addOutput(about, 'ascii-art');
-    }, {
-      description: 'About this terminal'
-    });
-    
-    // Debug command
-    this.commandRouter.register('debug', async (args) => {
-      const debugMode = this.state.getState('features', 'debugMode');
-      
-      if (args[0] === 'on') {
-        this.state.updateState('features', 'debugMode', true);
-        this.ui.showSuccess('Debug mode enabled');
-      } else if (args[0] === 'off') {
-        this.state.updateState('features', 'debugMode', false);
-        this.ui.showSuccess('Debug mode disabled');
-      } else if (args[0] === 'stats') {
-        const stats = this.getDebugStats();
-        this.ui.showTable(
-          ['Metric', 'Value'],
-          Object.entries(stats)
-        );
-      } else {
-        this.ui.showInfo(`Debug mode is ${debugMode ? 'ON' : 'OFF'}`);
+        this.ui.addOutput(about, 'ascii-art');
+      },
+      {
+        description: 'About this terminal',
       }
-    }, {
-      description: 'Toggle debug mode',
-      usage: 'debug [on|off|stats]'
-    });
+    );
+
+    // Debug command
+    this.commandRouter.register(
+      'debug',
+      async (args) => {
+        const debugMode = this.state.getState('features', 'debugMode');
+
+        if (args[0] === 'on') {
+          this.state.updateState('features', 'debugMode', true);
+          this.ui.showSuccess('Debug mode enabled');
+        } else if (args[0] === 'off') {
+          this.state.updateState('features', 'debugMode', false);
+          this.ui.showSuccess('Debug mode disabled');
+        } else if (args[0] === 'stats') {
+          const stats = this.getDebugStats();
+          this.ui.showTable(['Metric', 'Value'], Object.entries(stats));
+        } else {
+          this.ui.showInfo(`Debug mode is ${debugMode ? 'ON' : 'OFF'}`);
+        }
+      },
+      {
+        description: 'Toggle debug mode',
+        usage: 'debug [on|off|stats]',
+      }
+    );
   }
 
   /**
    * Load external modules dynamically
    */
   async loadModules() {
-    const moduleList = [
-      { name: 'ai', path: '../ai-service.js', enabled: true },
-      { name: 'voice', path: '../voice-interface.js', enabled: true },
-      { name: 'music', path: '../music-player.js', enabled: true },
-      { name: 'github', path: '../github-task-manager.js', enabled: true },
-      { name: 'system', path: '../system-monitor.js', enabled: true },
-      { name: 'script', path: '../script-engine.js', enabled: true }
+    // Load command modules
+    const commandModules = [
+      { name: 'core', path: './commands/core-commands.js', enabled: true },
+      { name: 'ai', path: './commands/ai-commands.js', enabled: true },
+      { name: 'github', path: './commands/github-commands.js', enabled: true },
     ];
-    
-    for (const module of moduleList) {
+
+    for (const module of commandModules) {
       if (module.enabled) {
         try {
           const imported = await import(module.path);
           this.modules.set(module.name, imported);
-          
-          // Register module commands if available
-          if (imported.commands) {
-            this.registerModuleCommands(module.name, imported.commands);
+
+          // Register commands based on module type
+          if (imported.registerCoreCommands) {
+            imported.registerCoreCommands(this);
+          } else if (imported.registerAICommands) {
+            imported.registerAICommands(this);
+          } else if (imported.registerGitHubCommands) {
+            imported.registerGitHubCommands(this);
           }
         } catch (error) {
           console.warn(`Failed to load module ${module.name}:`, error);
+        }
+      }
+    }
+
+    // Load service modules (legacy compatibility)
+    const serviceModules = [
+      { name: 'voice', path: '../voice-interface.js', enabled: false },
+      { name: 'music', path: '../music-player.js', enabled: false },
+      { name: 'system', path: '../system-monitor.js', enabled: false },
+      { name: 'script', path: '../script-engine.js', enabled: false },
+    ];
+
+    for (const module of serviceModules) {
+      if (module.enabled) {
+        try {
+          const imported = await import(module.path);
+          this.modules.set(module.name, imported);
+        } catch (error) {
+          console.warn(`Failed to load service ${module.name}:`, error);
         }
       }
     }
@@ -187,7 +227,7 @@ export class TerminalCore {
     for (const [name, config] of Object.entries(commands)) {
       this.commandRouter.register(name, config.handler, {
         ...config,
-        module: moduleName
+        module: moduleName,
       });
     }
   }
@@ -198,14 +238,14 @@ export class TerminalCore {
   setupEventListeners() {
     const input = document.getElementById('cli-input');
     const form = document.getElementById('cli-form');
-    
+
     if (form) {
       form.addEventListener('submit', (e) => {
         e.preventDefault();
         this.handleCommand();
       });
     }
-    
+
     if (input) {
       // Command history navigation
       input.addEventListener('keydown', (e) => {
@@ -226,7 +266,7 @@ export class TerminalCore {
           this.handleAutocomplete();
         }
       });
-      
+
       // Auto-focus
       document.addEventListener('click', () => {
         this.ui.focusInput();
@@ -243,16 +283,16 @@ export class TerminalCore {
       init: async () => {
         // GitHub integration initialization
         return { connected: true };
-      }
+      },
     });
-    
+
     this.integrations.register('weather', {
       init: async () => {
         // Weather integration initialization
         return { connected: true };
-      }
+      },
     });
-    
+
     // Initialize registered integrations
     try {
       await this.integrations.initialize('github');
@@ -268,22 +308,24 @@ export class TerminalCore {
   async handleCommand() {
     const command = this.ui.getInputValue().trim();
     if (!command) return;
-    
+
     // Add command to output
     this.ui.addCommandLine(command);
-    
+
     // Clear input
     this.ui.clearInput();
-    
+
     // Update session state
-    this.state.updateState('session', 'commandCount', 
+    this.state.updateState(
+      'session',
+      'commandCount',
       this.state.getState('session', 'commandCount') + 1
     );
     this.state.updateState('session', 'lastActivity', Date.now());
-    
+
     // Execute command
     const result = await this.commandRouter.execute(command);
-    
+
     if (!result.success && result.error) {
       this.ui.showError(result.error);
     }
@@ -295,11 +337,11 @@ export class TerminalCore {
   handleAutocomplete() {
     const input = this.ui.getInputValue();
     const suggestions = this.commandRouter.getSuggestions(input);
-    
+
     if (suggestions.length === 1) {
       this.ui.setInputValue(suggestions[0].command + ' ');
     } else if (suggestions.length > 1) {
-      this.ui.addOutput('Suggestions: ' + suggestions.map(s => s.command).join(', '), 'info');
+      this.ui.addOutput('Suggestions: ' + suggestions.map((s) => s.command).join(', '), 'info');
     }
   }
 
@@ -323,20 +365,20 @@ export class TerminalCore {
 ║    Type 'help' for available commands or click them below   ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝`;
-    
+
     this.ui.addOutput(welcome, 'ascii-art welcome');
-    
+
     // Add clickable commands
     const quickCommands = ['help', 'about', 'projects', 'chat', 'music'];
-    const commandLinks = quickCommands.map(cmd => 
-      `<span class="command-link" data-command="${cmd}">${cmd}</span>`
-    ).join(' | ');
-    
+    const commandLinks = quickCommands
+      .map((cmd) => `<span class="command-link" data-command="${cmd}">${cmd}</span>`)
+      .join(' | ');
+
     this.ui.addOutput(`Quick commands: ${commandLinks}`, 'quick-commands', { isHTML: true });
-    
+
     // Setup click handlers for command links
     setTimeout(() => {
-      document.querySelectorAll('.command-link').forEach(link => {
+      document.querySelectorAll('.command-link').forEach((link) => {
         link.addEventListener('click', (e) => {
           const command = e.target.dataset.command;
           this.ui.setInputValue(command);
@@ -353,17 +395,17 @@ export class TerminalCore {
     let help = '╔══════════════════════════════════════════════════════╗\n';
     help += '║                   Available Commands                  ║\n';
     help += '╠════════════════════════════════════════════════════════╣\n';
-    
+
     const grouped = this.groupCommandsByModule(commands);
-    
+
     for (const [module, cmds] of Object.entries(grouped)) {
       help += `║ ${module.toUpperCase()}:\n`;
-      cmds.forEach(cmd => {
+      cmds.forEach((cmd) => {
         const aliases = cmd.aliases.length > 0 ? ` (${cmd.aliases.join(', ')})` : '';
         help += `║   ${cmd.name.padEnd(15)} - ${cmd.description}${aliases}\n`;
       });
     }
-    
+
     help += '╚══════════════════════════════════════════════════════╝';
     return help;
   }
@@ -373,15 +415,15 @@ export class TerminalCore {
    */
   groupCommandsByModule(commands) {
     const grouped = { core: [] };
-    
-    commands.forEach(cmd => {
+
+    commands.forEach((cmd) => {
       const module = cmd.module || 'core';
       if (!grouped[module]) {
         grouped[module] = [];
       }
       grouped[module].push(cmd);
     });
-    
+
     return grouped;
   }
 
@@ -391,14 +433,14 @@ export class TerminalCore {
   getDebugStats() {
     const session = this.state.getState('session');
     const uptime = Date.now() - session.startTime;
-    
+
     return {
-      'Uptime': `${Math.floor(uptime / 1000)}s`,
+      Uptime: `${Math.floor(uptime / 1000)}s`,
       'Commands Run': session.commandCount,
       'Active Modules': this.modules.size,
       'Active Integrations': this.integrations.activeConnections.size,
       'State Items': this.state.state.size,
-      'Command History': this.commandRouter.history.length
+      'Command History': this.commandRouter.history.length,
     };
   }
 

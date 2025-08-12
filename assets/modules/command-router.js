@@ -17,9 +17,9 @@ export class CommandRouter {
    */
   register(command, handler, options = {}) {
     this.commands.set(command, { handler, ...options });
-    
+
     if (options.aliases) {
-      options.aliases.forEach(alias => {
+      options.aliases.forEach((alias) => {
         this.aliases.set(alias, command);
       });
     }
@@ -30,31 +30,31 @@ export class CommandRouter {
    */
   async execute(commandString) {
     if (!commandString?.trim()) return null;
-    
+
     this.addToHistory(commandString);
-    
+
     const [command, ...args] = commandString.trim().split(/\s+/);
     const lowerCommand = command.toLowerCase();
-    
+
     // Check for alias
     const actualCommand = this.aliases.get(lowerCommand) || lowerCommand;
-    
+
     const commandDef = this.commands.get(actualCommand);
     if (!commandDef) {
-      return { 
-        success: false, 
-        error: `Unknown command: ${command}. Type 'help' for available commands.` 
+      return {
+        success: false,
+        error: `Unknown command: ${command}. Type 'help' for available commands.`,
       };
     }
-    
+
     try {
       const result = await commandDef.handler(args, commandString);
       return { success: true, result };
     } catch (error) {
       console.error(`Command execution error:`, error);
-      return { 
-        success: false, 
-        error: `Error executing command: ${error.message}` 
+      return {
+        success: false,
+        error: `Error executing command: ${error.message}`,
       };
     }
   }
@@ -99,28 +99,28 @@ export class CommandRouter {
   getSuggestions(partial) {
     const lowerPartial = partial.toLowerCase();
     const suggestions = [];
-    
+
     // Check direct commands
     for (const [cmd, def] of this.commands) {
       if (cmd.startsWith(lowerPartial)) {
         suggestions.push({
           command: cmd,
-          description: def.description || ''
+          description: def.description || '',
         });
       }
     }
-    
+
     // Check aliases
     for (const [alias, cmd] of this.aliases) {
-      if (alias.startsWith(lowerPartial) && !suggestions.find(s => s.command === alias)) {
+      if (alias.startsWith(lowerPartial) && !suggestions.find((s) => s.command === alias)) {
         suggestions.push({
           command: alias,
           description: `Alias for ${cmd}`,
-          isAlias: true
+          isAlias: true,
         });
       }
     }
-    
+
     return suggestions.sort((a, b) => a.command.localeCompare(b.command));
   }
 
@@ -132,7 +132,7 @@ export class CommandRouter {
       name,
       description: def.description || '',
       usage: def.usage || '',
-      aliases: def.aliases || []
+      aliases: def.aliases || [],
     }));
   }
 
