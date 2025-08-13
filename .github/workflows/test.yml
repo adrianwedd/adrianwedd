@@ -401,6 +401,12 @@ jobs:
     needs: [pre-test-analysis, lint, test, lighthouse]
     if: always()
     steps:
+      - name: 📥 Repository Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
       - name: 🎉 Test Suite Completion
         run: |
           echo "🏁 **COMPREHENSIVE TEST SUITE COMPLETED**"
