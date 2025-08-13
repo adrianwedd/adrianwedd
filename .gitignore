@@ -31,9 +31,9 @@ build/
 logs/
 *.log.*
 
-# Exception: Allow weather CI logs (required by automation workflows)
+# Exception: Allow CI logs (required by automation workflows)
 !logs/ci/
-!logs/ci/weather-*.log
+!logs/ci/*.log
 
 # Runtime data
 pids/
