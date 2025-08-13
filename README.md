@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 🎉 Merged PR [#30](https://github.com/adrianwedd/orbitr/pull/30) in [adrianwedd/orbitr](https://github.com/adrianwedd/orbitr)
+1. ❗ Opened issue [#46](https://github.com/adrianwedd/orbitr/issues/46) in [adrianwedd/orbitr](https://github.com/adrianwedd/orbitr)
 <!--END_SECTION:activity-->
 
 ---
