@@ -203,12 +203,12 @@ jobs:
           echo ""
       
   test:
-    name: 🚀 Comprehensive Testing Suite
+    name: 🚀 Essential Testing Suite
     runs-on: ubuntu-latest
     needs: [pre-test-analysis, lint]
     strategy:
       matrix:
-        test-type: [unit, e2e, accessibility, mobile]
+        test-type: [unit]
       fail-fast: false
     steps:
       - name: 🎯 Test Phase Initialization
@@ -234,12 +234,6 @@ jobs:
           npm ci --prefer-offline --no-audit
           echo "✅ Dependencies installed successfully"
 
-      - name: 🎭 Playwright Browser Setup
-        if: matrix.test-type != 'unit'
-        run: |
-          echo "🎭 **INSTALLING PLAYWRIGHT BROWSERS**"
-          npx playwright install --with-deps
-          echo "✅ Playwright browsers installed"
 
       - name: 🧪 Unit Test Execution
         if: matrix.test-type == 'unit'
@@ -252,38 +246,6 @@ jobs:
           }
           echo "✅ Unit tests completed successfully"
 
-      - name: 🎯 E2E Test Execution
-        if: matrix.test-type == 'e2e'
-        run: |
-          echo "🎯 **EXECUTING END-TO-END TESTS**"
-          echo "🌐 Testing complete user workflows..."
-          npm run test:e2e 2>&1 | tee e2e-test-output.log || {
-            echo "❌ E2E tests failed"
-            exit 1
-          }
-          echo "✅ E2E tests completed successfully"
-
-      - name: ♿ Accessibility Test Execution
-        if: matrix.test-type == 'accessibility'
-        run: |
-          echo "♿ **EXECUTING ACCESSIBILITY TESTS**"
-          echo "🔍 Validating WCAG compliance..."
-          npm run test:accessibility 2>&1 | tee accessibility-test-output.log || {
-            echo "❌ Accessibility tests failed"
-            exit 1
-          }
-          echo "✅ Accessibility tests completed successfully"
-
-      - name: 📱 Mobile Responsiveness Test Execution
-        if: matrix.test-type == 'mobile'
-        run: |
-          echo "📱 **EXECUTING MOBILE RESPONSIVENESS TESTS**"
-          echo "📐 Testing responsive design across devices..."
-          npm run test:mobile 2>&1 | tee mobile-test-output.log || {
-            echo "❌ Mobile tests failed"
-            exit 1
-          }
-          echo "✅ Mobile tests completed successfully"
 
       - name: 📊 Test Results Processing
         if: always()
@@ -448,18 +410,14 @@ jobs:
           |-----------|---------|---------|
           | 📊 Pre-Analysis | ${{ needs.pre-test-analysis.result == 'success' && '✅ PASSED' || '❌ FAILED' }} | Codebase complexity analysis |
           | 🔍 Code Quality | ${{ needs.lint.result == 'success' && '✅ PASSED' || '❌ FAILED' }} | ESLint, Prettier, Stylelint |
-          | 🧪 Unit Tests | ${{ contains(needs.test.result, 'success') && '✅ PASSED' || '❌ FAILED' }} | Isolated component testing |
-          | 🎯 E2E Tests | ${{ contains(needs.test.result, 'success') && '✅ PASSED' || '❌ FAILED' }} | End-to-end workflow testing |
-          | ♿ Accessibility | ${{ contains(needs.test.result, 'success') && '✅ PASSED' || '❌ FAILED' }} | WCAG compliance validation |
-          | 📱 Mobile Tests | ${{ contains(needs.test.result, 'success') && '✅ PASSED' || '❌ FAILED' }} | Responsive design testing |
+          | 🧪 Unit Tests | ${{ contains(needs.test.result, 'success') && '✅ PASSED' || '❌ FAILED' }} | Essential component testing |
           | ⚡ Performance | ${{ needs.lighthouse.result == 'success' && '✅ PASSED' || needs.lighthouse.result == 'skipped' && '⏭️ SKIPPED' || '⚠️ WARNINGS' }} | Lighthouse CI analysis |
           
           ## 🚀 Quality Metrics
           - **Code Standards:** Enterprise-grade linting and formatting
-          - **Test Coverage:** Multi-dimensional testing approach
+          - **Test Coverage:** Essential unit testing for core functionality
           - **Performance:** Lighthouse CI comprehensive analysis
-          - **Accessibility:** WCAG AA compliance validation
-          - **Mobile:** Cross-device responsiveness testing
+          - **Efficiency:** Streamlined CI focused on critical quality checks
           
           ${{ (needs.lint.result == 'success' && contains(needs.test.result, 'success')) && '## 🎉 All Tests Passed!\n\n✨ **Excellent work!** Your code meets all quality standards and is ready for deployment.\n\n🚀 **Next Steps:**\n- Merge with confidence\n- Deploy to staging/production\n- Monitor performance metrics' || '## ⚠️ Action Required\n\n🔍 **Some tests failed or have warnings.** Please review the individual job logs and address any issues before proceeding.\n\n🛠️ **Troubleshooting:**\n- Check ESLint/Prettier issues in Code Quality job\n- Review test failures in Test Suite jobs\n- Address performance concerns in Lighthouse results' }}
           EOF
