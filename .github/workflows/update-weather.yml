@@ -71,61 +71,61 @@ jobs:
           echo "location=$LOCATION" >> $GITHUB_OUTPUT
 
       - name: "🌦️ Fetch BOM Weather Data"
-      id: weather
-      run: |
-        echo "🌤️ Fetching weather data from BOM..."
+        id: weather
+        run: |
+          echo "🌤️ Fetching weather data from BOM..."
         
-        # Fetch the JSON data with user agent (BOM requires this)
-        WEATHER_JSON=$(curl -s -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" \
+          # Fetch the JSON data with user agent (BOM requires this)
+          WEATHER_JSON=$(curl -s -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" \
           "${{ steps.location.outputs.bom_url }}")
         
-        if [ -z "$WEATHER_JSON" ] || [ "$WEATHER_JSON" = "null" ]; then
+          if [ -z "$WEATHER_JSON" ] || [ "$WEATHER_JSON" = "null" ]; then
           echo "❌ Failed to fetch weather data"
           exit 1
-        fi
+          fi
         
-        # Parse the complex BOM JSON structure
-        # BOM data has observations -> data array with latest first
-        LATEST_OBS=$(echo "$WEATHER_JSON" | jq -r '.observations.data[0]')
+          # Parse the complex BOM JSON structure
+          # BOM data has observations -> data array with latest first
+          LATEST_OBS=$(echo "$WEATHER_JSON" | jq -r '.observations.data[0]')
         
-        if [ "$LATEST_OBS" = "null" ]; then
+          if [ "$LATEST_OBS" = "null" ]; then
           echo "❌ No weather observations found"
           exit 1
-        fi
+          fi
         
-        # Extract key weather data
-        TEMP=$(echo "$LATEST_OBS" | jq -r '.air_temp // "N/A"')
-        APPARENT_TEMP=$(echo "$LATEST_OBS" | jq -r '.apparent_t // "N/A"')
-        HUMIDITY=$(echo "$LATEST_OBS" | jq -r '.rel_hum // "N/A"')
-        WIND_DIR=$(echo "$LATEST_OBS" | jq -r '.wind_dir // "N/A"')
-        WIND_SPEED_KMH=$(echo "$LATEST_OBS" | jq -r '.wind_spd_kmh // "0"')
-        WIND_GUST_KMH=$(echo "$LATEST_OBS" | jq -r '.gust_kmh // "0"')
-        PRESSURE=$(echo "$LATEST_OBS" | jq -r '.press_msl // "N/A"')
-        RAINFALL=$(echo "$LATEST_OBS" | jq -r '.rain_trace // "0"')
-        WEATHER_DESC=$(echo "$LATEST_OBS" | jq -r '.weather // "Fine"')
-        OBSERVATION_TIME=$(echo "$LATEST_OBS" | jq -r '.aifstime_utc')
+          # Extract key weather data
+          TEMP=$(echo "$LATEST_OBS" | jq -r '.air_temp // "N/A"')
+          APPARENT_TEMP=$(echo "$LATEST_OBS" | jq -r '.apparent_t // "N/A"')
+          HUMIDITY=$(echo "$LATEST_OBS" | jq -r '.rel_hum // "N/A"')
+          WIND_DIR=$(echo "$LATEST_OBS" | jq -r '.wind_dir // "N/A"')
+          WIND_SPEED_KMH=$(echo "$LATEST_OBS" | jq -r '.wind_spd_kmh // "0"')
+          WIND_GUST_KMH=$(echo "$LATEST_OBS" | jq -r '.gust_kmh // "0"')
+          PRESSURE=$(echo "$LATEST_OBS" | jq -r '.press_msl // "N/A"')
+          RAINFALL=$(echo "$LATEST_OBS" | jq -r '.rain_trace // "0"')
+          WEATHER_DESC=$(echo "$LATEST_OBS" | jq -r '.weather // "Fine"')
+          OBSERVATION_TIME=$(echo "$LATEST_OBS" | jq -r '.aifstime_utc')
         
-        # Convert observation time to readable format
-        if [ "$OBSERVATION_TIME" != "null" ] && [ "$OBSERVATION_TIME" != "N/A" ]; then
+          # Convert observation time to readable format
+          if [ "$OBSERVATION_TIME" != "null" ] && [ "$OBSERVATION_TIME" != "N/A" ]; then
           FORMATTED_TIME=$(date -d "$OBSERVATION_TIME" "+%Y-%m-%d %H:%M UTC" 2>/dev/null || echo "$OBSERVATION_TIME")
-        else
+          else
           FORMATTED_TIME="Unknown"
-        fi
+          fi
         
-        # Generate weather emoji based on conditions
-        WEATHER_EMOJI="☀️"
-        case "$WEATHER_DESC" in
+          # Generate weather emoji based on conditions
+          WEATHER_EMOJI="☀️"
+          case "$WEATHER_DESC" in
           *"Rain"*|*"Shower"*) WEATHER_EMOJI="🌧️" ;;
           *"Cloud"*|*"Overcast"*) WEATHER_EMOJI="☁️" ;;
           *"Clear"*|*"Fine"*) WEATHER_EMOJI="☀️" ;;
           *"Storm"*|*"Thunder"*) WEATHER_EMOJI="⛈️" ;;
           *"Fog"*|*"Mist"*) WEATHER_EMOJI="🌫️" ;;
           *"Wind"*) WEATHER_EMOJI="💨" ;;
-        esac
+          esac
         
-        # Determine comfort level
-        COMFORT="Perfect"
-        if [ "$TEMP" != "N/A" ] && [ "$TEMP" != "null" ]; then
+          # Determine comfort level
+          COMFORT="Perfect"
+          if [ "$TEMP" != "N/A" ] && [ "$TEMP" != "null" ]; then
           if (( $(echo "$TEMP < 10" | bc -l) )); then
             COMFORT="Cold ❄️"
           elif (( $(echo "$TEMP > 25" | bc -l) )); then
@@ -135,80 +135,80 @@ jobs:
           else
             COMFORT="Perfect 😌"
           fi
-        fi
+          fi
         
-        # Create outputs for next step
-        echo "temp=$TEMP" >> $GITHUB_OUTPUT
-        echo "apparent_temp=$APPARENT_TEMP" >> $GITHUB_OUTPUT
-        echo "humidity=$HUMIDITY" >> $GITHUB_OUTPUT
-        echo "wind_dir=$WIND_DIR" >> $GITHUB_OUTPUT
-        echo "wind_speed=$WIND_SPEED_KMH" >> $GITHUB_OUTPUT
-        echo "wind_gust=$WIND_GUST_KMH" >> $GITHUB_OUTPUT
-        echo "pressure=$PRESSURE" >> $GITHUB_OUTPUT
-        echo "rainfall=$RAINFALL" >> $GITHUB_OUTPUT
-        echo "weather_desc=$WEATHER_DESC" >> $GITHUB_OUTPUT
-        echo "observation_time=$FORMATTED_TIME" >> $GITHUB_OUTPUT
-        echo "weather_emoji=$WEATHER_EMOJI" >> $GITHUB_OUTPUT
-        echo "comfort=$COMFORT" >> $GITHUB_OUTPUT
+          # Create outputs for next step
+          echo "temp=$TEMP" >> $GITHUB_OUTPUT
+          echo "apparent_temp=$APPARENT_TEMP" >> $GITHUB_OUTPUT
+          echo "humidity=$HUMIDITY" >> $GITHUB_OUTPUT
+          echo "wind_dir=$WIND_DIR" >> $GITHUB_OUTPUT
+          echo "wind_speed=$WIND_SPEED_KMH" >> $GITHUB_OUTPUT
+          echo "wind_gust=$WIND_GUST_KMH" >> $GITHUB_OUTPUT
+          echo "pressure=$PRESSURE" >> $GITHUB_OUTPUT
+          echo "rainfall=$RAINFALL" >> $GITHUB_OUTPUT
+          echo "weather_desc=$WEATHER_DESC" >> $GITHUB_OUTPUT
+          echo "observation_time=$FORMATTED_TIME" >> $GITHUB_OUTPUT
+          echo "weather_emoji=$WEATHER_EMOJI" >> $GITHUB_OUTPUT
+          echo "comfort=$COMFORT" >> $GITHUB_OUTPUT
         
-        # Debug output
-        echo "🌡️ Temperature: $TEMP°C (feels like $APPARENT_TEMP°C)"
-        echo "💧 Humidity: $HUMIDITY%"
-        echo "💨 Wind: $WIND_DIR $WIND_SPEED_KMH km/h (gusts $WIND_GUST_KMH km/h)"
-        echo "🌤️ Conditions: $WEATHER_DESC $WEATHER_EMOJI"
+          # Debug output
+          echo "🌡️ Temperature: $TEMP°C (feels like $APPARENT_TEMP°C)"
+          echo "💧 Humidity: $HUMIDITY%"
+          echo "💨 Wind: $WIND_DIR $WIND_SPEED_KMH km/h (gusts $WIND_GUST_KMH km/h)"
+          echo "🌤️ Conditions: $WEATHER_DESC $WEATHER_EMOJI"
 
       - name: 🎨 Generate Weather Visualization
         id: visualization
         run: |
           # Create ASCII art weather visualization
-        TEMP="${{ steps.weather.outputs.temp }}"
-        HUMIDITY="${{ steps.weather.outputs.humidity }}"
-        WIND_SPEED="${{ steps.weather.outputs.wind_speed }}"
+          TEMP="${{ steps.weather.outputs.temp }}"
+          HUMIDITY="${{ steps.weather.outputs.humidity }}"
+          WIND_SPEED="${{ steps.weather.outputs.wind_speed }}"
         
-        # Temperature bar (0-40°C scale)
-        if [ "$TEMP" != "N/A" ] && [ "$TEMP" != "null" ]; then
+          # Temperature bar (0-40°C scale)
+          if [ "$TEMP" != "N/A" ] && [ "$TEMP" != "null" ]; then
           TEMP_PERCENT=$(echo "scale=0; ($TEMP * 100) / 40" | bc -l 2>/dev/null || echo "50")
           TEMP_BARS=$(echo "scale=0; $TEMP_PERCENT / 10" | bc -l 2>/dev/null || echo "5")
-        else
+          else
           TEMP_BARS=5
-        fi
+          fi
         
-        # Humidity bar (0-100% scale)
-        if [ "$HUMIDITY" != "N/A" ] && [ "$HUMIDITY" != "null" ]; then
+          # Humidity bar (0-100% scale)
+          if [ "$HUMIDITY" != "N/A" ] && [ "$HUMIDITY" != "null" ]; then
           HUMIDITY_BARS=$(echo "scale=0; $HUMIDITY / 10" | bc -l 2>/dev/null || echo "5")
-        else
+          else
           HUMIDITY_BARS=5
-        fi
+          fi
         
-        # Wind bar (0-50 km/h scale)
-        if [ "$WIND_SPEED" != "N/A" ] && [ "$WIND_SPEED" != "null" ]; then
+          # Wind bar (0-50 km/h scale)
+          if [ "$WIND_SPEED" != "N/A" ] && [ "$WIND_SPEED" != "null" ]; then
           WIND_BARS=$(echo "scale=0; ($WIND_SPEED * 10) / 50" | bc -l 2>/dev/null || echo "2")
-        else
+          else
           WIND_BARS=2
-        fi
+          fi
         
-        # Ensure bars are within range
-        TEMP_BARS=$(( TEMP_BARS > 10 ? 10 : TEMP_BARS ))
-        TEMP_BARS=$(( TEMP_BARS < 0 ? 0 : TEMP_BARS ))
-        HUMIDITY_BARS=$(( HUMIDITY_BARS > 10 ? 10 : HUMIDITY_BARS ))
-        HUMIDITY_BARS=$(( HUMIDITY_BARS < 0 ? 0 : HUMIDITY_BARS ))
-        WIND_BARS=$(( WIND_BARS > 10 ? 10 : WIND_BARS ))
-        WIND_BARS=$(( WIND_BARS < 0 ? 0 : WIND_BARS ))
+          # Ensure bars are within range
+          TEMP_BARS=$(( TEMP_BARS > 10 ? 10 : TEMP_BARS ))
+          TEMP_BARS=$(( TEMP_BARS < 0 ? 0 : TEMP_BARS ))
+          HUMIDITY_BARS=$(( HUMIDITY_BARS > 10 ? 10 : HUMIDITY_BARS ))
+          HUMIDITY_BARS=$(( HUMIDITY_BARS < 0 ? 0 : HUMIDITY_BARS ))
+          WIND_BARS=$(( WIND_BARS > 10 ? 10 : WIND_BARS ))
+          WIND_BARS=$(( WIND_BARS < 0 ? 0 : WIND_BARS ))
         
-        # Generate bar charts
-        TEMP_BAR=$(printf "█%.0s" $(seq 1 $TEMP_BARS))$(printf "░%.0s" $(seq $(($TEMP_BARS + 1)) 10))
-        HUMIDITY_BAR=$(printf "█%.0s" $(seq 1 $HUMIDITY_BARS))$(printf "░%.0s" $(seq $(($HUMIDITY_BARS + 1)) 10))
-        WIND_BAR=$(printf "█%.0s" $(seq 1 $WIND_BARS))$(printf "░%.0s" $(seq $(($WIND_BARS + 1)) 10))
+          # Generate bar charts
+          TEMP_BAR=$(printf "█%.0s" $(seq 1 $TEMP_BARS))$(printf "░%.0s" $(seq $(($TEMP_BARS + 1)) 10))
+          HUMIDITY_BAR=$(printf "█%.0s" $(seq 1 $HUMIDITY_BARS))$(printf "░%.0s" $(seq $(($HUMIDITY_BARS + 1)) 10))
+          WIND_BAR=$(printf "█%.0s" $(seq 1 $WIND_BARS))$(printf "░%.0s" $(seq $(($WIND_BARS + 1)) 10))
         
-        echo "temp_bar=$TEMP_BAR" >> $GITHUB_OUTPUT
-        echo "humidity_bar=$HUMIDITY_BAR" >> $GITHUB_OUTPUT
-        echo "wind_bar=$WIND_BAR" >> $GITHUB_OUTPUT
+          echo "temp_bar=$TEMP_BAR" >> $GITHUB_OUTPUT
+          echo "humidity_bar=$HUMIDITY_BAR" >> $GITHUB_OUTPUT
+          echo "wind_bar=$WIND_BAR" >> $GITHUB_OUTPUT
 
       - name: 📊 Create Weather Data Files
         run: |
-        # Create current weather JSON for terminal
-        cat > "assets/current-weather.json" << EOF
-        {
+          # Create current weather JSON for terminal
+          cat > "assets/current-weather.json" << EOF
+          {
           "station": "${{ steps.location.outputs.station_name }}",
           "coordinates": "${{ steps.location.outputs.coordinates }}",
           "temperature": "${{ steps.weather.outputs.temp }}",
@@ -229,88 +229,88 @@ jobs:
             "humidity_bar": "${{ steps.visualization.outputs.humidity_bar }}",
             "wind_bar": "${{ steps.visualization.outputs.wind_bar }}"
           }
-        }
-        EOF
+          }
+          EOF
 
       - name: 📝 Create Weather Markdown Page
         run: |
-        mkdir -p weather/daily
-        DATE=$(date +%Y%m%d)
+          mkdir -p weather/daily
+          DATE=$(date +%Y%m%d)
         
-        cat > "weather/daily/$DATE.md" << EOF
-        # 🌤️ Tasmania Weather - $(date +"%Y-%m-%d")
+          cat > "weather/daily/$DATE.md" << EOF
+          # 🌤️ Tasmania Weather - $(date +"%Y-%m-%d")
         
-        **Station:** ${{ steps.location.outputs.station_name }}  
-        **Coordinates:** ${{ steps.location.outputs.coordinates }}  
-        **Last Updated:** ${{ steps.weather.outputs.observation_time }}
+          **Station:** ${{ steps.location.outputs.station_name }}  
+          **Coordinates:** ${{ steps.location.outputs.coordinates }}  
+          **Last Updated:** ${{ steps.weather.outputs.observation_time }}
         
-        ## 🌡️ Current Conditions
+          ## 🌡️ Current Conditions
         
-        **Weather:** ${{ steps.weather.outputs.weather_desc }} ${{ steps.weather.outputs.weather_emoji }}  
-        **Temperature:** ${{ steps.weather.outputs.temp }}°C (feels like ${{ steps.weather.outputs.apparent_temp }}°C)  
-        **Comfort Level:** ${{ steps.weather.outputs.comfort }}
+          **Weather:** ${{ steps.weather.outputs.weather_desc }} ${{ steps.weather.outputs.weather_emoji }}  
+          **Temperature:** ${{ steps.weather.outputs.temp }}°C (feels like ${{ steps.weather.outputs.apparent_temp }}°C)  
+          **Comfort Level:** ${{ steps.weather.outputs.comfort }}
         
-        ## 📊 Detailed Measurements
+          ## 📊 Detailed Measurements
         
-        | Metric | Value | Visualization |
-        |--------|-------|---------------|
-        | 🌡️ Temperature | ${{ steps.weather.outputs.temp }}°C | [${{ steps.visualization.outputs.temp_bar }}] |
-        | 💧 Humidity | ${{ steps.weather.outputs.humidity }}% | [${{ steps.visualization.outputs.humidity_bar }}] |
-        | 💨 Wind Speed | ${{ steps.weather.outputs.wind_speed }} km/h | [${{ steps.visualization.outputs.wind_bar }}] |
-        | 🧭 Wind Direction | ${{ steps.weather.outputs.wind_dir }} | |
-        | 🌪️ Wind Gusts | ${{ steps.weather.outputs.wind_gust }} km/h | |
-        | 🔽 Pressure | ${{ steps.weather.outputs.pressure }} hPa | |
-        | 🌧️ Rainfall | ${{ steps.weather.outputs.rainfall }} mm | |
+          | Metric | Value | Visualization |
+          |--------|-------|---------------|
+          | 🌡️ Temperature | ${{ steps.weather.outputs.temp }}°C | [${{ steps.visualization.outputs.temp_bar }}] |
+          | 💧 Humidity | ${{ steps.weather.outputs.humidity }}% | [${{ steps.visualization.outputs.humidity_bar }}] |
+          | 💨 Wind Speed | ${{ steps.weather.outputs.wind_speed }} km/h | [${{ steps.visualization.outputs.wind_bar }}] |
+          | 🧭 Wind Direction | ${{ steps.weather.outputs.wind_dir }} | |
+          | 🌪️ Wind Gusts | ${{ steps.weather.outputs.wind_gust }} km/h | |
+          | 🔽 Pressure | ${{ steps.weather.outputs.pressure }} hPa | |
+          | 🌧️ Rainfall | ${{ steps.weather.outputs.rainfall }} mm | |
         
-        ## 🌱 Environmental Impact
+          ## 🌱 Environmental Impact
         
-        **Solar Conditions:** $([ "${{ steps.weather.outputs.weather_desc }}" = *"Clear"* ] && echo "Optimal ☀️" || echo "Reduced ☁️")  
-        **Precipitation:** $([ "${{ steps.weather.outputs.rainfall }}" = "0" ] && echo "Dry conditions 🌵" || echo "Natural irrigation 🌧️")  
-        **Energy Usage:** $([ "${{ steps.weather.outputs.temp }}" -lt "10" ] && echo "Heating required 🔥" || echo "Comfortable 😌")
+          **Solar Conditions:** $([ "${{ steps.weather.outputs.weather_desc }}" = *"Clear"* ] && echo "Optimal ☀️" || echo "Reduced ☁️")  
+          **Precipitation:** $([ "${{ steps.weather.outputs.rainfall }}" = "0" ] && echo "Dry conditions 🌵" || echo "Natural irrigation 🌧️")  
+          **Energy Usage:** $([ "${{ steps.weather.outputs.temp }}" -lt "10" ] && echo "Heating required 🔥" || echo "Comfortable 😌")
         
-        ---
-        *Data sourced from Australian Bureau of Meteorology*  
-        *Updated automatically via GitHub Actions*
-        EOF
+          ---
+          *Data sourced from Australian Bureau of Meteorology*  
+          *Updated automatically via GitHub Actions*
+          EOF
 
       - name: 🎯 Update Weather Summary
         run: |
-        # Create a summary file for quick access
-        cat > "weather/latest.md" << EOF
-        # 🌤️ Current Weather - ${{ steps.location.outputs.station_name }}
+          # Create a summary file for quick access
+          cat > "weather/latest.md" << EOF
+          # 🌤️ Current Weather - ${{ steps.location.outputs.station_name }}
         
-        ${{ steps.weather.outputs.weather_emoji }} **${{ steps.weather.outputs.weather_desc }}**  
-        🌡️ ${{ steps.weather.outputs.temp }}°C (feels like ${{ steps.weather.outputs.apparent_temp }}°C)  
-        💧 ${{ steps.weather.outputs.humidity }}% humidity  
-        💨 ${{ steps.weather.outputs.wind_dir }} ${{ steps.weather.outputs.wind_speed }} km/h  
+          ${{ steps.weather.outputs.weather_emoji }} **${{ steps.weather.outputs.weather_desc }}**  
+          🌡️ ${{ steps.weather.outputs.temp }}°C (feels like ${{ steps.weather.outputs.apparent_temp }}°C)  
+          💧 ${{ steps.weather.outputs.humidity }}% humidity  
+          💨 ${{ steps.weather.outputs.wind_dir }} ${{ steps.weather.outputs.wind_speed }} km/h  
         
-        **Comfort:** ${{ steps.weather.outputs.comfort }}  
-        **Updated:** ${{ steps.weather.outputs.observation_time }}
-        EOF
+          **Comfort:** ${{ steps.weather.outputs.comfort }}  
+          **Updated:** ${{ steps.weather.outputs.observation_time }}
+          EOF
 
       - name: 📊 Weather Intelligence Analytics
         run: |
-        echo "📊 **GENERATING WEATHER INTELLIGENCE ANALYTICS**"
+          echo "📊 **GENERATING WEATHER INTELLIGENCE ANALYTICS**"
         
-        # Calculate weather trends and analytics
-        TEMP_VALUE="${{ steps.weather.outputs.temp }}"
-        HUMIDITY_VALUE="${{ steps.weather.outputs.humidity }}"
-        WIND_SPEED_VALUE="${{ steps.weather.outputs.wind_speed }}"
+          # Calculate weather trends and analytics
+          TEMP_VALUE="${{ steps.weather.outputs.temp }}"
+          HUMIDITY_VALUE="${{ steps.weather.outputs.humidity }}"
+          WIND_SPEED_VALUE="${{ steps.weather.outputs.wind_speed }}"
         
-        # Determine weather quality index
-        WEATHER_QUALITY="excellent"
-        if [ "$TEMP_VALUE" != "N/A" ] && [ "$TEMP_VALUE" != "null" ]; then
+          # Determine weather quality index
+          WEATHER_QUALITY="excellent"
+          if [ "$TEMP_VALUE" != "N/A" ] && [ "$TEMP_VALUE" != "null" ]; then
           TEMP_NUM=$(echo "$TEMP_VALUE" | grep -o '^[0-9]*')
           if [ "$TEMP_NUM" -lt 5 ] || [ "$TEMP_NUM" -gt 35 ]; then
             WEATHER_QUALITY="challenging"
           elif [ "$TEMP_NUM" -lt 10 ] || [ "$TEMP_NUM" -gt 30 ]; then
             WEATHER_QUALITY="moderate"
           fi
-        fi
+          fi
         
-        # Create weather analytics file
-        cat > weather-analytics.json << EOF
-        {
+          # Create weather analytics file
+          cat > weather-analytics.json << EOF
+          {
           "generatedAt": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
           "location": "${{ steps.location.outputs.station_name }}",
           "coordinates": "${{ steps.location.outputs.coordinates }}",
@@ -346,61 +346,61 @@ jobs:
             "💧 Humidity tracking comprehensive",
             "🌧️ Precipitation monitoring real-time"
           ]
-        }
-        EOF
+          }
+          EOF
         
-        echo "📊 Weather intelligence analytics generated"
+          echo "📊 Weather intelligence analytics generated"
 
       - name: 📋 Live Weather Console Output
         run: |
-        echo "🖥️ **RENDERING WEATHER INTELLIGENCE TO WORKFLOW SUMMARY**"
+          echo "🖥️ **RENDERING WEATHER INTELLIGENCE TO WORKFLOW SUMMARY**"
         
-        cat >> $GITHUB_STEP_SUMMARY << 'EOF'
-        # 🌤️ Tasmania Weather Intelligence Report
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          # 🌤️ Tasmania Weather Intelligence Report
         
-        ## 🌍 Current Conditions
-        - **📍 Location:** ${{ steps.location.outputs.station_name }}
-        - **🌡️ Temperature:** ${{ steps.weather.outputs.temp }}°C (feels like ${{ steps.weather.outputs.apparent_temp }}°C)
-        - **💧 Humidity:** ${{ steps.weather.outputs.humidity }}%
-        - **💨 Wind:** ${{ steps.weather.outputs.wind_dir }} ${{ steps.weather.outputs.wind_speed }} km/h
-        - **🌧️ Conditions:** ${{ steps.weather.outputs.weather_desc }} ${{ steps.weather.outputs.weather_emoji }}
+          ## 🌍 Current Conditions
+          - **📍 Location:** ${{ steps.location.outputs.station_name }}
+          - **🌡️ Temperature:** ${{ steps.weather.outputs.temp }}°C (feels like ${{ steps.weather.outputs.apparent_temp }}°C)
+          - **💧 Humidity:** ${{ steps.weather.outputs.humidity }}%
+          - **💨 Wind:** ${{ steps.weather.outputs.wind_dir }} ${{ steps.weather.outputs.wind_speed }} km/h
+          - **🌧️ Conditions:** ${{ steps.weather.outputs.weather_desc }} ${{ steps.weather.outputs.weather_emoji }}
         
-        ## 📊 Weather Metrics
-        | Metric | Value | Visualization |
-        |--------|-------|---------------|
-        | 🌡️ Temperature | ${{ steps.weather.outputs.temp }}°C | [${{ steps.visualization.outputs.temp_bar }}] |
-        | 💧 Humidity | ${{ steps.weather.outputs.humidity }}% | [${{ steps.visualization.outputs.humidity_bar }}] |
-        | 💨 Wind Speed | ${{ steps.weather.outputs.wind_speed }} km/h | [${{ steps.visualization.outputs.wind_bar }}] |
-        | 🧭 Direction | ${{ steps.weather.outputs.wind_dir }} | 🧭 |
-        | 🔽 Pressure | ${{ steps.weather.outputs.pressure }} hPa | 📊 |
+          ## 📊 Weather Metrics
+          | Metric | Value | Visualization |
+          |--------|-------|---------------|
+          | 🌡️ Temperature | ${{ steps.weather.outputs.temp }}°C | [${{ steps.visualization.outputs.temp_bar }}] |
+          | 💧 Humidity | ${{ steps.weather.outputs.humidity }}% | [${{ steps.visualization.outputs.humidity_bar }}] |
+          | 💨 Wind Speed | ${{ steps.weather.outputs.wind_speed }} km/h | [${{ steps.visualization.outputs.wind_bar }}] |
+          | 🧭 Direction | ${{ steps.weather.outputs.wind_dir }} | 🧭 |
+          | 🔽 Pressure | ${{ steps.weather.outputs.pressure }} hPa | 📊 |
         
-        ## 🌱 Environmental Intelligence
-        - **☀️ Solar Conditions:** Real-time monitoring active
-        - **🌧️ Precipitation:** Automated rainfall tracking
-        - **🏡 Off-Grid Impact:** Energy and comfort optimization
-        - **📊 Data Quality:** Bureau of Meteorology certified
+          ## 🌱 Environmental Intelligence
+          - **☀️ Solar Conditions:** Real-time monitoring active
+          - **🌧️ Precipitation:** Automated rainfall tracking
+          - **🏡 Off-Grid Impact:** Energy and comfort optimization
+          - **📊 Data Quality:** Bureau of Meteorology certified
         
-        ## 🔧 System Excellence
-        - ✅ **Automated Updates:** Every 3 hours precision timing
-        - ✅ **Multi-Format Output:** JSON, Markdown, visualizations
-        - ✅ **ASCII Visualizations:** Terminal-friendly bar charts
-        - ✅ **Persistent Logging:** Comprehensive audit trail
-        - ✅ **Error Handling:** Robust failure recovery
+          ## 🔧 System Excellence
+          - ✅ **Automated Updates:** Every 3 hours precision timing
+          - ✅ **Multi-Format Output:** JSON, Markdown, visualizations
+          - ✅ **ASCII Visualizations:** Terminal-friendly bar charts
+          - ✅ **Persistent Logging:** Comprehensive audit trail
+          - ✅ **Error Handling:** Robust failure recovery
         
-        **⏰ Last Updated:** ${{ steps.weather.outputs.observation_time }}
-        **🤖 System Version:** ${{ env.WEATHER_UPDATE_VERSION }}
-        EOF
+          **⏰ Last Updated:** ${{ steps.weather.outputs.observation_time }}
+          **🤖 System Version:** ${{ env.WEATHER_UPDATE_VERSION }}
+          EOF
 
       - name: 🚀 Intelligent Weather Commit & Push
         run: |
-        echo "🚀 **COMMITTING WEATHER INTELLIGENCE UPDATES**"
+          echo "🚀 **COMMITTING WEATHER INTELLIGENCE UPDATES**"
         
-        git config --local user.email "weather-intelligence@github.com"
-        git config --local user.name "Weather Intelligence Bot"
+          git config --local user.email "weather-intelligence@github.com"
+          git config --local user.name "Weather Intelligence Bot"
         
-        git add weather/ assets/current-weather.json weather-analytics.json
+          git add weather/ assets/current-weather.json weather-analytics.json
         
-        if ! git diff --cached --quiet; then
+          if ! git diff --cached --quiet; then
           # Create enhanced commit message with intelligence
           WEATHER_EMOJI="${{ steps.weather.outputs.weather_emoji }}"
           TEMP_VALUE="${{ steps.weather.outputs.temp }}"
@@ -408,49 +408,49 @@ jobs:
           COMFORT="${{ steps.weather.outputs.comfort }}"
           
           git commit -m "$(cat <<EOF
-🌤️ Weather Intelligence Update $(date +'%Y%m%d-%H%M')
+          🌤️ Weather Intelligence Update $(date +'%Y%m%d-%H%M')
 
-📍 ${{ steps.location.outputs.station_name }}
-${{ steps.weather.outputs.weather_emoji }} ${{ steps.weather.outputs.weather_desc }}
-🌡️ ${{ steps.weather.outputs.temp }}°C (feels like ${{ steps.weather.outputs.apparent_temp }}°C)
-💧 ${{ steps.weather.outputs.humidity }}% humidity
-💨 ${{ steps.weather.outputs.wind_dir }} ${{ steps.weather.outputs.wind_speed }} km/h (gusts ${{ steps.weather.outputs.wind_gust }} km/h)
-🔽 ${{ steps.weather.outputs.pressure }} hPa pressure
-🌧️ ${{ steps.weather.outputs.rainfall }} mm rainfall
+          📍 ${{ steps.location.outputs.station_name }}
+          ${{ steps.weather.outputs.weather_emoji }} ${{ steps.weather.outputs.weather_desc }}
+          🌡️ ${{ steps.weather.outputs.temp }}°C (feels like ${{ steps.weather.outputs.apparent_temp }}°C)
+          💧 ${{ steps.weather.outputs.humidity }}% humidity
+          💨 ${{ steps.weather.outputs.wind_dir }} ${{ steps.weather.outputs.wind_speed }} km/h (gusts ${{ steps.weather.outputs.wind_gust }} km/h)
+          🔽 ${{ steps.weather.outputs.pressure }} hPa pressure
+          🌧️ ${{ steps.weather.outputs.rainfall }} mm rainfall
 
-## 🧠 Weather Intelligence
-- 😌 Comfort Level: ${{ steps.weather.outputs.comfort }}
-- 📊 Data Quality: Bureau of Meteorology certified
-- 🎨 Visualizations: ASCII bar charts generated
-- 📈 Analytics: Weather intelligence metrics updated
+          ## 🧠 Weather Intelligence
+          - 😌 Comfort Level: ${{ steps.weather.outputs.comfort }}
+          - 📊 Data Quality: Bureau of Meteorology certified
+          - 🎨 Visualizations: ASCII bar charts generated
+          - 📈 Analytics: Weather intelligence metrics updated
 
-## 🔧 System Performance
-- ✅ Real-time data acquisition successful
-- ✅ Multi-format output generation complete
-- ✅ Terminal integration data refreshed
-- ✅ Persistent logging operational
+          ## 🔧 System Performance
+          - ✅ Real-time data acquisition successful
+          - ✅ Multi-format output generation complete
+          - ✅ Terminal integration data refreshed
+          - ✅ Persistent logging operational
 
-Updated: ${{ steps.weather.outputs.observation_time }}
-System: Tasmania Weather Intelligence v${{ env.WEATHER_UPDATE_VERSION }}
-EOF
-)"
+          Updated: ${{ steps.weather.outputs.observation_time }}
+          System: Tasmania Weather Intelligence v${{ env.WEATHER_UPDATE_VERSION }}
+          EOF
+          )"
           
           git push
           echo "✅ Weather intelligence updates committed and pushed"
-        else
+          else
           echo "📝 No weather changes to commit"
-        fi
+          fi
 
       - name: 📝 Weather CI Logging
         if: always()
         run: |
-        echo "📝 **CREATING PERSISTENT WEATHER CI LOGS**"
+          echo "📝 **CREATING PERSISTENT WEATHER CI LOGS**"
         
-        # Initialize weather-specific logging
-        mkdir -p logs/ci
-        WEATHER_LOG_FILE="logs/ci/weather-intelligence-$(date +'%Y%m%d-%H%M%S').log"
+          # Initialize weather-specific logging
+          mkdir -p logs/ci
+          WEATHER_LOG_FILE="logs/ci/weather-intelligence-$(date +'%Y%m%d-%H%M%S').log"
         
-        {
+          {
           echo "🌤️ TASMANIA WEATHER INTELLIGENCE SYSTEM LOG"
           echo "============================================="
           echo "📅 Started: $(date +'%Y-%m-%d %H:%M:%S UTC')"
@@ -484,14 +484,14 @@ EOF
           echo "🏁 Weather Intelligence Completed: $(date +'%Y-%m-%d %H:%M:%S UTC')"
           echo "✅ Final Status: ${{ job.status }}"
           echo "============================================="
-        } > "$WEATHER_LOG_FILE"
+          } > "$WEATHER_LOG_FILE"
         
-        # Commit weather logs
-        git config --local user.email "ci-logger@github.com"
-        git config --local user.name "Weather CI Logger"
-        git add logs/
+          # Commit weather logs
+          git config --local user.email "ci-logger@github.com"
+          git config --local user.name "Weather CI Logger"
+          git add logs/
         
-        if ! git diff --cached --quiet; then
+          if ! git diff --cached --quiet; then
           git commit -m "📝 CI Logs: Weather Intelligence $(date +'%Y%m%d-%H%M%S')
 
           🌤️ Tasmania Weather Intelligence execution log
@@ -504,31 +504,31 @@ EOF
           📁 Log saved: $WEATHER_LOG_FILE"
           
           git push || echo "⚠️ Could not push logs (likely due to permissions)"
-        else
+          else
           echo "📝 No log changes to commit"
-        fi
+          fi
 
       - name: 📊 Weather Intelligence Summary
         run: |
-        echo "🌤️ **WEATHER INTELLIGENCE UPDATE COMPLETE!**"
-        echo "📅 Completed at: $(date +'%Y-%m-%d %H:%M:%S UTC')"
-        echo ""
-        echo "📊 **Weather Summary:**"
-        echo "📍 Location: ${{ steps.location.outputs.station_name }}"
-        echo "${{ steps.weather.outputs.weather_emoji }} Conditions: ${{ steps.weather.outputs.weather_desc }}"
-        echo "🌡️ Temperature: ${{ steps.weather.outputs.temp }}°C (feels like ${{ steps.weather.outputs.apparent_temp }}°C)"
-        echo "💧 Humidity: ${{ steps.weather.outputs.humidity }}%"
-        echo "💨 Wind: ${{ steps.weather.outputs.wind_dir }} ${{ steps.weather.outputs.wind_speed }} km/h (gusts ${{ steps.weather.outputs.wind_gust }} km/h)"
-        echo "🔽 Pressure: ${{ steps.weather.outputs.pressure }} hPa"
-        echo "🌧️ Rainfall: ${{ steps.weather.outputs.rainfall }} mm"
-        echo "😌 Comfort: ${{ steps.weather.outputs.comfort }}"
-        echo "⏰ Updated: ${{ steps.weather.outputs.observation_time }}"
-        echo ""
-        echo "🚀 **System Excellence Achieved:**"
-        echo "✅ Real-time data acquisition from Bureau of Meteorology"
-        echo "✅ Multi-format output generation (JSON, Markdown, ASCII)"
-        echo "✅ Terminal interface integration complete"
-        echo "✅ Comprehensive logging and analytics generated"
-        echo "✅ Automated commit and deployment successful"
-        echo ""
-        echo "🌤️ Tasmania Weather Intelligence System v${{ env.WEATHER_UPDATE_VERSION }} - OPERATIONAL"
+          echo "🌤️ **WEATHER INTELLIGENCE UPDATE COMPLETE!**"
+          echo "📅 Completed at: $(date +'%Y-%m-%d %H:%M:%S UTC')"
+          echo ""
+          echo "📊 **Weather Summary:**"
+          echo "📍 Location: ${{ steps.location.outputs.station_name }}"
+          echo "${{ steps.weather.outputs.weather_emoji }} Conditions: ${{ steps.weather.outputs.weather_desc }}"
+          echo "🌡️ Temperature: ${{ steps.weather.outputs.temp }}°C (feels like ${{ steps.weather.outputs.apparent_temp }}°C)"
+          echo "💧 Humidity: ${{ steps.weather.outputs.humidity }}%"
+          echo "💨 Wind: ${{ steps.weather.outputs.wind_dir }} ${{ steps.weather.outputs.wind_speed }} km/h (gusts ${{ steps.weather.outputs.wind_gust }} km/h)"
+          echo "🔽 Pressure: ${{ steps.weather.outputs.pressure }} hPa"
+          echo "🌧️ Rainfall: ${{ steps.weather.outputs.rainfall }} mm"
+          echo "😌 Comfort: ${{ steps.weather.outputs.comfort }}"
+          echo "⏰ Updated: ${{ steps.weather.outputs.observation_time }}"
+          echo ""
+          echo "🚀 **System Excellence Achieved:**"
+          echo "✅ Real-time data acquisition from Bureau of Meteorology"
+          echo "✅ Multi-format output generation (JSON, Markdown, ASCII)"
+          echo "✅ Terminal interface integration complete"
+          echo "✅ Comprehensive logging and analytics generated"
+          echo "✅ Automated commit and deployment successful"
+          echo ""
+          echo "🌤️ Tasmania Weather Intelligence System v${{ env.WEATHER_UPDATE_VERSION }} - OPERATIONAL"
