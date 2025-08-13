@@ -159,13 +159,16 @@ jobs:
           echo "✅ ESLint analysis completed successfully"
           echo ""
           
-          # Log to persistent file
+          # Log to persistent file (create local log for this job)
+          LOG_FILE="logs/ci/lint-$(date +'%Y%m%d-%H%M%S').log"
+          mkdir -p logs/ci
           {
             echo "🔍 ESLint Analysis: SUCCESS"
             echo "📅 $(date +'%Y-%m-%d %H:%M:%S UTC')"
             echo "📊 Files analyzed: JavaScript/TypeScript"
             echo ""
-          } >> "${{ env.ci_log_file }}"
+          } > "$LOG_FILE"
+          echo "📝 Lint log created: $LOG_FILE"
 
       - name: ✨ Code Formatting Validation
         run: |
@@ -458,34 +461,44 @@ jobs:
       - name: 📝 Commit CI Logs
         if: always()
         run: |
-          if [ -f "${{ env.ci_log_file }}" ]; then
-            echo "📝 **COMMITTING CI LOGS TO REPOSITORY**"
-            
-            # Finalize log file
-            {
-              echo ""
-              echo "🏁 Test Suite Completed: $(date +'%Y-%m-%d %H:%M:%S UTC')"
-              echo "✅ Final Status: ${{ job.status }}"
-              echo "======================================"
-            } >> "${{ env.ci_log_file }}"
-            
-            # Commit logs
-            git config --local user.email "ci-logger@github.com"
-            git config --local user.name "CI Logger Bot"
-            git add logs/
-            
-            if ! git diff --cached --quiet; then
-              git commit -m "📝 CI Logs: Test Suite $(date +'%Y%m%d-%H%M%S')
+          # Create summary log file
+          SUMMARY_LOG="logs/ci/test-summary-$(date +'%Y%m%d-%H%M%S').log"
+          mkdir -p logs/ci
+          
+          {
+            echo "🧪 COMPREHENSIVE TEST SUITE SUMMARY"
+            echo "======================================"
+            echo "📅 Completed: $(date +'%Y-%m-%d %H:%M:%S UTC')"
+            echo "✅ Final Status: ${{ job.status }}"
+            echo "🌿 Branch: ${{ github.ref_name }}"
+            echo "💫 Commit: ${{ github.sha }}"
+            echo ""
+            echo "📊 Job Results:"
+            echo "  - Pre-analysis: ${{ needs.pre-test-analysis.result }}"
+            echo "  - Code Quality: ${{ needs.lint.result }}"
+            echo "  - Test Suite: ${{ needs.test.result }}"
+            echo "  - Performance: ${{ needs.lighthouse.result }}"
+            echo "======================================"
+          } > "$SUMMARY_LOG"
+          
+          echo "📝 **COMMITTING CI LOGS TO REPOSITORY**"
+          
+          # Commit logs
+          git config --local user.email "ci-logger@github.com"
+          git config --local user.name "CI Logger Bot"
+          git add logs/
+          
+          if ! git diff --cached --quiet; then
+            git commit -m "📝 CI Logs: Test Suite $(date +'%Y%m%d-%H%M%S')
 
-              🧪 Comprehensive test suite execution log
-              📊 Status: ${{ job.status }}
-              🌿 Branch: ${{ github.ref_name }}
-              💫 Commit: ${{ github.sha }}
+            🧪 Comprehensive test suite execution log
+            📊 Status: ${{ job.status }}
+            🌿 Branch: ${{ github.ref_name }}
+            💫 Commit: ${{ github.sha }}
 
-              📁 Log saved: ${{ env.ci_log_file }}"
-              
-              git push || echo "⚠️ Could not push logs (likely due to permissions)"
-            else
-              echo "📝 No log changes to commit"
-            fi
+            📁 Summary saved: $SUMMARY_LOG"
+            
+            git push || echo "⚠️ Could not push logs (likely due to permissions)"
+          else
+            echo "📝 No log changes to commit"
           fi
