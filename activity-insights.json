@@ -1,19 +1,19 @@
 {
-  "generatedAt": "2025-08-13T00:24:35Z",
+  "generatedAt": "2025-08-13T06:08:32Z",
   "analysisType": "comprehensive",
   "insights": {
     "developmentVelocity": {
-      "commits30d": 308,
-      "commits7d": 56,
-      "commits24h": 5
+      "commits30d": 326,
+      "commits7d": 74,
+      "commits24h": 24
     },
     "codeQuality": {
-      "linesOfCode": 24033,
-      "filesModified30d": 318,
-      "avgCommitSize": "518.2"
+      "linesOfCode": 31870,
+      "filesModified30d": 340,
+      "avgCommitSize": "539.2"
     },
     "collaboration": {
-      "branches": 9,
+      "branches": 4,
       "contributors": 0,
       "issuesEngagement": "High"
     }
