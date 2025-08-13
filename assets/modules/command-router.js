@@ -26,6 +26,41 @@ export class CommandRouter {
   }
 
   /**
+   * Unregister a command
+   */
+  unregister(command) {
+    const commandDef = this.commands.get(command);
+    if (commandDef && commandDef.aliases) {
+      // Remove aliases
+      commandDef.aliases.forEach((alias) => {
+        this.aliases.delete(alias);
+      });
+    }
+
+    // Remove from aliases that point to this command
+    for (const [alias, target] of this.aliases.entries()) {
+      if (target === command) {
+        this.aliases.delete(alias);
+      }
+    }
+
+    return this.commands.delete(command);
+  }
+
+  /**
+   * Get commands by module
+   */
+  getCommandsByModule(moduleName) {
+    const commands = [];
+    for (const [command, def] of this.commands.entries()) {
+      if (def.module === moduleName) {
+        commands.push(command);
+      }
+    }
+    return commands;
+  }
+
+  /**
    * Execute a command string
    */
   async execute(commandString) {

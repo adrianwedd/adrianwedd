@@ -7,6 +7,7 @@ import { CommandRouter } from './command-router.js';
 import { UIController } from './ui-controller.js';
 import { IntegrationManager } from './integration-manager.js';
 import { StateManager } from './state-manager.js';
+import { initializeHMR } from './hot-module-replacement.js';
 
 export class TerminalCore {
   constructor(config = {}) {
@@ -17,6 +18,9 @@ export class TerminalCore {
     this.ui = new UIController(config.ui);
     this.integrations = new IntegrationManager();
     this.state = new StateManager();
+
+    // Initialize HMR system
+    this.hmr = initializeHMR(this);
 
     // Track initialization
     this.initialized = false;
@@ -43,6 +47,9 @@ export class TerminalCore {
 
       // Load external modules
       await this.loadModules();
+
+      // Initialize HMR system
+      await this.hmr.init();
 
       // Setup event listeners
       this.setupEventListeners();
@@ -190,6 +197,9 @@ export class TerminalCore {
         try {
           const imported = await import(module.path);
           this.modules.set(module.name, imported);
+
+          // Register with HMR system
+          this.hmr.registerModule(module.name, module.path, imported);
 
           // Register commands based on module type
           if (imported.registerCoreCommands) {
