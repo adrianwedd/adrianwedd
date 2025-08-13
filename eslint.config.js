@@ -113,8 +113,9 @@ export default [
       'prefer-const': 'error',
     },
   },
+  // Playwright E2E tests configuration
   {
-    files: ['tests/**/*.js', '**/*.spec.js', '**/*.test.js'],
+    files: ['tests/e2e/**/*.js', '**/*.spec.js'],
     plugins: {
       playwright,
     },
@@ -127,6 +128,14 @@ export default [
         test: 'readonly',
         expect: 'readonly',
         require: 'readonly',
+      },
+    },
+  },
+  // Jest unit tests configuration
+  {
+    files: ['tests/unit/**/*.js', '**/*.test.js', 'tests/setup.js'],
+    languageOptions: {
+      globals: {
         // Jest globals
         describe: 'readonly',
         it: 'readonly',
@@ -136,7 +145,13 @@ export default [
         afterAll: 'readonly',
         jest: 'readonly',
         global: 'readonly',
+        expect: 'readonly',
+        require: 'readonly',
       },
+    },
+    rules: {
+      // Jest-specific rules can go here if needed
+      'no-undef': 'off', // Jest provides globals
     },
   },
 ];

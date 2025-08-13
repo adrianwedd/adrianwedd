@@ -105,8 +105,8 @@ describe('Accessibility Tests', () => {
 
       const charset = mockDocument.querySelector('meta[charset]');
       expect(charset).toBeTruthy();
-      expect(charset.getAttribute).toHaveBeenCalledWith('charset');
       const charsetValue = charset.getAttribute('charset');
+      expect(charset.getAttribute).toHaveBeenCalledWith('charset');
       expect(charsetValue).toBe('UTF-8');
     });
   });
@@ -143,8 +143,8 @@ describe('Accessibility Tests', () => {
         .mockReturnValueOnce('Terminal command input');
 
       expect(commandInput).toBeTruthy();
-      expect(commandInput.getAttribute).toHaveBeenCalledWith('type');
       const inputType = commandInput.getAttribute('type');
+      expect(commandInput.getAttribute).toHaveBeenCalledWith('type');
       expect(inputType).toBe('text');
 
       // Check for labeling
@@ -335,8 +335,8 @@ describe('Accessibility Tests', () => {
         commandInput.getAttribute.mockReturnValue('text');
         commandInput.focus();
         expect(mockDocument.activeElement).toBe(commandInput);
-        expect(commandInput.getAttribute).toHaveBeenCalledWith('type');
         const inputType = commandInput.getAttribute('type');
+        expect(commandInput.getAttribute).toHaveBeenCalledWith('type');
         expect(inputType).toBe('text');
       }
     });
