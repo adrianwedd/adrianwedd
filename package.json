@@ -73,6 +73,6 @@
   },
   "dependencies": {
     "@sentry/browser": "^10.1.0",
-    "@sentry/tracing": "^7.120.3"
+    "@sentry/tracing": "^7.120.4"
   }
 }
