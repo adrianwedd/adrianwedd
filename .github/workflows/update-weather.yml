@@ -70,7 +70,7 @@ jobs:
           echo "coordinates=$COORDINATES" >> $GITHUB_OUTPUT
           echo "location=$LOCATION" >> $GITHUB_OUTPUT
 
-    - name: "🌦️ Fetch BOM Weather Data"
+      - name: "🌦️ Fetch BOM Weather Data"
       id: weather
       run: |
         echo "🌤️ Fetching weather data from BOM..."
@@ -157,10 +157,10 @@ jobs:
         echo "💨 Wind: $WIND_DIR $WIND_SPEED_KMH km/h (gusts $WIND_GUST_KMH km/h)"
         echo "🌤️ Conditions: $WEATHER_DESC $WEATHER_EMOJI"
 
-    - name: 🎨 Generate Weather Visualization
-      id: visualization
-      run: |
-        # Create ASCII art weather visualization
+      - name: 🎨 Generate Weather Visualization
+        id: visualization
+        run: |
+          # Create ASCII art weather visualization
         TEMP="${{ steps.weather.outputs.temp }}"
         HUMIDITY="${{ steps.weather.outputs.humidity }}"
         WIND_SPEED="${{ steps.weather.outputs.wind_speed }}"
@@ -204,8 +204,8 @@ jobs:
         echo "humidity_bar=$HUMIDITY_BAR" >> $GITHUB_OUTPUT
         echo "wind_bar=$WIND_BAR" >> $GITHUB_OUTPUT
 
-    - name: 📊 Create Weather Data Files
-      run: |
+      - name: 📊 Create Weather Data Files
+        run: |
         # Create current weather JSON for terminal
         cat > "assets/current-weather.json" << EOF
         {
@@ -232,8 +232,8 @@ jobs:
         }
         EOF
 
-    - name: 📝 Create Weather Markdown Page
-      run: |
+      - name: 📝 Create Weather Markdown Page
+        run: |
         mkdir -p weather/daily
         DATE=$(date +%Y%m%d)
         
@@ -273,8 +273,8 @@ jobs:
         *Updated automatically via GitHub Actions*
         EOF
 
-    - name: 🎯 Update Weather Summary
-      run: |
+      - name: 🎯 Update Weather Summary
+        run: |
         # Create a summary file for quick access
         cat > "weather/latest.md" << EOF
         # 🌤️ Current Weather - ${{ steps.location.outputs.station_name }}
@@ -288,8 +288,8 @@ jobs:
         **Updated:** ${{ steps.weather.outputs.observation_time }}
         EOF
 
-    - name: 📊 Weather Intelligence Analytics
-      run: |
+      - name: 📊 Weather Intelligence Analytics
+        run: |
         echo "📊 **GENERATING WEATHER INTELLIGENCE ANALYTICS**"
         
         # Calculate weather trends and analytics
@@ -351,8 +351,8 @@ jobs:
         
         echo "📊 Weather intelligence analytics generated"
 
-    - name: 📋 Live Weather Console Output
-      run: |
+      - name: 📋 Live Weather Console Output
+        run: |
         echo "🖥️ **RENDERING WEATHER INTELLIGENCE TO WORKFLOW SUMMARY**"
         
         cat >> $GITHUB_STEP_SUMMARY << 'EOF'
@@ -391,8 +391,8 @@ jobs:
         **🤖 System Version:** ${{ env.WEATHER_UPDATE_VERSION }}
         EOF
 
-    - name: 🚀 Intelligent Weather Commit & Push
-      run: |
+      - name: 🚀 Intelligent Weather Commit & Push
+        run: |
         echo "🚀 **COMMITTING WEATHER INTELLIGENCE UPDATES**"
         
         git config --local user.email "weather-intelligence@github.com"
@@ -441,9 +441,9 @@ EOF
           echo "📝 No weather changes to commit"
         fi
 
-    - name: 📝 Weather CI Logging
-      if: always()
-      run: |
+      - name: 📝 Weather CI Logging
+        if: always()
+        run: |
         echo "📝 **CREATING PERSISTENT WEATHER CI LOGS**"
         
         # Initialize weather-specific logging
@@ -508,8 +508,8 @@ EOF
           echo "📝 No log changes to commit"
         fi
 
-    - name: 📊 Weather Intelligence Summary
-      run: |
+      - name: 📊 Weather Intelligence Summary
+        run: |
         echo "🌤️ **WEATHER INTELLIGENCE UPDATE COMPLETE!**"
         echo "📅 Completed at: $(date +'%Y-%m-%d %H:%M:%S UTC')"
         echo ""
