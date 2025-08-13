@@ -26,14 +26,13 @@ build/
 .env.test.local
 .env.production.local
 
-# Logs
+# Logs (ignore log files but allow CI logs)
 *.log
-logs/
+!logs/ci/*.log
 *.log.*
 
-# Exception: Allow CI logs (required by automation workflows)
+# CI logs directory is explicitly allowed
 !logs/ci/
-!logs/ci/*.log
 
 # Runtime data
 pids/
