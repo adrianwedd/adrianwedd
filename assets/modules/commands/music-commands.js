@@ -319,13 +319,14 @@ Type 'music stop' to stop playback`;
         }
         break;
 
-      case 'mode':
+      case 'mode': {
         const mode = args[1] || 'bars';
         if (this.musicPlayer.setVisualizerMode) {
           this.musicPlayer.setVisualizerMode(mode);
           return `🎨 Visualizer mode: ${mode}`;
         }
         break;
+      }
 
       default:
         return 'Usage: visualizer [on|off|mode <type>]';

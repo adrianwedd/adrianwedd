@@ -215,7 +215,7 @@ export class GitHubCommands {
 
     try {
       // This would need proper GitHub token authentication
-      const result = await this.terminal.integrations.fetchGitHubData(
+      await this.terminal.integrations.fetchGitHubData(
         `/repos/adrianwedd/adrianwedd/actions/workflows/${workflowName}/dispatches`,
         {
           method: 'POST',

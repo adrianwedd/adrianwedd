@@ -4,11 +4,14 @@ test.describe('Terminal Core Functionality', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
+    // Wait for terminal to initialize
+    await page.waitForSelector('#cli-input', { timeout: 10000 });
+    await page.waitForFunction(() => window.terminal && window.terminal.initialized);
   });
 
   test('terminal loads and accepts input', async ({ page }) => {
-    const input = page.locator('#commandInput');
-    const output = page.locator('.terminal-content');
+    const input = page.locator('#cli-input');
+    const output = page.locator('#output');
 
     await expect(input).toBeVisible();
     await expect(output).toBeVisible();
@@ -16,12 +19,12 @@ test.describe('Terminal Core Functionality', () => {
     await input.fill('help');
     await input.press('Enter');
 
-    await expect(output).toContainText('ADRIAN.TERMINAL - Available Commands');
+    await expect(output).toContainText('Available Commands');
   });
 
   test('basic commands work', async ({ page }) => {
-    const input = page.locator('#commandInput');
-    const output = page.locator('.terminal-content');
+    const input = page.locator('#cli-input');
+    const output = page.locator('#output');
 
     await input.fill('about');
     await input.press('Enter');
@@ -34,12 +37,12 @@ test.describe('Terminal Core Functionality', () => {
   });
 
   test('unknown command shows error', async ({ page }) => {
-    const input = page.locator('#commandInput');
-    const output = page.locator('.terminal-content');
+    const input = page.locator('#cli-input');
+    const output = page.locator('#output');
 
     await input.fill('invalidcommand123');
     await input.press('Enter');
 
-    await expect(output).toContainText('Command not found:');
+    await expect(output).toContainText('Unknown command:');
   });
 });

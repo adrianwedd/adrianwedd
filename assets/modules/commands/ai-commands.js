@@ -130,7 +130,7 @@ AI: Hello! I'm Claude, your AI assistant. How can I help you today?`;
         }
         return this.formatContext();
 
-      case 'save':
+      case 'save': {
         const filename = args[1] || 'ai-context.json';
         try {
           localStorage.setItem(`ai-context-${filename}`, JSON.stringify(this.context));
@@ -138,8 +138,9 @@ AI: Hello! I'm Claude, your AI assistant. How can I help you today?`;
         } catch (error) {
           return `❌ Failed to save context: ${error.message}`;
         }
+      }
 
-      case 'load':
+      case 'load': {
         const loadFile = args[1] || 'ai-context.json';
         try {
           const saved = localStorage.getItem(`ai-context-${loadFile}`);
@@ -151,6 +152,7 @@ AI: Hello! I'm Claude, your AI assistant. How can I help you today?`;
         } catch (error) {
           return `❌ Failed to load context: ${error.message}`;
         }
+      }
 
       default:
         return 'Usage: context [clear|show|save|load]';

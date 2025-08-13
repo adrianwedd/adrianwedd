@@ -181,9 +181,10 @@ Available Effects:
   • pulse      - Pulsing glow`;
 
       case 'status':
-      default:
+      default: {
         const effectsEnabled = this.terminal.state.getState('features', 'effectsEnabled');
         return `Effects: ${effectsEnabled ? 'ON' : 'OFF'}\nParticles: ${this.particlesActive ? 'ON' : 'OFF'}`;
+      }
     }
   }
 
@@ -313,7 +314,7 @@ Available Effects:
 ║  Lucky Command: ${todaysMagic.command.padEnd(40)}║
 ║                                                          ║
 ╚══════════════════════════════════════════════════════════╝`;
-    } catch (error) {
+    } catch {
       loading.stop();
 
       // Fallback magic

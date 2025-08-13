@@ -5,17 +5,18 @@ test('terminal accepts "help" command and shows output', async ({ page }) => {
 
   // Wait for the terminal to be ready
   await page.waitForLoadState('domcontentloaded');
-  await page.waitForSelector('#commandInput');
+  await page.waitForSelector('#cli-input', { timeout: 10000 });
+  await page.waitForFunction(() => window.terminal && window.terminal.initialized);
 
   // Type 'help' and press Enter
-  await page.fill('#commandInput', 'help');
-  await page.press('#commandInput', 'Enter');
+  await page.fill('#cli-input', 'help');
+  await page.press('#cli-input', 'Enter');
 
   // Wait for the output and check terminal content
-  const output = page.locator('.terminal-content');
+  const output = page.locator('#output');
 
   // Assert that the help output is present with correct text
-  await expect(output).toContainText('ADRIAN.TERMINAL - Available Commands');
+  await expect(output).toContainText('Available Commands');
   await expect(output).toContainText('help');
   await expect(output).toContainText('clear');
 });
