@@ -66,13 +66,13 @@ export class VoiceCommands {
       // Check if voice interface is available globally
       if (window.VoiceInterface) {
         this.voiceInterface = new window.VoiceInterface();
-        
+
         // Set up voice interface with terminal integration
         this.setupVoiceIntegration();
-        
+
         // Initialize the voice interface
         const success = await this.voiceInterface.init();
-        
+
         if (success) {
           this.initialized = true;
           this.updateVoiceStatus('READY');
@@ -126,7 +126,6 @@ export class VoiceCommands {
   setupVoiceControls() {
     const voiceToggle = document.getElementById('voice-toggle');
     const speechToggle = document.getElementById('speech-toggle');
-    const voiceIndicator = document.getElementById('voice-indicator');
 
     if (voiceToggle) {
       voiceToggle.addEventListener('click', () => {
@@ -163,7 +162,6 @@ export class VoiceCommands {
   updateVoiceUI() {
     const voiceToggle = document.getElementById('voice-toggle');
     const speechToggle = document.getElementById('speech-toggle');
-    const voiceIndicator = document.getElementById('voice-indicator');
 
     if (!this.voiceInterface) return;
 
@@ -176,6 +174,7 @@ export class VoiceCommands {
       speechToggle.classList.toggle('active', this.voiceInterface.speechOutputEnabled);
     }
 
+    const voiceIndicator = document.getElementById('voice-indicator');
     if (voiceIndicator) {
       voiceIndicator.textContent = this.voiceInterface.isListening ? '🎤' : '🔇';
     }

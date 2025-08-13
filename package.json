@@ -68,7 +68,7 @@
   },
   "homepage": "https://github.com/adrianwedd/adrianwedd#readme",
   "lint-staged": {
-    "*.js": "eslint --fix && prettier --write",
+    "*.js": ["eslint --fix", "prettier --write"],
     "*.css": "stylelint --fix"
   },
   "dependencies": {
