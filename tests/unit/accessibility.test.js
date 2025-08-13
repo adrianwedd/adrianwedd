@@ -75,6 +75,7 @@ describe('Accessibility Tests', () => {
     test('should have proper HTML lang attribute', () => {
       mockDocument.documentElement.getAttribute.mockReturnValue('en');
       const lang = mockDocument.documentElement.getAttribute('lang');
+      expect(mockDocument.documentElement.getAttribute).toHaveBeenCalledWith('lang');
       expect(lang).toBe('en');
     });
 
@@ -105,7 +106,8 @@ describe('Accessibility Tests', () => {
       const charset = mockDocument.querySelector('meta[charset]');
       expect(charset).toBeTruthy();
       expect(charset.getAttribute).toHaveBeenCalledWith('charset');
-      expect(charset.getAttribute('charset')).toBe('UTF-8');
+      const charsetValue = charset.getAttribute('charset');
+      expect(charsetValue).toBe('UTF-8');
     });
   });
 
@@ -142,10 +144,12 @@ describe('Accessibility Tests', () => {
 
       expect(commandInput).toBeTruthy();
       expect(commandInput.getAttribute).toHaveBeenCalledWith('type');
-      expect(commandInput.getAttribute('type')).toBe('text');
+      const inputType = commandInput.getAttribute('type');
+      expect(inputType).toBe('text');
 
       // Check for labeling
       const ariaLabel = commandInput.getAttribute('aria-label');
+      expect(commandInput.getAttribute).toHaveBeenCalledWith('aria-label');
       expect(ariaLabel).toBeTruthy();
       expect(ariaLabel.length).toBeGreaterThan(0);
     });
@@ -332,7 +336,8 @@ describe('Accessibility Tests', () => {
         commandInput.focus();
         expect(mockDocument.activeElement).toBe(commandInput);
         expect(commandInput.getAttribute).toHaveBeenCalledWith('type');
-        expect(commandInput.getAttribute('type')).toBe('text');
+        const inputType = commandInput.getAttribute('type');
+        expect(inputType).toBe('text');
       }
     });
 
