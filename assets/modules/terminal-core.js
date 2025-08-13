@@ -8,6 +8,7 @@ import { UIController } from './ui-controller.js';
 import { IntegrationManager } from './integration-manager.js';
 import { StateManager } from './state-manager.js';
 import { initializeHMR } from './hot-module-replacement.js';
+import { initializeDeveloperPortal } from './developer-portal.js';
 
 export class TerminalCore {
   constructor(config = {}) {
@@ -21,6 +22,9 @@ export class TerminalCore {
 
     // Initialize HMR system
     this.hmr = initializeHMR(this);
+
+    // Initialize Developer Portal
+    this.developerPortal = initializeDeveloperPortal(this);
 
     // Track initialization
     this.initialized = false;
@@ -50,6 +54,9 @@ export class TerminalCore {
 
       // Initialize HMR system
       await this.hmr.init();
+
+      // Initialize Developer Portal
+      await this.developerPortal.init();
 
       // Setup event listeners
       this.setupEventListeners();
