@@ -182,6 +182,7 @@ export class TerminalCore {
       { name: 'system', path: './commands/system-commands.js', enabled: true },
       { name: 'effects', path: './commands/effects-commands.js', enabled: true },
       { name: 'script', path: './commands/script-commands.js', enabled: true },
+      { name: 'voice', path: './commands/voice-commands.js', enabled: true },
     ];
 
     for (const module of commandModules) {
@@ -205,6 +206,8 @@ export class TerminalCore {
             imported.registerEffectsCommands(this);
           } else if (imported.registerScriptCommands) {
             imported.registerScriptCommands(this);
+          } else if (imported.registerVoiceCommands) {
+            imported.registerVoiceCommands(this);
           }
         } catch (error) {
           console.warn(`Failed to load module ${module.name}:`, error);

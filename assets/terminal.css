@@ -429,6 +429,77 @@ input, textarea, select {
     transition: var(--theme-transition);
 }
 
+/* Voice Controls */
+.voice-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 12px;
+}
+
+.voice-indicator {
+    font-size: 14px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.voice-indicator.active {
+    opacity: 1;
+    animation: pulse 2s infinite;
+}
+
+.voice-toggle,
+.speech-toggle {
+    background: transparent;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.voice-toggle:hover,
+.speech-toggle:hover {
+    background: var(--primary-color);
+    color: var(--background-color);
+}
+
+.voice-toggle.active,
+.speech-toggle.active {
+    background: var(--primary-color);
+    color: var(--background-color);
+    box-shadow: 0 0 8px rgba(var(--primary-rgb), 0.5);
+}
+
+.voice-toggle:disabled,
+.speech-toggle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: var(--error-color);
+    color: var(--error-color);
+}
+
+/* Input line layout for modular system */
+.input-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.cli-input {
+    background: transparent;
+    color: var(--text-color);
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+    border: none;
+    flex: 1;
+    transition: var(--theme-transition);
+}
+
 .cursor {
     color: var(--primary-color);
     animation: blink 1s infinite;
