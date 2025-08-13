@@ -97,13 +97,16 @@ export class SystemCommands {
       this.updateMetrics();
     }, 1000);
 
-    this.terminal.ui.addOutput(`
+    this.terminal.ui.addOutput(
+      `
 ╔══════════════════════════════════════════════════════════╗
 ║                   SYSTEM MONITOR                         ║
 ╠══════════════════════════════════════════════════════════╣
 ║  Monitoring system resources...                          ║
 ║  Press 'q' or type 'exit-monitor' to quit               ║
-╚══════════════════════════════════════════════════════════╝`, 'monitor-header');
+╚══════════════════════════════════════════════════════════╝`,
+      'monitor-header'
+    );
 
     // Show initial metrics
     setTimeout(() => this.displayMetrics(), 100);
@@ -142,14 +145,14 @@ export class SystemCommands {
    */
   async handleHtop() {
     const processes = this.getProcessList();
-    
+
     let output = '╔══════════════════════════════════════════════════════════╗\n';
     output += '║                      HTOP                                ║\n';
     output += '╠═══════╤═══════════════════╤════════╤════════╤══════════╣\n';
     output += '║  PID  │      PROCESS      │  CPU % │  MEM % │  STATUS  ║\n';
     output += '╠═══════╪═══════════════════╪════════╪════════╪══════════╣\n';
 
-    processes.forEach(proc => {
+    processes.forEach((proc) => {
       const pid = proc.pid.toString().padEnd(5);
       const name = proc.name.substring(0, 17).padEnd(17);
       const cpu = proc.cpu.toFixed(1).padStart(6);
@@ -204,18 +207,11 @@ export class SystemCommands {
     let processes = this.getProcessList();
 
     if (filter && filter !== 'all') {
-      processes = processes.filter(p => 
-        p.name.toLowerCase().includes(filter.toLowerCase())
-      );
+      processes = processes.filter((p) => p.name.toLowerCase().includes(filter.toLowerCase()));
     }
 
     const headers = ['PID', 'TTY', 'TIME', 'CMD'];
-    const rows = processes.map(p => [
-      p.pid,
-      'pts/0',
-      this.formatTime(p.time),
-      p.name,
-    ]);
+    const rows = processes.map((p) => [p.pid, 'pts/0', this.formatTime(p.time), p.name]);
 
     this.terminal.ui.showTable(headers, rows);
     return '';
@@ -254,7 +250,7 @@ Type 'q' to exit split view`;
    */
   showMetrics() {
     this.updateMetrics();
-    
+
     return `
 ╔══════════════════════════════════════════════════════════╗
 ║                   SYSTEM METRICS                         ║
@@ -278,12 +274,11 @@ Type 'q' to exit split view`;
    */
   updateMetrics() {
     // Simulate metrics with some randomness
-    this.metrics.cpu = Math.min(100, Math.max(0, 
-      this.metrics.cpu + (Math.random() - 0.5) * 20
-    ));
-    this.metrics.memory = Math.min(100, Math.max(0,
-      this.metrics.memory + (Math.random() - 0.5) * 10
-    ));
+    this.metrics.cpu = Math.min(100, Math.max(0, this.metrics.cpu + (Math.random() - 0.5) * 20));
+    this.metrics.memory = Math.min(
+      100,
+      Math.max(0, this.metrics.memory + (Math.random() - 0.5) * 10)
+    );
     this.metrics.processes = Math.floor(100 + Math.random() * 50);
     this.metrics.network.down = Math.floor(Math.random() * 1000);
     this.metrics.network.up = Math.floor(Math.random() * 500);
@@ -384,7 +379,7 @@ NET:  ↓${this.metrics.network.down} KB/s ↑${this.metrics.network.up} KB/s`;
 export function registerSystemCommands(terminal) {
   const systemCommands = new SystemCommands(terminal);
   const commands = systemCommands.getCommands();
-  
+
   Object.entries(commands).forEach(([name, config]) => {
     terminal.commandRouter.register(name, config.handler, {
       description: config.description,
@@ -396,7 +391,7 @@ export function registerSystemCommands(terminal) {
 
   // Store system commands instance
   terminal.systemCommands = systemCommands;
-  
+
   return systemCommands;
 }
 

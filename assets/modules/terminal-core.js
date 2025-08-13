@@ -34,7 +34,7 @@ export class TerminalCore {
     try {
       // Set session start time
       window.sessionStart = Date.now();
-      
+
       // Initialize UI
       this.ui.init();
 
@@ -178,6 +178,10 @@ export class TerminalCore {
       { name: 'core', path: './commands/core-commands.js', enabled: true },
       { name: 'ai', path: './commands/ai-commands.js', enabled: true },
       { name: 'github', path: './commands/github-commands.js', enabled: true },
+      { name: 'music', path: './commands/music-commands.js', enabled: true },
+      { name: 'system', path: './commands/system-commands.js', enabled: true },
+      { name: 'effects', path: './commands/effects-commands.js', enabled: true },
+      { name: 'script', path: './commands/script-commands.js', enabled: true },
     ];
 
     for (const module of commandModules) {
@@ -193,6 +197,14 @@ export class TerminalCore {
             imported.registerAICommands(this);
           } else if (imported.registerGitHubCommands) {
             imported.registerGitHubCommands(this);
+          } else if (imported.registerMusicCommands) {
+            imported.registerMusicCommands(this);
+          } else if (imported.registerSystemCommands) {
+            imported.registerSystemCommands(this);
+          } else if (imported.registerEffectsCommands) {
+            imported.registerEffectsCommands(this);
+          } else if (imported.registerScriptCommands) {
+            imported.registerScriptCommands(this);
           }
         } catch (error) {
           console.warn(`Failed to load module ${module.name}:`, error);

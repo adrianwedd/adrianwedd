@@ -106,12 +106,12 @@ export class GitHubCommands {
    */
   async listWorkflows() {
     const loading = this.terminal.ui.showLoading('Fetching workflows...');
-    
+
     try {
       const workflows = await this.terminal.integrations.fetchGitHubData(
         '/repos/adrianwedd/adrianwedd/actions/workflows'
       );
-      
+
       loading.stop();
 
       if (!workflows.workflows || workflows.workflows.length === 0) {
@@ -122,7 +122,7 @@ export class GitHubCommands {
       output += '║                  GITHUB WORKFLOWS                        ║\n';
       output += '╠══════════════════════════════════════════════════════════╣\n';
 
-      workflows.workflows.forEach(workflow => {
+      workflows.workflows.forEach((workflow) => {
         const name = workflow.name.substring(0, 40).padEnd(40);
         const state = workflow.state.toUpperCase().padEnd(10);
         output += `║ ${state} ${name}         ║\n`;
@@ -142,12 +142,12 @@ export class GitHubCommands {
    */
   async workflowStatus() {
     const loading = this.terminal.ui.showLoading('Checking workflow status...');
-    
+
     try {
       const runs = await this.terminal.integrations.fetchGitHubData(
         '/repos/adrianwedd/adrianwedd/actions/runs?per_page=5'
       );
-      
+
       loading.stop();
 
       if (!runs.workflow_runs || runs.workflow_runs.length === 0) {
@@ -155,7 +155,7 @@ export class GitHubCommands {
       }
 
       const headers = ['Workflow', 'Status', 'Started', 'Duration'];
-      const rows = runs.workflow_runs.map(run => [
+      const rows = runs.workflow_runs.map((run) => [
         run.name.substring(0, 25),
         this.getStatusIcon(run.status, run.conclusion),
         new Date(run.created_at).toLocaleString(),
@@ -175,19 +175,19 @@ export class GitHubCommands {
    */
   async workflowHistory() {
     const loading = this.terminal.ui.showLoading('Loading workflow history...');
-    
+
     try {
       const runs = await this.terminal.integrations.fetchGitHubData(
         '/repos/adrianwedd/adrianwedd/actions/runs?per_page=10'
       );
-      
+
       loading.stop();
 
       let output = '╔══════════════════════════════════════════════════════════╗\n';
       output += '║                  WORKFLOW HISTORY                        ║\n';
       output += '╠══════════════════════════════════════════════════════════╣\n';
 
-      runs.workflow_runs.forEach(run => {
+      runs.workflow_runs.forEach((run) => {
         const icon = this.getStatusIcon(run.status, run.conclusion);
         const name = run.name.substring(0, 35).padEnd(35);
         const date = new Date(run.created_at).toLocaleDateString();
@@ -236,14 +236,14 @@ export class GitHubCommands {
    */
   async handleRuns(args) {
     const loading = this.terminal.ui.showLoading('Fetching workflow runs...');
-    
+
     try {
-      const endpoint = args[0] 
+      const endpoint = args[0]
         ? `/repos/adrianwedd/adrianwedd/actions/workflows/${args[0]}/runs`
         : '/repos/adrianwedd/adrianwedd/actions/runs';
-      
+
       const runs = await this.terminal.integrations.fetchGitHubData(endpoint + '?per_page=10');
-      
+
       loading.stop();
 
       if (!runs.workflow_runs || runs.workflow_runs.length === 0) {
@@ -251,7 +251,7 @@ export class GitHubCommands {
       }
 
       const headers = ['Run', 'Workflow', 'Status', 'Branch'];
-      const rows = runs.workflow_runs.map(run => [
+      const rows = runs.workflow_runs.map((run) => [
         `#${run.run_number}`,
         run.name.substring(0, 20),
         this.getStatusIcon(run.status, run.conclusion),
@@ -297,7 +297,7 @@ export class GitHubCommands {
           const issues = await this.terminal.integrations.fetchGitHubData(
             '/repos/adrianwedd/adrianwedd/issues?state=open&per_page=10'
           );
-          
+
           loading.stop();
 
           if (issues.length === 0) {
@@ -305,17 +305,20 @@ export class GitHubCommands {
           }
 
           const headers = ['#', 'Title', 'Labels', 'Created'];
-          const rows = issues.map(issue => [
+          const rows = issues.map((issue) => [
             issue.number,
             issue.title.substring(0, 40),
-            issue.labels.map(l => l.name).join(', ').substring(0, 20),
+            issue.labels
+              .map((l) => l.name)
+              .join(', ')
+              .substring(0, 20),
             new Date(issue.created_at).toLocaleDateString(),
           ]);
 
           this.terminal.ui.showTable(headers, rows);
           return '';
         }
-        
+
         default:
           loading.stop();
           return 'Usage: issues [list|create|close]';
@@ -339,7 +342,7 @@ export class GitHubCommands {
           const prs = await this.terminal.integrations.fetchGitHubData(
             '/repos/adrianwedd/adrianwedd/pulls?state=open'
           );
-          
+
           loading.stop();
 
           if (prs.length === 0) {
@@ -347,7 +350,7 @@ export class GitHubCommands {
           }
 
           const headers = ['#', 'Title', 'Author', 'Status'];
-          const rows = prs.map(pr => [
+          const rows = prs.map((pr) => [
             pr.number,
             pr.title.substring(0, 35),
             pr.user.login,
@@ -357,7 +360,7 @@ export class GitHubCommands {
           this.terminal.ui.showTable(headers, rows);
           return '';
         }
-        
+
         default:
           loading.stop();
           return 'Usage: pr [list|create|merge]';
@@ -373,10 +376,14 @@ export class GitHubCommands {
   getStatusIcon(status, conclusion) {
     if (status === 'completed') {
       switch (conclusion) {
-        case 'success': return '✅';
-        case 'failure': return '❌';
-        case 'cancelled': return '⚪';
-        default: return '❓';
+        case 'success':
+          return '✅';
+        case 'failure':
+          return '❌';
+        case 'cancelled':
+          return '⚪';
+        default:
+          return '❓';
       }
     }
     return status === 'in_progress' ? '🔄' : '⏸️';
@@ -423,7 +430,7 @@ export class GitHubCommands {
 export function registerGitHubCommands(terminal) {
   const githubCommands = new GitHubCommands(terminal);
   const commands = githubCommands.getCommands();
-  
+
   Object.entries(commands).forEach(([name, config]) => {
     terminal.commandRouter.register(name, config.handler, {
       description: config.description,

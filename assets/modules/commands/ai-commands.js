@@ -41,20 +41,20 @@ export class AICommands {
         description: 'Start AI chat session',
         usage: 'chat [message]',
       },
-      
+
       ai: {
         handler: this.handleAI.bind(this),
         description: 'Send a message to AI',
         usage: 'ai <prompt>',
         aliases: ['ask', 'gpt'],
       },
-      
+
       context: {
         handler: this.handleContext.bind(this),
         description: 'Manage AI context',
         usage: 'context [clear|show|save|load]',
       },
-      
+
       'chat-exit': {
         handler: this.handleChatExit.bind(this),
         description: 'Exit chat mode',
@@ -81,7 +81,7 @@ export class AICommands {
     // Enter chat mode
     this.chatActive = true;
     this.terminal.state.updateState('features', 'aiChatActive', true);
-    
+
     return `
 ╔══════════════════════════════════════════════════════════╗
 ║                    AI CHAT MODE                          ║
@@ -163,7 +163,7 @@ AI: Hello! I'm Claude, your AI assistant. How can I help you today?`;
   async handleChatExit() {
     this.chatActive = false;
     this.terminal.state.updateState('features', 'aiChatActive', false);
-    
+
     return `
 ╔══════════════════════════════════════════════════════════╗
 ║                  CHAT MODE ENDED                         ║
@@ -186,7 +186,7 @@ AI: Hello! I'm Claude, your AI assistant. How can I help you today?`;
       this.addToContext('user', prompt);
 
       // Prepare messages for API
-      const messages = this.context.map(msg => ({
+      const messages = this.context.map((msg) => ({
         role: msg.role,
         content: msg.content,
       }));
@@ -225,7 +225,7 @@ AI: Hello! I'm Claude, your AI assistant. How can I help you today?`;
     // Trim context if too large
     if (this.context.length > this.maxContextSize * 2) {
       // Keep system messages and recent messages
-      const systemMessages = this.context.filter(m => m.role === 'system');
+      const systemMessages = this.context.filter((m) => m.role === 'system');
       const recentMessages = this.context.slice(-this.maxContextSize);
       this.context = [...systemMessages, ...recentMessages];
     }
@@ -289,7 +289,7 @@ AI: Hello! I'm Claude, your AI assistant. How can I help you today?`;
 export function registerAICommands(terminal) {
   const aiCommands = new AICommands(terminal);
   const commands = aiCommands.getCommands();
-  
+
   Object.entries(commands).forEach(([name, config]) => {
     terminal.commandRouter.register(name, config.handler, {
       description: config.description,
@@ -301,7 +301,7 @@ export function registerAICommands(terminal) {
 
   // Store AI commands instance for chat mode
   terminal.aiCommands = aiCommands;
-  
+
   return aiCommands;
 }
 

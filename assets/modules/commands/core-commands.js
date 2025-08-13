@@ -239,12 +239,16 @@ contact/      - Get in touch`;
  */
 export function registerCoreCommands(terminal) {
   Object.entries(coreCommands).forEach(([name, config]) => {
-    terminal.commandRouter.register(name, async (args) => {
-      return await config.handler(args, terminal);
-    }, {
-      description: config.description,
-      aliases: config.aliases,
-    });
+    terminal.commandRouter.register(
+      name,
+      async (args) => {
+        return await config.handler(args, terminal);
+      },
+      {
+        description: config.description,
+        aliases: config.aliases,
+      }
+    );
   });
 }
 

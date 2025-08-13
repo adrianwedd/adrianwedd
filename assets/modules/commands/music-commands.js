@@ -88,19 +88,19 @@ export class MusicCommands {
     switch (subcommand) {
       case 'play':
         return await this.startMusic();
-      
+
       case 'stop':
         return this.stopMusic();
-      
+
       case 'mode':
         return await this.changeMode(args[1]);
-      
+
       case 'visualizer':
         return await this.toggleVisualizer();
-      
+
       case 'status':
         return this.getMusicStatus();
-      
+
       default:
         return `
 ╔══════════════════════════════════════════════════════════╗
@@ -178,7 +178,7 @@ Type 'music stop' to stop playback`;
    */
   async changeMode(mode) {
     const modes = ['ambient', 'techno', 'classical', 'experimental', 'jazz', 'lofi'];
-    
+
     if (!mode) {
       return `Available modes: ${modes.join(', ')}\nCurrent mode: ${this.currentMode}`;
     }
@@ -188,7 +188,7 @@ Type 'music stop' to stop playback`;
     }
 
     this.currentMode = mode;
-    
+
     if (this.isPlaying && this.musicPlayer) {
       this.musicPlayer.changeMode(mode);
       return `🎵 Switched to ${mode} mode`;
@@ -236,12 +236,27 @@ Type 'music stop' to stop playback`;
   playNote(note, duration) {
     try {
       const frequencies = {
-        'C3': 130.81, 'D3': 146.83, 'E3': 164.81, 'F3': 174.61,
-        'G3': 196.00, 'A3': 220.00, 'B3': 246.94,
-        'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23,
-        'G4': 392.00, 'A4': 440.00, 'B4': 493.88,
-        'C5': 523.25, 'D5': 587.33, 'E5': 659.25, 'F5': 698.46,
-        'G5': 783.99, 'A5': 880.00, 'B5': 987.77,
+        C3: 130.81,
+        D3: 146.83,
+        E3: 164.81,
+        F3: 174.61,
+        G3: 196.0,
+        A3: 220.0,
+        B3: 246.94,
+        C4: 261.63,
+        D4: 293.66,
+        E4: 329.63,
+        F4: 349.23,
+        G4: 392.0,
+        A4: 440.0,
+        B4: 493.88,
+        C5: 523.25,
+        D5: 587.33,
+        E5: 659.25,
+        F5: 698.46,
+        G5: 783.99,
+        A5: 880.0,
+        B5: 987.77,
       };
 
       let frequency;
@@ -264,7 +279,7 @@ Type 'music stop' to stop playback`;
       const now = this.audioContext.currentTime;
       gainNode.gain.setValueAtTime(0, now);
       gainNode.gain.linearRampToValueAtTime(0.3, now + 0.01); // Attack
-      gainNode.gain.linearRampToValueAtTime(0.1, now + 0.1);  // Decay/Sustain
+      gainNode.gain.linearRampToValueAtTime(0.1, now + 0.1); // Decay/Sustain
       gainNode.gain.linearRampToValueAtTime(0, now + duration / 1000); // Release
 
       oscillator.connect(gainNode);
@@ -296,14 +311,14 @@ Type 'music stop' to stop playback`;
           return '🎨 Visualizer enabled';
         }
         break;
-      
+
       case 'off':
         if (this.musicPlayer.disableVisualizer) {
           this.musicPlayer.disableVisualizer();
           return '🎨 Visualizer disabled';
         }
         break;
-      
+
       case 'mode':
         const mode = args[1] || 'bars';
         if (this.musicPlayer.setVisualizerMode) {
@@ -311,7 +326,7 @@ Type 'music stop' to stop playback`;
           return `🎨 Visualizer mode: ${mode}`;
         }
         break;
-      
+
       default:
         return 'Usage: visualizer [on|off|mode <type>]';
     }
@@ -371,7 +386,7 @@ Type 'music stop' to stop playback`;
 export function registerMusicCommands(terminal) {
   const musicCommands = new MusicCommands(terminal);
   const commands = musicCommands.getCommands();
-  
+
   Object.entries(commands).forEach(([name, config]) => {
     terminal.commandRouter.register(name, config.handler, {
       description: config.description,
@@ -383,7 +398,7 @@ export function registerMusicCommands(terminal) {
 
   // Store music commands instance
   terminal.musicCommands = musicCommands;
-  
+
   return musicCommands;
 }
 
