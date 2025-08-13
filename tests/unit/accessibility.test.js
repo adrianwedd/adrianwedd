@@ -73,6 +73,7 @@ describe('Accessibility Tests', () => {
 
   describe('Basic Accessibility Structure', () => {
     test('should have proper HTML lang attribute', () => {
+      mockDocument.documentElement.getAttribute.mockReturnValue('en');
       const lang = mockDocument.documentElement.getAttribute('lang');
       expect(lang).toBe('en');
     });
@@ -103,6 +104,7 @@ describe('Accessibility Tests', () => {
 
       const charset = mockDocument.querySelector('meta[charset]');
       expect(charset).toBeTruthy();
+      expect(charset.getAttribute).toHaveBeenCalledWith('charset');
       expect(charset.getAttribute('charset')).toBe('UTF-8');
     });
   });
@@ -134,7 +136,12 @@ describe('Accessibility Tests', () => {
       mockDocument.getElementById.mockReturnValue(mockInput);
 
       const commandInput = mockDocument.getElementById('commandInput');
+      commandInput.getAttribute
+        .mockReturnValueOnce('text')
+        .mockReturnValueOnce('Terminal command input');
+
       expect(commandInput).toBeTruthy();
+      expect(commandInput.getAttribute).toHaveBeenCalledWith('type');
       expect(commandInput.getAttribute('type')).toBe('text');
 
       // Check for labeling
@@ -321,8 +328,10 @@ describe('Accessibility Tests', () => {
       const commandInput = mockDocument.getElementById('commandInput');
 
       if (commandInput) {
+        commandInput.getAttribute.mockReturnValue('text');
         commandInput.focus();
         expect(mockDocument.activeElement).toBe(commandInput);
+        expect(commandInput.getAttribute).toHaveBeenCalledWith('type');
         expect(commandInput.getAttribute('type')).toBe('text');
       }
     });
