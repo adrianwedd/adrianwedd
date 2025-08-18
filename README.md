@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. ❗ Opened issue [#105](https://github.com/adrianwedd/ADHDo/issues/105) in [adrianwedd/ADHDo](https://github.com/adrianwedd/ADHDo)
+1. 💪 Opened PR [#83](https://github.com/adrianwedd/deeplake/pull/83) in [adrianwedd/deeplake](https://github.com/adrianwedd/deeplake)
 <!--END_SECTION:activity-->
 
 ---
