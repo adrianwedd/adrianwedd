@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 🔒 Closed issue [#21](https://github.com/adrianwedd/grid2_repo/issues/21) in [adrianwedd/grid2_repo](https://github.com/adrianwedd/grid2_repo)
+1. 🗣 Commented on [#70](https://github.com/adrianwedd/ADHDo/issues/70#issuecomment-3208973520) in [adrianwedd/ADHDo](https://github.com/adrianwedd/ADHDo)
 <!--END_SECTION:activity-->
 
 ---
