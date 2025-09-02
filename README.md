@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 🗣 Commented on [#221](https://github.com/adrianwedd/ordr.fm/issues/221#issuecomment-3218761361) in [adrianwedd/ordr.fm](https://github.com/adrianwedd/ordr.fm)
+1. 🎉 Merged PR [#302](https://github.com/adrianwedd/cv/pull/302) in [adrianwedd/cv](https://github.com/adrianwedd/cv)
 <!--END_SECTION:activity-->
 
 ---
