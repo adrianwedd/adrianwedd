@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 🗣 Commented on [#19](https://github.com/adrianwedd/grid2_repo/issues/19#issuecomment-3244761294) in [adrianwedd/grid2_repo](https://github.com/adrianwedd/grid2_repo)
+1. 💪 Opened PR [#37](https://github.com/adrianwedd/langchain-ui/pull/37) in [adrianwedd/langchain-ui](https://github.com/adrianwedd/langchain-ui)
 <!--END_SECTION:activity-->
 
 ---
