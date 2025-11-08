@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 💪 Opened PR [#94](undefined) in [adrianwedd/AutoReviewer](https://github.com/adrianwedd/AutoReviewer)
+1. 💪 Opened PR [#41](undefined) in [adrianwedd/langchain-ui](https://github.com/adrianwedd/langchain-ui)
 <!--END_SECTION:activity-->
 
 ---
