@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2025-11-11T12:09:51Z",
+  "generatedAt": "2025-11-11T18:08:15Z",
   "analysisType": "comprehensive",
   "insights": {
     "developmentVelocity": {
       "commits30d": 627,
-      "commits7d": 146,
+      "commits7d": 145,
       "commits24h": 22
     },
     "codeQuality": {
