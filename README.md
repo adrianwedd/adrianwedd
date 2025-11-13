@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 🚀 Published release [v1.0.1 - Network Discovery & Enhanced Documentation](https://github.com/adrianwedd/homelab-scripts/releases/tag/v1.0.1) in [adrianwedd/homelab-scripts](https://github.com/adrianwedd/homelab-scripts)
+1. 🚀 Published release [v1.1.1 - Security Patch](https://github.com/adrianwedd/homelab-scripts/releases/tag/v1.1.1) in [adrianwedd/homelab-scripts](https://github.com/adrianwedd/homelab-scripts)
 <!--END_SECTION:activity-->
 
 ---
