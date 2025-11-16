@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 💪 Opened PR [#42](undefined) in [adrianwedd/langchain-ui](https://github.com/adrianwedd/langchain-ui)
+1. 🚀 Published release [v1.4.0 - SSH Key Hygiene Auditing](https://github.com/adrianwedd/homelab-scripts/releases/tag/v1.4.0) in [adrianwedd/homelab-scripts](https://github.com/adrianwedd/homelab-scripts)
 <!--END_SECTION:activity-->
 
 ---
