@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 🚀 Published release [v1.4.2: Critical Regex and JSON Fixes](https://github.com/adrianwedd/homelab-scripts/releases/tag/v1.4.2) in [adrianwedd/homelab-scripts](https://github.com/adrianwedd/homelab-scripts)
+1. 💪 Opened PR [#87](undefined) in [adrianwedd/deeplake](https://github.com/adrianwedd/deeplake)
 <!--END_SECTION:activity-->
 
 ---
