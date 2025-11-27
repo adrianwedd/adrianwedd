@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2025-11-26T18:07:34Z",
+  "generatedAt": "2025-11-27T00:24:32Z",
   "analysisType": "comprehensive",
   "insights": {
     "developmentVelocity": {
-      "commits30d": 634,
-      "commits7d": 148,
+      "commits30d": 633,
+      "commits7d": 147,
       "commits24h": 21
     },
     "codeQuality": {
       "linesOfCode": 31876,
-      "filesModified30d": 303,
-      "avgCommitSize": "41.6"
+      "filesModified30d": 302,
+      "avgCommitSize": "41.7"
     },
     "collaboration": {
       "branches": 12,
