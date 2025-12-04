@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 💪 Opened PR [#88](undefined) in [adrianwedd/deeplake](https://github.com/adrianwedd/deeplake)
+1. 💪 Opened PR [#89](undefined) in [adrianwedd/deeplake](https://github.com/adrianwedd/deeplake)
 <!--END_SECTION:activity-->
 
 ---
