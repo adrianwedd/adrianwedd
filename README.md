@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 💪 Opened PR [#89](undefined) in [adrianwedd/deeplake](https://github.com/adrianwedd/deeplake)
+1. 🚀 Published release [v0.6 – The Architect](https://github.com/adrianwedd/afterglow-engine/releases/tag/v0.6) in [adrianwedd/afterglow-engine](https://github.com/adrianwedd/afterglow-engine)
 <!--END_SECTION:activity-->
 
 ---
