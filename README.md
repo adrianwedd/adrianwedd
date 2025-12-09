@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 💪 Opened PR [#27](undefined) in [adrianwedd/twitter-agent](https://github.com/adrianwedd/twitter-agent)
+1. 💪 Opened PR [#3](undefined) in [adrianwedd/Bard-API](https://github.com/adrianwedd/Bard-API)
 <!--END_SECTION:activity-->
 
 ---
