@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 💪 Opened PR [#21](undefined) in [adrianwedd/pandora](https://github.com/adrianwedd/pandora)
+1. 🚀 Published release [v0.8.1: The Map Unfolds](https://github.com/adrianwedd/afterglow-engine/releases/tag/v0.8.1) in [adrianwedd/afterglow-engine](https://github.com/adrianwedd/afterglow-engine)
 <!--END_SECTION:activity-->
 
 ---
