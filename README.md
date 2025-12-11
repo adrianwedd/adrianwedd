@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 🚀 Published release [v0.8.0 - (Refined Clouds)](https://github.com/adrianwedd/afterglow-engine/releases/tag/v0.8.0) in [adrianwedd/afterglow-engine](https://github.com/adrianwedd/afterglow-engine)
+1. 💪 Opened PR [#21](undefined) in [adrianwedd/pandora](https://github.com/adrianwedd/pandora)
 <!--END_SECTION:activity-->
 
 ---
