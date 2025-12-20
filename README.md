@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 🚀 Published release [v0.9.0 "The Sentinel"](https://github.com/adrianwedd/afterglow-engine/releases/tag/v0.9.0) in [adrianwedd/afterglow-engine](https://github.com/adrianwedd/afterglow-engine)
+1. 💪 Opened PR [#28](undefined) in [adrianwedd/twitter-agent](https://github.com/adrianwedd/twitter-agent)
 <!--END_SECTION:activity-->
 
 ---
