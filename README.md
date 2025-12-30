@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 💪 Opened PR [#365](undefined) in [adrianwedd/cv](https://github.com/adrianwedd/cv)
+1. 🗣 Commented on [#2](https://github.com/adrianwedd/afterglow-engine/pull/2#issuecomment-3698345506) in [adrianwedd/afterglow-engine](https://github.com/adrianwedd/afterglow-engine)
 <!--END_SECTION:activity-->
 
 ---
