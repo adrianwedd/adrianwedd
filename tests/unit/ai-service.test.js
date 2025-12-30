@@ -30,9 +30,9 @@ beforeAll(() => {
     hasReusablePatterns: jest.fn(
       (prompt) => prompt.includes('You are') || prompt.includes('Format:')
     ),
-    shouldCachePrompt: jest.fn(
-      (prompt, systemPrompt) => prompt.length > 100 || (systemPrompt && systemPrompt.length > 0)
-    ),
+    shouldCachePrompt: jest.fn((prompt, systemPrompt) => {
+      return !!(prompt.length > 100 || (systemPrompt && systemPrompt.length > 0));
+    }),
     cacheResponse: jest.fn((key, response, tokens) => {
       global.AIService.mock.results[0].value.promptCache.set(key, {
         response,
@@ -98,12 +98,15 @@ beforeAll(() => {
         stats.totalRequests > 0
           ? ((stats.cacheHits / stats.totalRequests) * 100).toFixed(1)
           : '0.0';
+      const tokensPerRequest =
+        stats.totalRequests > 0 ? Math.round(totalTokens / stats.totalRequests) : 0;
       return {
         ...stats,
         totalTokens,
         sessionDuration,
         cacheEfficiency,
-        cacheSize: stats.promptCache.size,
+        cacheSize: global.AIService.mock.results[0].value.promptCache.size,
+        tokensPerRequest,
       };
     }),
     resetStats: jest.fn(() => {

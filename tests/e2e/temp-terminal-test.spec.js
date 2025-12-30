@@ -5,7 +5,7 @@ test('terminal accepts "help" command and shows output', async ({ page }) => {
 
   // Wait for the terminal to be ready
   await page.waitForLoadState('domcontentloaded');
-  await page.waitForSelector('#cli-input', { timeout: 10000 });
+  await expect(page.locator('#cli-input')).toBeVisible({ timeout: 10000 });
   await page.waitForFunction(() => window.terminal && window.terminal.initialized);
 
   // Type 'help' and press Enter
