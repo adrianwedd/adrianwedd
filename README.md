@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. ❌ Labeled PR [#424](undefined) in [adrianwedd/Agentic-Index](https://github.com/adrianwedd/Agentic-Index)
+1. ℹ️ Labeled PR [#424](https://github.com/adrianwedd/Agentic-Index/pull/424) in [adrianwedd/Agentic-Index](https://github.com/adrianwedd/Agentic-Index)
 <!--END_SECTION:activity-->
 
 ---
