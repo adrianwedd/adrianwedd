@@ -196,7 +196,7 @@ Featured Projects:
 - 📊 **Watch Me Work**: Live dashboard tracking all 175 repositories
 
 <!--START_SECTION:activity-->
-1. 🚀 Published release [v0.28 — Signal Found in the Static](https://github.com/adrianwedd/before-the-words-existed/releases/tag/v0.28) in [adrianwedd/before-the-words-existed](https://github.com/adrianwedd/before-the-words-existed)
+1. 🚀 Published release [v1.0.0 - Gotta Squish 'Em All!](https://github.com/adrianwedd/squishmallowdex/releases/tag/v1.0.0) in [adrianwedd/squishmallowdex](https://github.com/adrianwedd/squishmallowdex)
 <!--END_SECTION:activity-->
 
 ---
