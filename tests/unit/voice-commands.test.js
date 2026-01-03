@@ -294,6 +294,7 @@ const { VoiceCommands, registerVoiceCommands } = mockVoiceCommands();
 const createMockTerminal = () => ({
   ui: {
     addOutput: jest.fn(),
+    addCommandLine: jest.fn(),
     showError: jest.fn(),
     showSuccess: jest.fn(),
     showInfo: jest.fn(),

@@ -5,7 +5,7 @@ test.describe('Terminal Core Functionality', () => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
     // Wait for terminal to initialize
-    await page.waitForSelector('#cli-input', { timeout: 10000 });
+    await expect(page.locator('#cli-input')).toBeVisible({ timeout: 10000 });
     await page.waitForFunction(() => window.terminal && window.terminal.initialized);
   });
 
