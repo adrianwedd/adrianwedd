@@ -8,13 +8,14 @@ I operate at the intersection of **Synthetic Intelligence**, **Cognitive Cyberne
 *   **Cognitive Prosthetics:** Interfaces should reconfigure cognition, not just display data.
 *   **Justice as Code:** Legal and social systems must be transparent, accessible, and debuggable.
 *   **Physical Instantiation:** AI must bridge the gap between digital thought and physical matter (housing, energy).
-*   **Agency over Automation:** Systems must empower the human, not replace them.
+*   **Recursive Sovereignty:** Agents must own their execution, memory, and improvement loops.
 
 ---
 
 ### 🧠 Synthetic Minds (AI & Agents)
 *Attempts to teach silicon how to think.*
 
+*   **[personal-agentic-operating-system](https://github.com/adrianwedd/personal-agentic-operating-system)**: Local-first OS with a genuine **recursive self-improvement loop** (Reflection → Meta-Agent → Runtime Guidelines).
 *   **[agentic-research-engine](https://github.com/adrianwedd/agentic-research-engine)**: A next-gen research system capable of genuine learning and institutionalised self-correction.
 *   **[Agentic-Index](https://github.com/adrianwedd/Agentic-Index)**: The definitive cartography of the autonomous agent landscape.
 *   **[AI-SWA](https://github.com/adrianwedd/AI-SWA)**: A self-evolving software architect that reasons about its own design and rewrites its own DNA.
@@ -33,39 +34,42 @@ I operate at the intersection of **Synthetic Intelligence**, **Cognitive Cyberne
 *   **[VERITAS](https://github.com/adrianwedd/VERITAS)**: An AI-native legal intelligence platform addressing the "efficiency-trust deficit" in the legal market.
 *   **[freedom-engine](https://github.com/adrianwedd/freedom-engine)**: Empowering federal inmates with accurate First Step Act information and legal guidance tools.
 *   **[vox-libre](https://github.com/adrianwedd/vox-libre)**: Voice-to-voice knowledge retrieval designed to democratize access for the disconnected (inmates, elderly).
+*   **[FinGPT](https://github.com/adrianwedd/FinGPT)**: Democratizing internet-scale financial data to break the Wall Street monopoly on high-end financial intelligence.
 
 ### ❤️‍🔥 Neuro-Symbiosis (Health & Accessibility)
 *Code as a support structure for the human mind.*
 
 *   **[ADHDo](https://github.com/adrianwedd/ADHDo)**: An AI co-pilot for executive dysfunction. Crisis detection, dopamine-sized task breaking, and circuit breakers for the brain.
 *   **[emdr-agent](https://github.com/adrianwedd/emdr-agent)**: Therapeutic protocols digitized for accessibility.
+*   **[wcag-process-matrix](https://github.com/adrianwedd/wcag-process-matrix)**: Integrating accessibility criteria directly into project management workflows.
 *   **[This Wasn't in the Brochure](https://github.com/adrianwedd/thiswasntinthebrochure)**: A nautical voyage through neurodivergent co-parenting.
 
-### 🌑 Sensory & Signal (Art, Audio & Vision)
+### 🌑 Sensory & Signal (Oneiric & Bio-Acoustic Interfaces)
 *Distilling memories from the noise.*
 
+*   **[lunar_tools_prototypes](https://github.com/adrianwedd/lunar_tools_prototypes)**: Experimental oneiric interfaces including **Dream Interpreters**, **Acoustic Fingerprint Painters**, and **Cosmic Murals**.
 *   **[afterglow-engine](https://github.com/adrianwedd/afterglow-engine)**: A machine for sonic archaeology. It unweaves audio archives to separate pigment from gesture.
 *   **[orbitr](https://github.com/adrianwedd/orbitr)**: Polyphonic AI sequencer with concentric rings, enhanced with MusicGen.
-*   **[lunar_tools_prototypes](https://github.com/adrianwedd/lunar_tools_prototypes)**: Interactive audiovisual installations with real-time AI generation.
 
 ### 🌍 Planetary & Industrial Systems
 *Engineering order from entropy.*
 
-*   **[cygnet](https://github.com/adrianwedd/cygnet)**: AI-powered 3D printed housing development. 28+ agents coordinating physical construction.
+*   **[cygnet](https://github.com/adrianwedd/cygnet)**: AI-powered 3D printed housing development. 28+ agents coordinating physical construction of eco-villages.
 *   **[project-terrawatt](https://github.com/adrianwedd/project-terrawatt)**: Large-scale energy management and optimization for sustainable infrastructure.
-*   **[ticketsmith](https://github.com/adrianwedd/ticketsmith)**: Ecosystem-aware AI automation for Jira/Confluence.
-*   **[grid2_repo](https://github.com/adrianwedd/grid2_repo)**: A deterministic AI website builder. AI for understanding, algorithms for execution.
+*   **[ticketsmith](https://github.com/adrianwedd/ticketsmith)**: Ecosystem-aware AI automation for Jira/Confluence using **Sovereign Compute** (Self-hosted vLLM).
+*   **[grid2_repo](https://github.com/adrianwedd/grid2_repo)**: A deterministic AI website builder using **Beam Search algorithms** to assemble user intent without hallucination.
 
 ### 🔭 Cosmic & Recursive
 *Looking up and looking in.*
 
 *   **[space-weather](https://github.com/adrianwedd/space-weather)**: Monitoring and visualizing solar activities and geomagnetic storms.
 *   **[code-interpreter-hacking](https://github.com/adrianwedd/code-interpreter-hacking)**: Recursive security experiments testing the boundaries of interpreter sandboxes.
+*   **[cv](https://github.com/adrianwedd/cv)**: Zero-cost AI pipeline using browser automation to bypass API gates—the hacker ethic applied to professional development.
 
 ---
 
 ### 🛠 The Stack
-`Python` `LangGraph` `TypeScript` `Astro` `FastAPI` `Vector Dbs` `Home Assistant` `Docker`
+`Python` `LangGraph` `TypeScript` `Astro` `FastAPI` `Vector Dbs` `Home Assistant` `Docker` `vLLM`
 
 ---
 
