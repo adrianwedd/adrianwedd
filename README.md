@@ -43,9 +43,10 @@ Operating from the edge of the world (**Tasmania**), I bridge the gap between **
 
 *   **[failure-first-embodied-ai](https://github.com/adrianwedd/failure-first-embodied-ai)**: A red-teaming and benchmarking framework that treats **recursive failure** as the primary object of study for embodied and agentic systems.
 
-### 🔮 Philosophy & Identity
-*Forensic readings of the interface.*
+### 🔮 Philosophy, Identity & Physics
+*Forensic readings of the interface and the terrain.*
 
+*   **[Footnotes at the Edge of Reality](https://github.com/adrianwedd/Footnotes-at-the-Edge-of-Reality)**: An essay-poem exploring physics and language. Matter tells space how to curve; space tells matter how to move. Measurement as participation.
 *   **[Before the Words Existed](https://github.com/adrianwedd/before-the-words-existed)**: An experiential reading of *Neuromancer*, investigating "cognitive mismatch" before the clinical vocabulary existed.
 *   **[latent-self](https://github.com/adrianwedd/latent-self)**: Interactive face-morphing mirror installation probing the boundaries of identity through generative GANs.
 
@@ -75,3 +76,4 @@ Operating from the edge of the world (**Tasmania**), I bridge the gap between **
 ---
 
 *"We are distilling memories, not just processing signals."*
+
