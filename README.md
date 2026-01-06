@@ -12,18 +12,12 @@ Operating from the edge of the world (**Tasmania**), I bridge the gap between **
 
 ---
 
-### 🛡️ Redteaming & AI Safety
-*Forensics for the machine age.*
-
-*   **[failure-first-embodied-ai](https://github.com/adrianwedd/failure-first-embodied-ai)**: A red-teaming and benchmarking framework that treats **recursive failure** as the primary object of study for embodied and agentic systems.
-*   **[code-interpreter-hacking](https://github.com/adrianwedd/code-interpreter-hacking)**: Transcript of a red-teaming session demonstrating sandbox escape and filesystem enumeration.
-*   **[TEL3SIS](https://github.com/adrianwedd/TEL3SIS)**: Voice-first agentic platform featuring a **Safety Oracle** for pre-execution red-team simulation.
-
 ### 🧠 Synthetic Minds (Agents & Cognition)
 *Architecting autonomous intelligence.*
 
 *   **[personal-agentic-operating-system](https://github.com/adrianwedd/personal-agentic-operating-system)**: Local-first OS with a **meta-agent loop** that refines system guidelines from reflection logs at runtime.
 *   **[agentic-research-engine](https://github.com/adrianwedd/agentic-research-engine)**: A multi-agent system with long-term memory (LTM) and a formal critique-and-refinement loop.
+*   **[TEL3SIS](https://github.com/adrianwedd/TEL3SIS)**: Voice-first agentic platform featuring a **Safety Oracle** for pre-execution red-team simulation.
 *   **[AI-SWA](https://github.com/adrianwedd/AI-SWA)**: A self-evolving software architect agent that reasons about its own design and spawns modular components.
 *   **[ModelAtlas](https://github.com/adrianwedd/ModelAtlas)**: An enrichment engine for foundational model metadata, tracing lineage and trust scores across the model landscape.
 *   **[Agentic-Index](https://github.com/adrianwedd/Agentic-Index)**: A scored and curated analytical catalog of autonomous AI agent frameworks.
@@ -43,6 +37,11 @@ Operating from the edge of the world (**Tasmania**), I bridge the gap between **
 *   **[project-terrawatt](https://github.com/adrianwedd/project-terrawatt)**: A research playground for building sustainability platforms and infrastructure optimization using LangGraph.
 *   **[ticketsmith](https://github.com/adrianwedd/ticketsmith)**: Enterprise-grade Jira/Confluence automation using sovereign compute (self-hosted vLLM inference).
 *   **[grid2_repo](https://github.com/adrianwedd/grid2_repo)**: A deterministic site builder that uses **beam search** to assemble components without LLM hallucinations.
+
+### 🛡️ Redteaming & AI Safety
+*Forensics for the machine age.*
+
+*   **[failure-first-embodied-ai](https://github.com/adrianwedd/failure-first-embodied-ai)**: A red-teaming and benchmarking framework that treats **recursive failure** as the primary object of study for embodied and agentic systems.
 
 ### 🔮 Philosophy & Identity
 *Forensic readings of the interface.*
@@ -76,4 +75,3 @@ Operating from the edge of the world (**Tasmania**), I bridge the gap between **
 ---
 
 *"We are distilling memories, not just processing signals."*
-
