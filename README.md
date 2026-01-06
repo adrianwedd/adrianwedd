@@ -34,14 +34,12 @@ I operate at the intersection of **Synthetic Intelligence**, **Cognitive Cyberne
 *   **[VERITAS](https://github.com/adrianwedd/VERITAS)**: An AI-native legal intelligence platform addressing the "efficiency-trust deficit" in the legal market.
 *   **[freedom-engine](https://github.com/adrianwedd/freedom-engine)**: Empowering federal inmates with accurate First Step Act information and legal guidance tools.
 *   **[vox-libre](https://github.com/adrianwedd/vox-libre)**: Voice-to-voice knowledge retrieval designed to democratize access for the disconnected (inmates, elderly).
-*   **[FinGPT](https://github.com/adrianwedd/FinGPT)**: Democratizing internet-scale financial data to break the Wall Street monopoly on high-end financial intelligence.
 
 ### ❤️‍🔥 Neuro-Symbiosis (Health & Accessibility)
 *Code as a support structure for the human mind.*
 
 *   **[ADHDo](https://github.com/adrianwedd/ADHDo)**: An AI co-pilot for executive dysfunction. Crisis detection, dopamine-sized task breaking, and circuit breakers for the brain.
 *   **[emdr-agent](https://github.com/adrianwedd/emdr-agent)**: Therapeutic protocols digitized for accessibility.
-*   **[wcag-process-matrix](https://github.com/adrianwedd/wcag-process-matrix)**: Integrating accessibility criteria directly into project management workflows.
 *   **[This Wasn't in the Brochure](https://github.com/adrianwedd/thiswasntinthebrochure)**: A nautical voyage through neurodivergent co-parenting.
 
 ### 🌑 Sensory & Signal (Oneiric & Bio-Acoustic Interfaces)
@@ -58,6 +56,13 @@ I operate at the intersection of **Synthetic Intelligence**, **Cognitive Cyberne
 *   **[project-terrawatt](https://github.com/adrianwedd/project-terrawatt)**: Large-scale energy management and optimization for sustainable infrastructure.
 *   **[ticketsmith](https://github.com/adrianwedd/ticketsmith)**: Ecosystem-aware AI automation for Jira/Confluence using **Sovereign Compute** (Self-hosted vLLM).
 *   **[grid2_repo](https://github.com/adrianwedd/grid2_repo)**: A deterministic AI website builder using **Beam Search algorithms** to assemble user intent without hallucination.
+
+### 🛠 Tooling & Automation
+*The invisible infrastructure.*
+
+*   **[homelab-scripts](https://github.com/adrianwedd/homelab-scripts)**: Production-ready automation for system maintenance, backup, and network discovery.
+*   **[lemonsqueezy-claude-skills](https://github.com/adrianwedd/lemonsqueezy-claude-skills)**: Serverless automation for payment platform operations.
+*   **[squishmallowdex](https://github.com/adrianwedd/squishmallowdex)**: Static-site, offline-first collection tracker. (Because even serious architects need whimsy).
 
 ### 🔭 Cosmic & Recursive
 *Looking up and looking in.*
