@@ -1,95 +1,120 @@
-// Serverless function for triggering LLM chat via GitHub Actions
-// Deploy to Vercel, Netlify, or similar
+export const config = {
+  runtime: 'edge', // Edge runtime is required for streaming
+};
 
-export default async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+export default async function handler(req) {
+  // CORS headers
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
 
+  // Handle OPTIONS preflight
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return new Response(null, { headers });
   }
 
+  // Only allow POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...headers, 'Content-Type': 'application/json' },
+    });
   }
 
   try {
-    const { message, sessionId } = req.body;
+    const { messages, system, max_tokens } = await req.json();
 
-    if (!message) {
-      return res.status(400).json({ error: 'Message is required' });
-    }
-
-    // Generate session ID if not provided
-    const session = sessionId || `chat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-    // Trigger GitHub Actions workflow via repository dispatch
-    const githubResponse = await fetch(
-      'https://api.github.com/repos/adrianwedd/adrianwedd/dispatches',
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `token ${process.env.GITHUB_TOKEN}`,
-          Accept: 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          event_type: 'llm-chat',
-          client_payload: {
-            message: message,
-            session_id: session,
-            timestamp: new Date().toISOString(),
-            user_agent: req.headers['user-agent'] || 'Terminal Interface',
-          },
-        }),
-      }
-    );
-
-    if (!githubResponse.ok) {
-      const errorText = await githubResponse.text();
-      console.error('GitHub API error:', errorText);
-      return res.status(500).json({
-        error: 'Failed to trigger AI response',
-        details: errorText,
+    if (!messages) {
+      return new Response(JSON.stringify({ error: 'Messages are required' }), {
+        status: 400,
+        headers: { ...headers, 'Content-Type': 'application/json' },
       });
     }
 
-    // Return immediate response - client will poll for the actual AI response
-    return res.status(200).json({
-      status: 'processing',
-      sessionId: session,
-      message: 'AI persona is thinking... Check back in a moment.',
-      estimatedWaitTime: 30, // seconds
+    // Call Anthropic API
+    const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: max_tokens || 1024,
+        messages: messages,
+        system: system, // Pass system prompt if provided
+        stream: true, // Enable streaming
+      }),
     });
+
+    if (!anthropicResponse.ok) {
+      const error = await anthropicResponse.text();
+      console.error('Anthropic API Error:', error);
+      return new Response(JSON.stringify({ error: 'AI Provider Error', details: error }), {
+        status: 500,
+        headers: { ...headers, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Create a TransformStream to process the SSE events from Anthropic
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = anthropicResponse.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); // Keep the last partial line
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data === '[DONE]') continue;
+
+                try {
+                  const event = JSON.parse(data);
+                  // Extract text delta
+                  if (event.type === 'content_block_delta' && event.delta?.text) {
+                    controller.enqueue(new TextEncoder().encode(event.delta.text));
+                  }
+                } catch (e) {
+                  // Ignore parse errors for keep-alives etc
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Stream processing error:', err);
+          controller.error(err);
+        } finally {
+          controller.close();
+        }
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        ...headers,
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
+
   } catch (error) {
-    console.error('Chat API error:', error);
-    return res.status(500).json({
-      error: 'Internal server error',
-      details: error.message,
+    console.error('Chat API Error:', error);
+    return new Response(JSON.stringify({ error: 'Internal Server Error', details: error.message }), {
+      status: 500,
+      headers: { ...headers, 'Content-Type': 'application/json' },
     });
   }
 }
-
-// Alternative: If using Node.js/Express
-/*
-const express = require('express');
-const fetch = require('node-fetch');
-const app = express();
-
-app.use(express.json());
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
-});
-
-app.post('/api/chat', async (req, res) => {
-    // Same logic as above
-});
-
-app.listen(3000, () => {
-    console.log('Chat API running on port 3000');
-});
-*/
