@@ -1,14 +1,14 @@
-# ⚡️ Cyberneticist & Systems Architect
+# ⚡️ Cyberneticist, Systems Architect & Justice Engineer
 
 > *"I build machines that remember, systems that heal, and agents that reason."*
 
-I operate at the intersection of **Synthetic Intelligence**, **Cognitive Cybernetics**, and **Industrial Sovereignty**. My work is a continuous investigation into how software can extend human agency, repair cognitive mismatch, and engineer order from entropy.
+I operate at the intersection of **Synthetic Intelligence**, **Cognitive Cybernetics**, and **Human Rights**. My work is a continuous investigation into how software can extend human agency, repair cognitive mismatch, and engineer order—from the courtroom to the cosmos.
 
 ### 🏴 The Manifesto
 *   **Cognitive Prosthetics:** Interfaces should reconfigure cognition, not just display data.
+*   **Justice as Code:** Legal and social systems must be transparent, accessible, and debuggable.
+*   **Physical Instantiation:** AI must bridge the gap between digital thought and physical matter (housing, energy).
 *   **Agency over Automation:** Systems must empower the human, not replace them.
-*   **Digital Archaeology:** We must mine the "noise" of the past to create the textures of the future.
-*   **Deterministic Sovereignty:** Bridging the gap between generative chaos and industrial reliability.
 
 ---
 
@@ -27,6 +27,13 @@ I operate at the intersection of **Synthetic Intelligence**, **Cognitive Cyberne
 *   **[Before the Words Existed](https://github.com/adrianwedd/before-the-words-existed)**: A forensic, experiential reading of *Neuromancer*. Investigating "cognitive mismatch" before the clinical vocabulary existed.
 *   **[latent-self](https://github.com/adrianwedd/latent-self)**: Confronting the mirror in the age of generative identity. An interactive installation probing the boundaries of self.
 
+### ⚖️ Justice & Equity (Legal & Social Tech)
+*Code as a shield for the vulnerable.*
+
+*   **[VERITAS](https://github.com/adrianwedd/VERITAS)**: An AI-native legal intelligence platform addressing the "efficiency-trust deficit" in the legal market.
+*   **[freedom-engine](https://github.com/adrianwedd/freedom-engine)**: Empowering federal inmates with accurate First Step Act information and legal guidance tools.
+*   **[vox-libre](https://github.com/adrianwedd/vox-libre)**: Voice-to-voice knowledge retrieval designed to democratize access for the disconnected (inmates, elderly).
+
 ### ❤️‍🔥 Neuro-Symbiosis (Health & Accessibility)
 *Code as a support structure for the human mind.*
 
@@ -44,14 +51,21 @@ I operate at the intersection of **Synthetic Intelligence**, **Cognitive Cyberne
 ### 🌍 Planetary & Industrial Systems
 *Engineering order from entropy.*
 
+*   **[cygnet](https://github.com/adrianwedd/cygnet)**: AI-powered 3D printed housing development. 28+ agents coordinating physical construction.
 *   **[project-terrawatt](https://github.com/adrianwedd/project-terrawatt)**: Large-scale energy management and optimization for sustainable infrastructure.
 *   **[ticketsmith](https://github.com/adrianwedd/ticketsmith)**: Ecosystem-aware AI automation for Jira/Confluence.
 *   **[grid2_repo](https://github.com/adrianwedd/grid2_repo)**: A deterministic AI website builder. AI for understanding, algorithms for execution.
 
+### 🔭 Cosmic & Recursive
+*Looking up and looking in.*
+
+*   **[space-weather](https://github.com/adrianwedd/space-weather)**: Monitoring and visualizing solar activities and geomagnetic storms.
+*   **[code-interpreter-hacking](https://github.com/adrianwedd/code-interpreter-hacking)**: Recursive security experiments testing the boundaries of interpreter sandboxes.
+
 ---
 
 ### 🛠 The Stack
-`Python` `LangGraph` `TypeScript` `Astro` `FastAPI` `Vector Dbs` `Home Assistant`
+`Python` `LangGraph` `TypeScript` `Astro` `FastAPI` `Vector Dbs` `Home Assistant` `Docker`
 
 ---
 
