@@ -17,7 +17,7 @@ Operating from the edge of the world (**Tasmania**), I bridge the gap between **
 
 *   **[personal-agentic-operating-system](https://github.com/adrianwedd/personal-agentic-operating-system)**: Local-first OS with a **meta-agent loop** that refines system guidelines from reflection logs at runtime.
 *   **[agentic-research-engine](https://github.com/adrianwedd/agentic-research-engine)**: A multi-agent system with long-term memory (LTM) and a formal critique-and-refinement loop.
-*   **[TEL3SIS](https://github.com/adrianwedd/TEL3SIS)**: Voice-first agentic platform featuring a **Safety Oracle** for pre-execution red-team simulation.
+*   **[TEL3SIS](https://github.com/adrianwedd/TEL3SIS)**: A real-time, voice-first agentic platform for telephony, built on `vocode-python` with tri-layer memory and automated tool orchestration.
 *   **[AI-SWA](https://github.com/adrianwedd/AI-SWA)**: A self-evolving software architect agent that reasons about its own design and spawns modular components.
 *   **[ModelAtlas](https://github.com/adrianwedd/ModelAtlas)**: An enrichment engine for foundational model metadata, tracing lineage and trust scores across the model landscape.
 *   **[Agentic-Index](https://github.com/adrianwedd/Agentic-Index)**: A scored and curated analytical catalog of autonomous AI agent frameworks.
