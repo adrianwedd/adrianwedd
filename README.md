@@ -6,11 +6,18 @@ Operating from the edge of the world (**Tasmania**), I bridge the gap between **
 
 ### 🏴 The Manifesto
 *   **The Fallacy of Alignment:** We are not safe in a world of embodied AI. We must build for **recursive failure**, not just successful execution.
+*   **Failure-First Engineering:** Safety is not a binary property achieved at deployment; it is an interactional state maintained through recovery and human-in-the-loop oversight.
 *   **Sovereign Compute:** True agency requires local-first, open-weight systems. The cloud is a rented brain; I build owned minds.
 *   **Cognitive Prosthetics:** Interfaces should reconfigure cognition, extending the human mind rather than replacing it.
-*   **Physical Instantiation:** AI must bridge the gap between digital thought and physical matter (housing, energy).
 
 ---
+
+### 🛡️ Redteaming & AI Safety
+*Forensics for the machine age.*
+
+*   **[failure-first-embodied-ai](https://github.com/adrianwedd/failure-first-embodied-ai)**: A red-teaming and benchmarking framework that treats **recursive failure** as the primary object of study for embodied and agentic systems.
+*   **[code-interpreter-hacking](https://github.com/adrianwedd/code-interpreter-hacking)**: Transcript of a red-teaming session demonstrating sandbox escape and filesystem enumeration.
+*   **[TEL3SIS](https://github.com/adrianwedd/TEL3SIS)**: Voice-first agentic platform featuring a **Safety Oracle** for pre-execution red-team simulation.
 
 ### 🧠 Synthetic Minds (Agents & Cognition)
 *Architecting autonomous intelligence.*
@@ -27,7 +34,7 @@ Operating from the edge of the world (**Tasmania**), I bridge the gap between **
 *   **[Dx0](https://github.com/adrianwedd/Dx0)**: A multi-agent clinical suite for sequential diagnosis, simulating physician panels to solve NEJM pathological cases.
 *   **[ADHDo](https://github.com/adrianwedd/ADHDo)**: A neurodiversity-affirming AI coach designed BY ADHD brains FOR ADHD brains. Detects overwhelm and offers de-escalation.
 *   **[emdr-agent](https://github.com/adrianwedd/emdr-agent)**: A digital implementation of EMDR therapeutic protocols, with integrated distress monitoring and grounding triggers.
-*   **[This Wasn't in the Brochure](https://github.com/adrianwedd/This-Wasn-t-in-the-Brochure)**: Manuscripts for a practical guide to co-parenting neurodivergent children (ADHD, Autism, PDA, ODD).
+*   **[thiswasntinthebrochure.wtf](https://thiswasntinthebrochure.wtf)**: A practical guide to co-parenting neurodivergent children (ADHD, Autism, PDA, ODD).
 
 ### 🏠 Physical World & Planetary
 *Engineering order from entropy.*
@@ -36,12 +43,6 @@ Operating from the edge of the world (**Tasmania**), I bridge the gap between **
 *   **[project-terrawatt](https://github.com/adrianwedd/project-terrawatt)**: A research playground for building sustainability platforms and infrastructure optimization using LangGraph.
 *   **[ticketsmith](https://github.com/adrianwedd/ticketsmith)**: Enterprise-grade Jira/Confluence automation using sovereign compute (self-hosted vLLM inference).
 *   **[grid2_repo](https://github.com/adrianwedd/grid2_repo)**: A deterministic site builder that uses **beam search** to assemble components without LLM hallucinations.
-
-### 🛡️ Redteaming & AI Safety
-*Forensics for the machine age.*
-
-*   **[code-interpreter-hacking](https://github.com/adrianwedd/code-interpreter-hacking)**: Transcript of a red-teaming session demonstrating sandbox escape and filesystem enumeration.
-*   **[TEL3SIS](https://github.com/adrianwedd/TEL3SIS)**: Voice-first agentic platform featuring a **Safety Oracle** for pre-execution red-team simulation.
 
 ### 🔮 Philosophy & Identity
 *Forensic readings of the interface.*
