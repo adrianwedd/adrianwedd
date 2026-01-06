@@ -1,8 +1,8 @@
-# ⚡️ Cyberneticist, Sentinel & Systems Architect
+# ⚡️ Recursive Systems Architect & AI Sentinel
 
 > *"I build machines that remember, systems that heal, and agents that reason. I redteam them because I know they are not safe."*
 
-Operating from the edge of the world (**Tasmania**), I bridge the gap between **Synthetic Intelligence** and **Human Sovereignty**. With decades rooted in the hacker ethic, my work is a forensic investigation into the "efficiency-trust deficit" of AI—architecting autonomous cognition while stress-testing the ghosts in the machine.
+Operating from the edge of the world (**Tasmania**), I bridge the gap between **Synthetic Intelligence** and **Human Sovereignty**. My work is a forensic investigation into the "efficiency-trust deficit" of AI—architecting autonomous cognition while stress-testing the ghosts in the machine.
 
 ### 🏴 The Manifesto
 *   **The Fallacy of Alignment:** We are not safe in a world of embodied AI. We must build for **recursive failure**, not just successful execution.
@@ -44,7 +44,7 @@ Operating from the edge of the world (**Tasmania**), I bridge the gap between **
 *   **[ticketsmith](https://github.com/adrianwedd/ticketsmith)**: Ecosystem-aware AI automation for Jira/Confluence using **Sovereign Compute** (Self-hosted vLLM).
 *   **[grid2_repo](https://github.com/adrianwedd/grid2_repo)**: A deterministic AI website builder using **Beam Search algorithms** to assemble user intent without hallucination.
 
-### 🔮 The Cyberneticist (Philosophy & Identity)
+### 🔮 Philosophy & Identity
 *Forensic readings of the interface.*
 
 *   **[Before the Words Existed](https://github.com/adrianwedd/before-the-words-existed)**: A forensic, experiential reading of *Neuromancer*. Investigating "cognitive mismatch" before the clinical vocabulary existed.
@@ -58,10 +58,10 @@ Operating from the edge of the world (**Tasmania**), I bridge the gap between **
 *   **[wcag-process-matrix](https://github.com/adrianwedd/wcag-process-matrix)**: Integrating accessibility criteria directly into project management workflows.
 *   **[This Wasn't in the Brochure](https://github.com/adrianwedd/thiswasntinthebrochure)**: A nautical voyage through neurodivergent co-parenting.
 
-### 🌑 Sensory & Signal (Oneiric & Bio-Acoustic Interfaces)
+### 🌑 Sensory & Signal (Art & Audio)
 *Distilling memories from the noise.*
 
-*   **[lunar_tools_prototypes](https://github.com/adrianwedd/lunar_tools_prototypes)**: Experimental oneiric interfaces including **Dream Interpreters**, **Acoustic Fingerprint Painters**, and **Cosmic Murals**.
+*   **[lunar_tools_prototypes](https://github.com/adrianwedd/lunar_tools_prototypes)**: Experimental interfaces including **Dream Interpreters**, **Acoustic Fingerprint Painters**, and **Cosmic Murals**.
 *   **[afterglow-engine](https://github.com/adrianwedd/afterglow-engine)**: A machine for sonic archaeology. It unweaves audio archives to separate pigment from gesture.
 *   **[orbitr](https://github.com/adrianwedd/orbitr)**: Polyphonic AI sequencer with concentric rings, enhanced with MusicGen.
 
