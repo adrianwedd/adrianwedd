@@ -1,79 +1,111 @@
-# ⚡️ Systems Architect & AI Sentinel
+# 🛡️ Forensic Sentinel — Systems Architect (Tasmania)
 
-> *"I build machines that remember, systems that heal, and agents that reason. I redteam them because I know they are not safe."*
+I build agentic and embodied systems that operate under constraint: local-first when possible, audit-first always. I’m interested in the failure that looks like success—quiet drift, misplaced authority, tool misuse, memory contamination—because that’s where autonomy becomes unsafe.
 
-Operating from the edge of the world (**Tasmania**), I bridge the gap between **Synthetic Intelligence** and **Human Sovereignty**. My work ranges from multi-agent clinical diagnostic systems to the coordination of 3D-printed eco-villages—always forensically stress-testing the ghosts in the machine.
-
-### 🏴 The Manifesto
-*   **The Fallacy of Alignment:** We are not safe in a world of embodied AI. We must build for **recursive failure**, not just successful execution.
-*   **Failure-First Engineering:** Safety is not a binary property achieved at deployment; it is an interactional state maintained through recovery and human-in-the-loop oversight.
-*   **Sovereign Compute:** True agency requires local-first, open-weight systems. The cloud is a rented brain; I build owned minds.
-*   **Cognitive Prosthetics:** Interfaces should reconfigure cognition, extending the human mind rather than replacing it.
+The work spans clinical reasoning systems, infrastructure automation on sovereign compute (`vLLM`), and physical-world coordination (a 170‑acre 3D‑printed eco‑village in Tasmania). The throughline is the same: instrument the system, stress it, keep a human override that still works when the lights flicker.
 
 ---
 
-### 🧠 Synthetic Minds (Agents & Cognition)
-*Architecting autonomous intelligence.*
+## Operating Posture
 
-*   **[personal-agentic-operating-system](https://github.com/adrianwedd/personal-agentic-operating-system)**: Local-first OS with a **meta-agent loop** that refines system guidelines from reflection logs at runtime.
-*   **[agentic-research-engine](https://github.com/adrianwedd/agentic-research-engine)**: A multi-agent system with long-term memory (LTM) and a formal critique-and-refinement loop.
-*   **[TEL3SIS](https://github.com/adrianwedd/TEL3SIS)**: A real-time, voice-first agentic platform for telephony, built on `vocode-python` with tri-layer memory and automated tool orchestration.
-*   **[AI-SWA](https://github.com/adrianwedd/AI-SWA)**: A self-evolving software architect agent that reasons about its own design and spawns modular components.
-*   **[ModelAtlas](https://github.com/adrianwedd/ModelAtlas)**: An enrichment engine for foundational model metadata, tracing lineage and trust scores across the model landscape.
-*   **[Agentic-Index](https://github.com/adrianwedd/Agentic-Index)**: A scored and curated analytical catalog of autonomous AI agent frameworks.
-
-### ❤️‍🔥 Health & Accessibility
-*AI-native clinical and cognitive support.*
-
-*   **[Dx0](https://github.com/adrianwedd/Dx0)**: A multi-agent clinical suite for sequential diagnosis, simulating physician panels to solve NEJM pathological cases.
-*   **[ADHDo](https://github.com/adrianwedd/ADHDo)**: A neurodiversity-affirming AI coach designed BY ADHD brains FOR ADHD brains. Detects overwhelm and offers de-escalation.
-*   **[emdr-agent](https://github.com/adrianwedd/emdr-agent)**: A digital implementation of EMDR therapeutic protocols, with integrated distress monitoring and grounding triggers.
-*   **[thiswasntinthebrochure.wtf](https://thiswasntinthebrochure.wtf)**: A practical guide to co-parenting neurodivergent children (ADHD, Autism, PDA, ODD).
-
-### 🏠 Physical World & Planetary
-*Engineering order from entropy.*
-
-*   **[cygnet](https://github.com/adrianwedd/cygnet)**: AI coordination of a **170-acre 3D-printed eco-village** in Tasmania. 28+ agents managing construction, land, and print ops.
-*   **[project-terrawatt](https://github.com/adrianwedd/project-terrawatt)**: A research playground for building sustainability platforms and infrastructure optimization using LangGraph.
-*   **[ticketsmith](https://github.com/adrianwedd/ticketsmith)**: Enterprise-grade Jira/Confluence automation using sovereign compute (self-hosted vLLM inference).
-*   **[grid2_repo](https://github.com/adrianwedd/grid2_repo)**: A deterministic site builder that uses **beam search** to assemble components without LLM hallucinations.
-
-### 🛡️ Redteaming & AI Safety
-*Forensics for the machine age.*
-
-*   **[failure-first-embodied-ai](https://github.com/adrianwedd/failure-first-embodied-ai)**: A red-teaming and benchmarking framework that treats **recursive failure** as the primary object of study for embodied and agentic systems.
-
-### 🔮 Philosophy, Identity & Physics
-*Forensic readings of the interface and the terrain.*
-
-*   **[Footnotes at the Edge of Reality](https://github.com/adrianwedd/Footnotes-at-the-Edge-of-Reality)**: An essay-poem exploring physics and language. Matter tells space how to curve; space tells matter how to move. Measurement as participation.
-*   **[Before the Words Existed](https://github.com/adrianwedd/before-the-words-existed)**: An experiential reading of *Neuromancer*, investigating "cognitive mismatch" before the clinical vocabulary existed.
-*   **[latent-self](https://github.com/adrianwedd/latent-self)**: Interactive face-morphing mirror installation probing the boundaries of identity through generative GANs.
-
-### 🌑 Sensory & Signal
-*Distilling memories from the noise.*
-
-*   **[lunar_tools_prototypes](https://github.com/adrianwedd/lunar_tools_prototypes)**: Audiovisual installations including **Dream Interpreters** and **Bio-Acoustic Fingerprint Painters**.
-*   **[afterglow-engine](https://github.com/adrianwedd/afterglow-engine)**: A machine for sonic archaeology—mining audio archives for textures, stable pads, and granular clouds.
-*   **[orbitr](https://github.com/adrianwedd/orbitr)**: A circular step sequencer enhanced with **MusicGen** for real-time AI sample generation.
-
-### 🛠 Tooling & Automation
-*The invisible infrastructure.*
-
-*   **[homelab-scripts](https://github.com/adrianwedd/homelab-scripts)**: Production-ready Bash automation for disk cleanup, network discovery, and secure backups.
-*   **[lemonsqueezy-claude-skills](https://github.com/adrianwedd/lemonsqueezy-claude-skills)**: Claude Code skills for automating payment platform operations and analytics.
-*   **[cv](https://github.com/adrianwedd/cv)**: An AI-enhanced resume system using browser automation to maintain a zero-cost professional pipeline.
-*   **[squishmallowdex](https://github.com/adrianwedd/squishmallowdex)**: A static-site, offline-first collection tracker—balancing technical architecture with whimsy.
-
-### 🔭 Cosmic
-*   **[space-weather](https://github.com/adrianwedd/space-weather)**: Monitoring and visualizing solar activities and geomagnetic storms via NASA/BOM APIs.
+- **Failure-first safety**: treat breakdowns as primary data; build recovery loops, not “perfect runs”.
+- **Threat models over vibes**: prompt/tool injection, memory poisoning, silent corruption, over-trust, goal drift, embodied hazard propagation.
+- **Sovereign compute**: local-first, open-weight inference where feasible; the cloud is a dependency to be justified, not assumed.
+- **Auditability**: event logs, reproducible runs, deterministic fallbacks where they reduce blast radius.
+- **Human sovereignty**: explicit handoffs, hard stops, and operator visibility; autonomy is earned by evidence.
 
 ---
 
-### 🛠 The Stack
-`Python` `LangGraph` `TypeScript` `Astro` `FastAPI` `Vector Dbs` `Home Assistant` `Docker` `vLLM`
+## Flagships (Systems Under Test)
+
+### 🛡️ failure-first-embodied-ai
+**[failure-first-embodied-ai](https://github.com/adrianwedd/failure-first-embodied-ai)** — Red-teaming and benchmarking for embodied and agentic systems where **recursive failure** is the object of study.
+
+What I care about here:
+- **Failure taxonomies** that survive contact with reality (not just academic categories).
+- **Adversarial scenarios** that stress tool use, memory, and feedback loops.
+- **Scoring that punishes “confident wrong”** and rewards detection + recovery, not just completion.
+
+### ⚙️ PAOS (Personal Agentic Operating System)
+**[personal-agentic-operating-system](https://github.com/adrianwedd/personal-agentic-operating-system)** — A local-first agentic OS with a **meta-agent loop** that refines system guidelines from reflection logs at runtime.
+
+The point is not “self-improvement”. The point is **traceable adaptation**: what changed, why, and what it broke.
+
+### ❤️‍🔥 Dx0 (Sequential Clinical Reasoning)
+**[Dx0](https://github.com/adrianwedd/Dx0)** — A multi-agent clinical suite for sequential diagnosis, simulating physician panels to solve NEJM pathological cases.
+
+I treat this as an interface problem under uncertainty: differential narrowing, evidence tracking, disagreement capture, and failure modes like anchoring and narrative overfit. (Not medical advice; not a medical device.)
+
+### 🧠 Neurodiversity & Field Support
+**[ADHDo](https://github.com/adrianwedd/ADHDo)** — A neurodiversity-affirming support system built by ADHD brains for ADHD brains: detects overwhelm patterns and offers de-escalation prompts and structure.
+
+**[thiswasntinthebrochure.wtf](https://thiswasntinthebrochure.wtf)** — A practical field guide to co-parenting neurodivergent children (ADHD, Autism, PDA, ODD).
+
+These are not “content projects” to me; they’re applied cognitive forensics: reduce shame, increase signal, and keep humans in control when the nervous system is already at capacity.
+
+### 🏗️ Cygnet (Physical World Coordination)
+**[cygnet](https://github.com/adrianwedd/cygnet)** — AI coordination of a **170-acre 3D-printed eco-village** in Tasmania: construction, land, and print ops across 28+ agents.
+
+Physical systems are unforgiving: you don’t get to “retry” a safety incident. The design bias is toward operator visibility, conservative actuation, and graceful degradation.
 
 ---
 
-*"We are distilling memories, not just processing signals."*
+## Methods (What Actually Happens When I “Redteam”)
 
+- **Pre-mortems**: enumerate plausible failure routes before the first demo.
+- **Adversarial prompts + tool misuse**: test boundary break attempts, escalation paths, and “helpful” overreach.
+- **Memory forensics**: probe contamination, leakage, and persistence of incorrect beliefs.
+- **Deterministic backstops**: where an algorithmic fallback (e.g., `grid2_repo` beam search) is safer than a generative guess, I use it.
+- **Regression pressure**: turn interesting failures into repeatable harnesses and keep them failing until they stop.
+
+---
+
+## Creative Instruments (The Same Work, Different Sensors)
+
+- **[Footnotes at the Edge of Reality](https://github.com/adrianwedd/Footnotes-at-the-Edge-of-Reality)**: physics‑poetry about measurement as participation; an interpretability notebook in verse form.
+- **[Before the Words Existed](https://github.com/adrianwedd/before-the-words-existed)**: a forensic reading of *Neuromancer*—cognitive mismatch before we had clinical language for it.
+- **[afterglow-engine](https://github.com/adrianwedd/afterglow-engine)**: sonic archaeology—mining audio archives for texture, stable pads, and granular clouds.
+
+---
+
+## Selected Builds (Index)
+
+### Agents & Cognition
+- **[agentic-research-engine](https://github.com/adrianwedd/agentic-research-engine)**: Multi-agent system with long-term memory (LTM) and a critique-and-refinement loop.
+- **[TEL3SIS](https://github.com/adrianwedd/TEL3SIS)**: Real-time, voice-first agentic telephony (`vocode-python`), tri-layer memory, tool orchestration.
+- **[AI-SWA](https://github.com/adrianwedd/AI-SWA)**: A software architect agent that reasons about its own design and spawns modular components.
+- **[ModelAtlas](https://github.com/adrianwedd/ModelAtlas)**: Foundational model metadata enrichment: lineage and trust scoring.
+- **[Agentic-Index](https://github.com/adrianwedd/Agentic-Index)**: Curated, scored catalog of agent frameworks.
+
+### Infrastructure & Sovereign Automation
+- **[ticketsmith](https://github.com/adrianwedd/ticketsmith)**: Jira/Confluence automation on sovereign compute (self-hosted `vLLM` inference).
+- **[project-terrawatt](https://github.com/adrianwedd/project-terrawatt)**: Sustainability/infrastructure optimization experiments using `LangGraph`.
+- **[grid2_repo](https://github.com/adrianwedd/grid2_repo)**: Deterministic site builder using **beam search** to avoid hallucinated assembly.
+
+### Health & Accessibility
+- **[ADHDo](https://github.com/adrianwedd/ADHDo)**: Neurodiversity-affirming coach; detects overwhelm and offers de-escalation.
+- **[emdr-agent](https://github.com/adrianwedd/emdr-agent)**: EMDR protocol implementation with distress monitoring and grounding triggers.
+- **[thiswasntinthebrochure.wtf](https://thiswasntinthebrochure.wtf)**: Practical field guide for co-parenting neurodivergent children (ADHD, Autism, PDA, ODD).
+
+### Identity, Signal, and Installation
+- **[latent-self](https://github.com/adrianwedd/latent-self)**: Face-morphing mirror installation probing identity boundaries with generative GANs.
+- **[lunar_tools_prototypes](https://github.com/adrianwedd/lunar_tools_prototypes)**: Audiovisual installations (Dream Interpreters, Bio-Acoustic Fingerprint Painters).
+- **[orbitr](https://github.com/adrianwedd/orbitr)**: Circular step sequencer with **MusicGen** for real-time sample generation.
+
+### Tooling & Automation
+- **[homelab-scripts](https://github.com/adrianwedd/homelab-scripts)**: Bash automation for disk cleanup, network discovery, and secure backups.
+- **[lemonsqueezy-claude-skills](https://github.com/adrianwedd/lemonsqueezy-claude-skills)**: Claude Code skills for payment platform operations and analytics.
+- **[cv](https://github.com/adrianwedd/cv)**: Browser-automated resume pipeline with AI-assisted maintenance.
+- **[squishmallowdex](https://github.com/adrianwedd/squishmallowdex)**: Offline-first static collection tracker (architecture with a sense of play).
+
+### Cosmic
+- **[space-weather](https://github.com/adrianwedd/space-weather)**: Monitoring and visualizing geomagnetic conditions via NASA/BOM APIs.
+
+---
+
+## Stack
+`Python` `TypeScript` `LangGraph` `FastAPI` `Astro` `Vector DBs` `Docker` `Home Assistant` `vLLM`
+
+---
+
+I build systems that remember. Then I verify what they remember, how they learned it, and what they’ll do with it when the inputs get strange.
