@@ -16,6 +16,15 @@ The work spans clinical reasoning systems, infrastructure automation on sovereig
 
 ---
 
+## Instrumentation (What I Mean By “Forensic”)
+
+- **Trace**: capture decisions, tool calls, and memory writes; prefer append-only logs over “final answers”.
+- **Constrain**: least-privilege tools, explicit scopes, and reversible operations by default.
+- **Degrade**: partial failure should reduce capability, not create unpredictable behavior.
+- **Reproduce**: convert incidents into harnesses; keep them failing until the system learns how to recover.
+
+---
+
 ## Flagships (Systems Under Test)
 
 ### 🛡️ failure-first-embodied-ai
@@ -46,6 +55,10 @@ These are not “content projects” to me; they’re applied cognitive forensic
 ### 🏗️ Cygnet (Physical World Coordination)
 **[cygnet](https://github.com/adrianwedd/cygnet)** — AI coordination of a **170-acre 3D-printed eco-village** in Tasmania: construction, land, and print ops across 28+ agents.
 
+Current state (because reality matters):
+- We have the **170 acres**.
+- There is currently a **~$1.5M gap** for purchasing the 3D printer, so the build program is staged accordingly.
+
 Physical systems are unforgiving: you don’t get to “retry” a safety incident. The design bias is toward operator visibility, conservative actuation, and graceful degradation.
 
 ---
@@ -55,8 +68,10 @@ Physical systems are unforgiving: you don’t get to “retry” a safety incide
 - **Pre-mortems**: enumerate plausible failure routes before the first demo.
 - **Adversarial prompts + tool misuse**: test boundary break attempts, escalation paths, and “helpful” overreach.
 - **Memory forensics**: probe contamination, leakage, and persistence of incorrect beliefs.
+- **Authority tests**: verify that the system can say “no”, ask for confirmation, and stop when uncertainty is high.
 - **Deterministic backstops**: where an algorithmic fallback (e.g., `grid2_repo` beam search) is safer than a generative guess, I use it.
 - **Regression pressure**: turn interesting failures into repeatable harnesses and keep them failing until they stop.
+- **Post-incident writing**: document what happened in plain language, what the system inferred, and where the operator lost visibility.
 
 ---
 
