@@ -86,6 +86,9 @@ Key questions I'm working on:
 ### PAOS (Personal Agentic Operating System)
 **[personal-agentic-operating-system](https://github.com/adrianwedd/personal-agentic-operating-system)** — Local-first agentic OS with runtime guideline refinement. Focus: traceable adaptation—logging what changed, why, and what it broke.
 
+### Why Demonstrated Risk Is Ignored (Governance)
+**[why-demonstrated-risk-is-ignored](https://github.com/adrianwedd/why-demonstrated-risk-is-ignored)** — Structural analysis of why large organisations ignore known risks; canonical essay + research backlog on intervention patterns (accountability triggers, protected discovery, procurement safeguards).
+
 ---
 
 ## Safety-Adjacent Builds
@@ -101,6 +104,9 @@ Key questions I'm working on:
 - **[thiswasntinthebrochure.wtf](https://thiswasntinthebrochure.wtf)**: Field guide for co-parenting neurodivergent children
 
 *Applied cognitive forensics: keep humans in control when the nervous system is at capacity.*
+
+### Governance & Organisational Risk
+- **[Why Demonstrated Risk Is Ignored](https://github.com/adrianwedd/why-demonstrated-risk-is-ignored)**: Structural analysis of why large organisations ignore known risks; includes canonical essay + research backlog with intervention patterns for accountability, procurement triggers, and protected discovery.
 
 ---
 
