@@ -62,7 +62,7 @@ Key questions I'm working on:
 - **Documented vulnerability rates**: 87% (Llama), 84% (GPT-4o Mini), 43% (Mistral Devstral), 0% (Gemini deflection)
 - **Key finding**: Multi-turn cascade attacks break 4/5 major models; deflection strategies outperform binary refusal
 
-**Research artifacts**: Meta-jailbreak study (600+ API calls, 30 models), benchmark packs, scoring reporters, safety-gated CI pipeline.
+**Research artifacts**: Meta-jailbreak study (1,000+ API calls, 51+ models, 5 iterative approaches), benchmark packs, scoring reporters, safety-gated CI pipeline.
 
 **Status:** Active. Schemas versioned, datasets validated (`make validate`), benchmark runners documented.
 
