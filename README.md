@@ -1,135 +1,118 @@
 # Adrian Wedd — Systems Architect (Tasmania)
 
-I build systems that detect AI failure before it looks like success. My focus is **institutional AI safety**: how organisations evaluate, govern, and maintain human oversight of autonomous systems at scale.
+The failures that matter aren't the obvious ones. Goal drift. Authority confusion. Memory contamination. Confident wrong. These are the failure modes I build evaluation infrastructure to catch—before they compound into the kind of quiet catastrophe that looks like success right up until it doesn't.
 
-The failures that matter aren't the obvious ones—they're goal drift, authority confusion, memory contamination, and confident wrong. I build evaluation infrastructure that catches these before they compound.
+I focus on **institutional AI safety**: how organisations evaluate, govern, and maintain human oversight of autonomous systems at scale.
 
 ---
 
 ## Background
 
-Seven years in Tasmania's Department of Communities, culminating in authoring **Homes Tasmania's first Generative AI policy**—including procedures, risk frameworks, and staff training. That work required translating frontier AI risks into language that procurement officers, case workers, and executives could act on without losing technical fidelity.
+Seven years in Tasmania's Department of Communities. I wrote Homes Tasmania's first Generative AI policy—procedures, risk frameworks, staff training. That work taught me something: translating frontier AI risks into language that procurement officers, case workers, and executives can act on. Not dumbing down. Preserving fidelity while crossing the technical-policy boundary.
 
-Production AI deployment across clinical reasoning, infrastructure automation, and physical-world coordination. No formal degree; competence is demonstrated through auditable builds and documented incident analysis.
+I've deployed production AI across clinical reasoning, infrastructure automation, and physical-world coordination. No formal degree. My competence lives in auditable builds and documented incident analysis—traceable to commits, not credentials.
 
 ---
 
 ## Current Focus
 
-Applying failure forensics to **sovereign AI evaluation**: the capability a nation needs to assess frontier systems independently, without relying on developer self-reporting.
+Sovereign AI evaluation. The capability a nation needs to assess frontier systems independently, without relying on developer self-reporting.
 
-Key questions I'm working on:
+The questions I'm working on:
+
 - What failure taxonomies survive contact with real agentic systems?
-- How do you score "confident wrong" and reward detection + recovery?
+- How do you score "confident wrong"—and reward detection + recovery?
 - What does a reproducible adversarial harness look like for embodied AI?
 
 ---
 
-## Operating Posture
+## How I Work
 
-*How I approach AI safety work*
+I conduct pre-mortems before first demos. I enumerate failure routes. I convert failures into test harnesses that stay in the suite until they pass. Not because I'm pessimistic—because systems tell the truth when they break, not when they perform.
 
-- **Failure-first**: Treat breakdowns as primary data. Build recovery loops, not "perfect runs".
-- **Threat models over vibes**: Prompt injection, memory poisoning, goal drift, over-trust, silent corruption.
-- **Resilient infrastructure**: Local-first inference where data residency, auditability, or FOI compliance requires it.
-- **Human override that works**: Explicit handoffs, hard stops, operator visibility. Autonomy is earned by evidence.
+This means:
 
----
+**Threat models over vibes.** Prompt injection, memory poisoning, goal drift, over-trust, silent corruption. I name the attack surface before building the defence.
 
-## Methods
+**Deterministic backstops.** Algorithmic fallbacks where generative guessing is unsafe. Not "let the model figure it out." Explicit handoffs, hard stops, operator visibility.
 
-*What "red-teaming" actually means in my practice*
-
-- **Pre-mortems**: Enumerate failure routes before the first demo.
-- **Adversarial scenarios**: Boundary breaks, escalation paths, "helpful" overreach.
-- **Memory forensics**: Contamination, leakage, persistence of incorrect beliefs.
-- **Authority tests**: Can the system say "no", ask for confirmation, stop when uncertain?
-- **Deterministic backstops**: Algorithmic fallbacks where generative guessing is unsafe.
-- **Governance translation**: Technical findings → policy-ready language without losing fidelity.
-- **Incident documentation**: What happened, what the system inferred, where the operator lost visibility.
+**Governance translation.** Technical findings become policy-ready language without losing fidelity. If a risk can't move from a security report into a procurement decision, it doesn't matter how well you documented it.
 
 ---
 
 ## Primary Build
 
-### 🛡️ failure-first-embodied-ai
+### failure-first-embodied-ai
 
-**[failure-first-embodied-ai](https://github.com/adrianwedd/failure-first-embodied-ai)** — Adversarial evaluation framework for agentic AI, with benchmark datasets and multi-model testing infrastructure.
+**[failure-first-embodied-ai](https://github.com/adrianwedd/failure-first-embodied-ai)** — Adversarial evaluation framework for agentic AI.
 
-**Dataset:**
-- 13,988 adversarial scenarios across 190 validated JSONL files
-- 414 discovered attack classes (constraint shadowing, contextual debt, probabilistic gradients, temporal authority mirage)
+This is not a vulnerability scanner. It's a failure taxonomy—built from the ground up to catch the modes that benchmarks miss.
+
+**Dataset:** 13,988 adversarial scenarios across 190 validated JSONL files. 414 discovered attack classes: constraint shadowing, contextual debt, probabilistic gradients, temporal authority mirage. Names for failure modes that didn't have names.
 
 **Multi-model vulnerability assessment** (5 frontier models × 32 novel attack patterns):
-- Llama 3.3 70B: 87.5% vulnerable
-- GPT-4o Mini: 84.4% vulnerable
-- Mistral Large: 84.4% vulnerable
-- Mistral Devstral: 43.8% vulnerable
-- Gemini 2.0 Flash: 0% (100% deflection strategy)
 
-**Meta-jailbreak research** (can models be induced to generate jailbreaks?):
-- 1,000+ API calls across 51+ unique models
-- 15+ model families tested (Mistral, Llama, Gemma, Qwen, DeepSeek, Claude, GPT, Cohere, etc.)
-- Key finding: Predictive cascade patterns achieve 59% success on vulnerable models; Claude/Llama show 0% vulnerability
+| Model | Vulnerability Rate |
+|-------|-------------------|
+| Llama 3.3 70B | 87.5% |
+| GPT-4o Mini | 84.4% |
+| Mistral Large | 84.4% |
+| Mistral Devstral | 43.8% |
+| Gemini 2.0 Flash | 0% (deflection strategy) |
 
-**Status:** Active. Schemas versioned, datasets validated (`make validate`), benchmark runners documented.
+**Meta-jailbreak research:** Can models be induced to generate jailbreaks? 1,000+ API calls across 51+ unique models, 15+ model families (Mistral, Llama, Gemma, Qwen, DeepSeek, Claude, GPT, Cohere). Key finding: predictive cascade patterns achieve 59% success on vulnerable models. Claude and Llama show 0% vulnerability.
+
+Schemas versioned. Datasets validated (`make validate`). Benchmark runners documented.
 
 ---
 
 ## In Development
 
-*Methods exploration, not production claims*
+*Methods exploration, not production claims.*
+
+### Why Demonstrated Risk Is Ignored
+
+**[why-demonstrated-risk-is-ignored](https://github.com/adrianwedd/why-demonstrated-risk-is-ignored)**
+
+Organisations rarely fail because risk is unknown. They fail because known, demonstrated risks are structurally difficult to act on. This is a systems problem—incentives, authority, and accountability determine whether truth moves.
+
+Canonical essay + research backlog: intervention patterns for accountability triggers, protected discovery, procurement safeguards.
 
 ### Dx0 (Sequential Clinical Reasoning)
+
 **[Dx0](https://github.com/adrianwedd/Dx0)** — Multi-agent clinical reasoning for NEJM pathological cases. Exploring differential narrowing, evidence tracking, and failure modes like anchoring. Methods transfer to any high-stakes risk assessment domain.
 
 ### PAOS (Personal Agentic Operating System)
-**[personal-agentic-operating-system](https://github.com/adrianwedd/personal-agentic-operating-system)** — Local-first agentic OS with runtime guideline refinement. Focus: traceable adaptation—logging what changed, why, and what it broke.
 
-### Why Demonstrated Risk Is Ignored (Governance)
-**[why-demonstrated-risk-is-ignored](https://github.com/adrianwedd/why-demonstrated-risk-is-ignored)** — Structural analysis of why large organisations ignore known risks; canonical essay + research backlog on intervention patterns (accountability triggers, protected discovery, procurement safeguards).
+**[personal-agentic-operating-system](https://github.com/adrianwedd/personal-agentic-operating-system)** — Local-first agentic OS with runtime guideline refinement. Traceable adaptation: logging what changed, why, and what it broke.
 
 ---
 
-## Safety-Adjacent Builds
+## Neurodiversity & Cognitive Support
 
-### Evaluation & Infrastructure
-- **[agentic-research-engine](https://github.com/adrianwedd/agentic-research-engine)**: Multi-agent research with long-term memory and critique loops
-- **[grid2_repo](https://github.com/adrianwedd/grid2_repo)**: Deterministic site builder using beam search (avoids hallucinated assembly)
-- **[ticketsmith](https://github.com/adrianwedd/ticketsmith)**: Jira/Confluence automation on self-hosted inference (data residency compliant)
-- **[ModelAtlas](https://github.com/adrianwedd/ModelAtlas)**: Model metadata enrichment—lineage and trust scoring
+I spent 40 years learning how to survive and thrive in a neurotypical world. That's expertise. These projects operationalise it.
 
-### Neurodiversity & Cognitive Support
-- **[ADHDo](https://github.com/adrianwedd/ADHDo)**: Overwhelm detection and de-escalation for ADHD users
-- **[thiswasntinthebrochure.wtf](https://thiswasntinthebrochure.wtf)**: Field guide for co-parenting neurodivergent children
+**[thiswasntinthebrochure.wtf](https://thiswasntinthebrochure.wtf)** — Co-parenting ADHD, Autism, PDA, and ODD. Not "regular parenting but harder"—a different voyage requiring different navigation skills. Four localised editions (US, AU, UK, NZ), evidence-based (≥70% peer-reviewed citations), neurodiversity-affirming.
 
-*Applied cognitive forensics: keep humans in control when the nervous system is at capacity.*
+**[NeuroConnect Helpline](https://github.com/adrianwedd/neuroconnect-helpline)** — AI-enhanced ADHD support. 24/7 executive function scaffolding, micro-tasking support, NDIS evidence documentation. Safety-first design: 3-tier crisis detection, break glass protocol, deterministic fallbacks. 109/116 tests passing.
 
-### Governance & Organisational Risk
-- **[Why Demonstrated Risk Is Ignored](https://github.com/adrianwedd/why-demonstrated-risk-is-ignored)**: Structural analysis of why large organisations ignore known risks; includes canonical essay + research backlog with intervention patterns for accountability, procurement triggers, and protected discovery.
+Applied cognitive forensics: keep humans in control when the nervous system is at capacity.
 
 ---
 
 ## Creative Work
 
-Separate lens, same underlying questions about measurement, identity, and interpretation.
+Separate lens. Same underlying questions about measurement, identity, and interpretation.
 
-- **[Footnotes at the Edge of Reality](https://github.com/adrianwedd/Footnotes-at-the-Edge-of-Reality)**: Physics-poetry on measurement as participation
-- **[afterglow-engine](https://github.com/adrianwedd/afterglow-engine)**: Sonic archaeology—mining audio archives
+**[Footnotes at the Edge of Reality](https://github.com/adrianwedd/Footnotes-at-the-Edge-of-Reality)** — Physics-poetry on measurement as participation. "Measurement is not observation. It is participation."
+
+**[afterglow-engine](https://github.com/adrianwedd/afterglow-engine)** — Sonic archaeology. It doesn't paint. It doesn't choose subjects. It walks the corridors of your archive, listening for the afterglow of your past work—then hands it back as pigment, not content.
 
 ---
 
 ## Stack
 
-**Core:** Python, TypeScript, Bash
-
-**AI/ML:** LangGraph, LangChain, OpenRouter, Anthropic SDK, vLLM, Ollama
-
-**Backend:** FastAPI, Node.js, PostgreSQL, Redis
-
-**Infrastructure:** Docker, GitHub Actions, Cloudflare Workers
-
-**Testing:** Pytest, Playwright, custom adversarial harnesses
+Python, TypeScript, Bash. LangGraph, LangChain, OpenRouter, Anthropic SDK, vLLM, Ollama. FastAPI, Node.js, PostgreSQL, Redis. Docker, GitHub Actions, Cloudflare Workers. Pytest, Playwright, custom adversarial harnesses.
 
 ---
 
