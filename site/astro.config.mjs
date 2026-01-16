@@ -3,8 +3,8 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-  base: '/adrianwedd/',
-  site: 'https://adrianwedd.github.io',
+  base: '/',
+  site: 'https://github.adrianwedd.com',
   build: {
     inlineStylesheets: 'auto'
   }
