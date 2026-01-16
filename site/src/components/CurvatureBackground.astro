@@ -1,0 +1,24 @@
+---
+// CurvatureBackground.astro
+// Gravitational field background - spacetime curvature visualization
+// "Matter tells space how to curve"
+---
+
+<canvas id="curvature-bg" aria-hidden="true"></canvas>
+
+<script>
+  import { initCurvatureField } from "../scripts/curvature-field.js";
+  const seed = Math.floor(Math.random() * 1000000);
+  initCurvatureField({ canvasId: "curvature-bg", seed, masses: 1 });
+</script>
+
+<style>
+  #curvature-bg {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+  }
+</style>

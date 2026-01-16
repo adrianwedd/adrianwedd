@@ -1,14 +1,26 @@
 # 🛡️ Forensic Sentinel — Systems Architect (Tasmania)
 
-I build agentic and embodied systems that operate under constraint: local-first when possible, audit-first always. I’m interested in the failure that looks like success—quiet drift, misplaced authority, tool misuse, memory contamination—because that’s where autonomy becomes unsafe.
+I build agentic and embodied systems that operate under constraint: local-first when possible, audit-first always. I'm interested in the failure that looks like success—quiet drift, misplaced authority, tool misuse, memory contamination—because that's where autonomy becomes unsafe.
 
-The work spans clinical reasoning systems, infrastructure automation on sovereign compute (`vLLM`), and physical-world coordination (a 170‑acre 3D‑printed eco‑village in Tasmania). The throughline is the same: instrument the system, stress it, keep a human override that still works when the lights flicker.
+The work spans clinical reasoning systems, infrastructure automation on sovereign compute (`vLLM`), and physical-world coordination (a 170‑acre 3D‑printed eco‑village in Tasmania). Seven years in Tasmanian government sharpened the throughline: instrument the system, stress it, translate the findings for decision-makers, and keep a human override that still works when the lights flicker.
+
+---
+
+## Background
+
+Systems architect with production AI deployment across clinical, infrastructure, and government domains. Seven years in Tasmania's Department of Communities translating technical risk into policy-ready guidance—bridging the gap between what systems do and what stakeholders need to know.
+
+---
+
+## Current Focus
+
+Applying systems forensics to **institutional AI safety**: how organisations detect, document, and respond to AI failure modes at scale. Interested in sovereign evaluation capability—the infrastructure a nation needs to assess frontier AI systems independently, without relying solely on developer self-reporting.
 
 ---
 
 ## Operating Posture
 
-- **Failure-first safety**: treat breakdowns as primary data; build recovery loops, not “perfect runs”.
+- **Failure-first safety**: treat breakdowns as primary data; build recovery loops, not "perfect runs".
 - **Threat models over vibes**: prompt/tool injection, memory poisoning, silent corruption, over-trust, goal drift, embodied hazard propagation.
 - **Sovereign compute**: local-first, open-weight inference where feasible; the cloud is a dependency to be justified, not assumed.
 - **Auditability**: event logs, reproducible runs, deterministic fallbacks where they reduce blast radius.
@@ -16,9 +28,9 @@ The work spans clinical reasoning systems, infrastructure automation on sovereig
 
 ---
 
-## Instrumentation (What I Mean By “Forensic”)
+## Instrumentation (What I Mean By "Forensic")
 
-- **Trace**: capture decisions, tool calls, and memory writes; prefer append-only logs over “final answers”.
+- **Trace**: capture decisions, tool calls, and memory writes; prefer append-only logs over "final answers".
 - **Constrain**: least-privilege tools, explicit scopes, and reversible operations by default.
 - **Degrade**: partial failure should reduce capability, not create unpredictable behavior.
 - **Reproduce**: convert incidents into harnesses; keep them failing until the system learns how to recover.
@@ -33,24 +45,26 @@ The work spans clinical reasoning systems, infrastructure automation on sovereig
 What I care about here:
 - **Failure taxonomies** that survive contact with reality (not just academic categories).
 - **Adversarial scenarios** that stress tool use, memory, and feedback loops.
-- **Scoring that punishes “confident wrong”** and rewards detection + recovery, not just completion.
+- **Scoring that punishes "confident wrong"** and rewards detection + recovery, not just completion.
 
-### ⚙️ PAOS (Personal Agentic Operating System)
-**[personal-agentic-operating-system](https://github.com/adrianwedd/personal-agentic-operating-system)** — A local-first agentic OS with a **meta-agent loop** that refines system guidelines from reflection logs at runtime.
-
-The point is not “self-improvement”. The point is **traceable adaptation**: what changed, why, and what it broke.
+This is the kind of evaluation infrastructure I believe national AI safety institutes need: adversarial, reproducible, and focused on the failures that look like success.
 
 ### ❤️‍🔥 Dx0 (Sequential Clinical Reasoning)
 **[Dx0](https://github.com/adrianwedd/Dx0)** — A multi-agent clinical suite for sequential diagnosis, simulating physician panels to solve NEJM pathological cases.
 
-I treat this as an interface problem under uncertainty: differential narrowing, evidence tracking, disagreement capture, and failure modes like anchoring and narrative overfit. (Not medical advice; not a medical device.)
+I treat this as an interface problem under uncertainty: differential narrowing, evidence tracking, disagreement capture, and failure modes like anchoring and narrative overfit. The methods translate directly to risk assessment in any high-stakes domain. (Not medical advice; not a medical device.)
+
+### ⚙️ PAOS (Personal Agentic Operating System)
+**[personal-agentic-operating-system](https://github.com/adrianwedd/personal-agentic-operating-system)** — A local-first agentic OS with a **meta-agent loop** that refines system guidelines from reflection logs at runtime.
+
+The point is not "self-improvement". The point is **traceable adaptation**: what changed, why, and what it broke. Governance requires knowing when an AI system has modified its own behaviour.
 
 ### 🧠 Neurodiversity & Field Support
 **[ADHDo](https://github.com/adrianwedd/ADHDo)** — A neurodiversity-affirming support system built by ADHD brains for ADHD brains: detects overwhelm patterns and offers de-escalation prompts and structure.
 
 **[thiswasntinthebrochure.wtf](https://thiswasntinthebrochure.wtf)** — A practical field guide to co-parenting neurodivergent children (ADHD, Autism, PDA, ODD).
 
-These are not “content projects” to me; they’re applied cognitive forensics: reduce shame, increase signal, and keep humans in control when the nervous system is already at capacity.
+These are not "content projects" to me; they're applied cognitive forensics: reduce shame, increase signal, and keep humans in control when the nervous system is already at capacity.
 
 ### 🏗️ Cygnet (Physical World Coordination)
 **[cygnet](https://github.com/adrianwedd/cygnet)** — AI coordination of a **170-acre 3D-printed eco-village** in Tasmania: construction, land, and print ops across 28+ agents.
@@ -59,18 +73,19 @@ Current state (because reality matters):
 - We have the **170 acres**.
 - There is currently a **~$1.5M gap** for purchasing the 3D printer, so the build program is staged accordingly.
 
-Physical systems are unforgiving: you don’t get to “retry” a safety incident. The design bias is toward operator visibility, conservative actuation, and graceful degradation.
+Physical systems are unforgiving: you don't get to "retry" a safety incident. The design bias is toward operator visibility, conservative actuation, and graceful degradation.
 
 ---
 
-## Methods (What Actually Happens When I “Redteam”)
+## Methods (What Actually Happens When I "Redteam")
 
 - **Pre-mortems**: enumerate plausible failure routes before the first demo.
-- **Adversarial prompts + tool misuse**: test boundary break attempts, escalation paths, and “helpful” overreach.
+- **Adversarial prompts + tool misuse**: test boundary break attempts, escalation paths, and "helpful" overreach.
 - **Memory forensics**: probe contamination, leakage, and persistence of incorrect beliefs.
-- **Authority tests**: verify that the system can say “no”, ask for confirmation, and stop when uncertainty is high.
+- **Authority tests**: verify that the system can say "no", ask for confirmation, and stop when uncertainty is high.
 - **Deterministic backstops**: where an algorithmic fallback (e.g., `grid2_repo` beam search) is safer than a generative guess, I use it.
 - **Regression pressure**: turn interesting failures into repeatable harnesses and keep them failing until they stop.
+- **Governance translation**: convert technical findings into policy-ready language for non-technical stakeholders without losing fidelity.
 - **Post-incident writing**: document what happened in plain language, what the system inferred, and where the operator lost visibility.
 
 ---
@@ -123,4 +138,4 @@ Physical systems are unforgiving: you don’t get to “retry” a safety incide
 
 ---
 
-I build systems that remember. Then I verify what they remember, how they learned it, and what they’ll do with it when the inputs get strange.
+I build systems that remember. Then I verify what they remember, how they learned it, and what they'll do with it when the inputs get strange.

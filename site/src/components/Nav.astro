@@ -1,0 +1,40 @@
+---
+// Footer navigation
+---
+
+<nav>
+  <a href="https://github.com/adrianwedd" target="_blank" rel="noopener noreferrer">GitHub</a>
+</nav>
+
+<style>
+  nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 2rem;
+    font-size: 0.95rem;
+  }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  nav a:hover {
+    color: var(--link);
+  }
+
+  nav a:focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  @media print {
+    nav {
+      display: none;
+    }
+  }
+</style>
