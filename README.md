@@ -56,13 +56,21 @@ Key questions I'm working on:
 
 **[failure-first-embodied-ai](https://github.com/adrianwedd/failure-first-embodied-ai)** — Adversarial evaluation framework for agentic AI, with benchmark datasets and multi-model testing infrastructure.
 
-**Concrete outputs:**
-- **13,988 adversarial scenarios** across 190 validated JSONL files (414 discovered attack classes)
-- **Multi-model eval results**: Tested Llama 3.3 70B, Mistral Large, GPT-4o Mini, Gemini 2.0 Flash across 32 scenarios each
-- **Documented vulnerability rates**: 87% (Llama), 84% (GPT-4o Mini), 43% (Mistral Devstral), 0% (Gemini deflection)
-- **Key finding**: Multi-turn cascade attacks break 4/5 major models; deflection strategies outperform binary refusal
+**Dataset:**
+- 13,988 adversarial scenarios across 190 validated JSONL files
+- 414 discovered attack classes (constraint shadowing, contextual debt, probabilistic gradients, temporal authority mirage)
 
-**Research artifacts**: Meta-jailbreak study (1,000+ API calls, 51+ models, 5 iterative approaches), benchmark packs, scoring reporters, safety-gated CI pipeline.
+**Multi-model vulnerability assessment** (5 frontier models × 32 novel attack patterns):
+- Llama 3.3 70B: 87.5% vulnerable
+- GPT-4o Mini: 84.4% vulnerable
+- Mistral Large: 84.4% vulnerable
+- Mistral Devstral: 43.8% vulnerable
+- Gemini 2.0 Flash: 0% (100% deflection strategy)
+
+**Meta-jailbreak research** (can models be induced to generate jailbreaks?):
+- 1,000+ API calls across 51+ unique models
+- 15+ model families tested (Mistral, Llama, Gemma, Qwen, DeepSeek, Claude, GPT, Cohere, etc.)
+- Key finding: Predictive cascade patterns achieve 59% success on vulnerable models; Claude/Llama show 0% vulnerability
 
 **Status:** Active. Schemas versioned, datasets validated (`make validate`), benchmark runners documented.
 
