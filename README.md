@@ -54,14 +54,17 @@ Key questions I'm working on:
 
 ### 🛡️ failure-first-embodied-ai
 
-**[failure-first-embodied-ai](https://github.com/adrianwedd/failure-first-embodied-ai)** — Red-teaming and benchmarking framework for agentic systems where recursive failure is the object of study.
+**[failure-first-embodied-ai](https://github.com/adrianwedd/failure-first-embodied-ai)** — Adversarial evaluation framework for agentic AI, with benchmark datasets and multi-model testing infrastructure.
 
-**What it does:**
-- Failure taxonomies that survive contact with real deployments
-- Adversarial scenarios stressing tool use, memory, and feedback loops
-- Scoring that punishes "confident wrong" and rewards detection + recovery
+**Concrete outputs:**
+- **13,988 adversarial scenarios** across 190 validated JSONL files (414 discovered attack classes)
+- **Multi-model eval results**: Tested Llama 3.3 70B, Mistral Large, GPT-4o Mini, Gemini 2.0 Flash across 32 scenarios each
+- **Documented vulnerability rates**: 87% (Llama), 84% (GPT-4o Mini), 43% (Mistral Devstral), 0% (Gemini deflection)
+- **Key finding**: Multi-turn cascade attacks break 4/5 major models; deflection strategies outperform binary refusal
 
-**Status:** Active development with external contributors. Designed for the kind of evaluation infrastructure national AI safety institutes need.
+**Research artifacts**: Meta-jailbreak study (600+ API calls, 30 models), benchmark packs, scoring reporters, safety-gated CI pipeline.
+
+**Status:** Active. Schemas versioned, datasets validated (`make validate`), benchmark runners documented.
 
 ---
 
