@@ -2,7 +2,7 @@
 
 I build systems that detect AI failure before it looks like success. My focus is **institutional AI safety**: how organisations evaluate, govern, and maintain human oversight of autonomous systems at scale.
 
-**Why this matters for AISI:** National AI safety institutes need evaluation infrastructure that catches the failures that pass benchmarks—goal drift, authority confusion, memory contamination, confident wrong. I build and stress-test that infrastructure.
+The failures that matter aren't the obvious ones—they're goal drift, authority confusion, memory contamination, and confident wrong. I build evaluation infrastructure that catches these before they compound.
 
 ---
 
@@ -107,7 +107,15 @@ Separate lens, same underlying questions about measurement, identity, and interp
 
 ## Stack
 
-`Python` `TypeScript` `LangGraph` `FastAPI` `vLLM` `Docker`
+**Core:** Python, TypeScript, Bash
+
+**AI/ML:** LangGraph, LangChain, OpenRouter, Anthropic SDK, vLLM, Ollama
+
+**Backend:** FastAPI, Node.js, PostgreSQL, Redis
+
+**Infrastructure:** Docker, GitHub Actions, Cloudflare Workers
+
+**Testing:** Pytest, Playwright, custom adversarial harnesses
 
 ---
 

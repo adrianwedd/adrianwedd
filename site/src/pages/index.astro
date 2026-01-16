@@ -8,17 +8,16 @@ import { marked } from 'marked';
 const readmePath = path.join(process.cwd(), '..', 'README.md');
 const readmeContent = fs.readFileSync(readmePath, 'utf-8');
 
-// Configure marked to add IDs to headings
+// Configure marked to add IDs to headings (marked v5+ API)
 const renderer = new marked.Renderer();
-renderer.heading = function(text, level) {
-  // Handle the text object from marked v17+
-  const headingText = typeof text === 'object' ? text.text : text;
-  const slug = headingText
+renderer.heading = function({ text, depth }) {
+  // marked v5+ passes an object with text and depth
+  const slug = text
     .toLowerCase()
     .replace(/[^\w\s-]/g, '')
     .replace(/\s+/g, '-')
     .trim();
-  return `<h${level} id="${slug}">${headingText}</h${level}>`;
+  return `<h${depth} id="${slug}">${text}</h${depth}>`;
 };
 
 marked.setOptions({
