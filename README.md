@@ -16,7 +16,7 @@ I've deployed production AI across clinical reasoning, infrastructure automation
 
 ## Current Focus
 
-Sovereign AI evaluation. The capability a nation needs to assess frontier systems independently, without relying on developer self-reporting.
+Independent evaluation of frontier AI systems. The capability to assess what these systems actually do—not what developers claim they do.
 
 The questions I'm working on:
 
