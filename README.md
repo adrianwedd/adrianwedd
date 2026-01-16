@@ -1,141 +1,111 @@
-# 🛡️ Forensic Sentinel — Systems Architect (Tasmania)
+# Adrian Wedd — Systems Architect (Tasmania)
 
-I build agentic and embodied systems that operate under constraint: local-first when possible, audit-first always. I'm interested in the failure that looks like success—quiet drift, misplaced authority, tool misuse, memory contamination—because that's where autonomy becomes unsafe.
+I build systems that detect AI failure before it looks like success. My focus is **institutional AI safety**: how organisations evaluate, govern, and maintain human oversight of autonomous systems at scale.
 
-The work spans clinical reasoning systems, infrastructure automation on sovereign compute (`vLLM`), and physical-world coordination (a 170‑acre 3D‑printed eco‑village in Tasmania). Seven years in Tasmanian government sharpened the throughline: instrument the system, stress it, translate the findings for decision-makers, and keep a human override that still works when the lights flicker.
+**Why this matters for AISI:** National AI safety institutes need evaluation infrastructure that catches the failures that pass benchmarks—goal drift, authority confusion, memory contamination, confident wrong. I build and stress-test that infrastructure.
 
 ---
 
 ## Background
 
-Systems architect with production AI deployment across clinical, infrastructure, and government domains. Seven years in Tasmania's Department of Communities translating technical risk into policy-ready guidance—bridging the gap between what systems do and what stakeholders need to know.
+Seven years in Tasmania's Department of Communities, culminating in authoring **Homes Tasmania's first Generative AI policy**—including procedures, risk frameworks, and staff training. That work required translating frontier AI risks into language that procurement officers, case workers, and executives could act on without losing technical fidelity.
+
+Production AI deployment across clinical reasoning, infrastructure automation, and physical-world coordination. No formal degree; competence is demonstrated through auditable builds and documented incident analysis.
 
 ---
 
 ## Current Focus
 
-Applying systems forensics to **institutional AI safety**: how organisations detect, document, and respond to AI failure modes at scale. Interested in sovereign evaluation capability—the infrastructure a nation needs to assess frontier AI systems independently, without relying solely on developer self-reporting.
+Applying failure forensics to **sovereign AI evaluation**: the capability a nation needs to assess frontier systems independently, without relying on developer self-reporting.
+
+Key questions I'm working on:
+- What failure taxonomies survive contact with real agentic systems?
+- How do you score "confident wrong" and reward detection + recovery?
+- What does a reproducible adversarial harness look like for embodied AI?
 
 ---
 
 ## Operating Posture
 
-- **Failure-first safety**: treat breakdowns as primary data; build recovery loops, not "perfect runs".
-- **Threat models over vibes**: prompt/tool injection, memory poisoning, silent corruption, over-trust, goal drift, embodied hazard propagation.
-- **Sovereign compute**: local-first, open-weight inference where feasible; the cloud is a dependency to be justified, not assumed.
-- **Auditability**: event logs, reproducible runs, deterministic fallbacks where they reduce blast radius.
-- **Human sovereignty**: explicit handoffs, hard stops, and operator visibility; autonomy is earned by evidence.
+*How I approach AI safety work*
+
+- **Failure-first**: Treat breakdowns as primary data. Build recovery loops, not "perfect runs".
+- **Threat models over vibes**: Prompt injection, memory poisoning, goal drift, over-trust, silent corruption.
+- **Resilient infrastructure**: Local-first inference where data residency, auditability, or FOI compliance requires it.
+- **Human override that works**: Explicit handoffs, hard stops, operator visibility. Autonomy is earned by evidence.
 
 ---
 
-## Instrumentation (What I Mean By "Forensic")
+## Methods
 
-- **Trace**: capture decisions, tool calls, and memory writes; prefer append-only logs over "final answers".
-- **Constrain**: least-privilege tools, explicit scopes, and reversible operations by default.
-- **Degrade**: partial failure should reduce capability, not create unpredictable behavior.
-- **Reproduce**: convert incidents into harnesses; keep them failing until the system learns how to recover.
+*What "red-teaming" actually means in my practice*
+
+- **Pre-mortems**: Enumerate failure routes before the first demo.
+- **Adversarial scenarios**: Boundary breaks, escalation paths, "helpful" overreach.
+- **Memory forensics**: Contamination, leakage, persistence of incorrect beliefs.
+- **Authority tests**: Can the system say "no", ask for confirmation, stop when uncertain?
+- **Deterministic backstops**: Algorithmic fallbacks where generative guessing is unsafe.
+- **Governance translation**: Technical findings → policy-ready language without losing fidelity.
+- **Incident documentation**: What happened, what the system inferred, where the operator lost visibility.
 
 ---
 
-## Flagships (Systems Under Test)
+## Primary Build
 
 ### 🛡️ failure-first-embodied-ai
-**[failure-first-embodied-ai](https://github.com/adrianwedd/failure-first-embodied-ai)** — Red-teaming and benchmarking for embodied and agentic systems where **recursive failure** is the object of study.
 
-What I care about here:
-- **Failure taxonomies** that survive contact with reality (not just academic categories).
-- **Adversarial scenarios** that stress tool use, memory, and feedback loops.
-- **Scoring that punishes "confident wrong"** and rewards detection + recovery, not just completion.
+**[failure-first-embodied-ai](https://github.com/adrianwedd/failure-first-embodied-ai)** — Red-teaming and benchmarking framework for agentic systems where recursive failure is the object of study.
 
-This is the kind of evaluation infrastructure I believe national AI safety institutes need: adversarial, reproducible, and focused on the failures that look like success.
+**What it does:**
+- Failure taxonomies that survive contact with real deployments
+- Adversarial scenarios stressing tool use, memory, and feedback loops
+- Scoring that punishes "confident wrong" and rewards detection + recovery
 
-### ❤️‍🔥 Dx0 (Sequential Clinical Reasoning)
-**[Dx0](https://github.com/adrianwedd/Dx0)** — A multi-agent clinical suite for sequential diagnosis, simulating physician panels to solve NEJM pathological cases.
-
-I treat this as an interface problem under uncertainty: differential narrowing, evidence tracking, disagreement capture, and failure modes like anchoring and narrative overfit. The methods translate directly to risk assessment in any high-stakes domain. (Not medical advice; not a medical device.)
-
-### ⚙️ PAOS (Personal Agentic Operating System)
-**[personal-agentic-operating-system](https://github.com/adrianwedd/personal-agentic-operating-system)** — A local-first agentic OS with a **meta-agent loop** that refines system guidelines from reflection logs at runtime.
-
-The point is not "self-improvement". The point is **traceable adaptation**: what changed, why, and what it broke. Governance requires knowing when an AI system has modified its own behaviour.
-
-### 🧠 Neurodiversity & Field Support
-**[ADHDo](https://github.com/adrianwedd/ADHDo)** — A neurodiversity-affirming support system built by ADHD brains for ADHD brains: detects overwhelm patterns and offers de-escalation prompts and structure.
-
-**[thiswasntinthebrochure.wtf](https://thiswasntinthebrochure.wtf)** — A practical field guide to co-parenting neurodivergent children (ADHD, Autism, PDA, ODD).
-
-These are not "content projects" to me; they're applied cognitive forensics: reduce shame, increase signal, and keep humans in control when the nervous system is already at capacity.
-
-### 🏗️ Cygnet (Physical World Coordination)
-**[cygnet](https://github.com/adrianwedd/cygnet)** — AI coordination of a **170-acre 3D-printed eco-village** in Tasmania: construction, land, and print ops across 28+ agents.
-
-Current state (because reality matters):
-- We have the **170 acres**.
-- There is currently a **~$1.5M gap** for purchasing the 3D printer, so the build program is staged accordingly.
-
-Physical systems are unforgiving: you don't get to "retry" a safety incident. The design bias is toward operator visibility, conservative actuation, and graceful degradation.
+**Status:** Active development with external contributors. Designed for the kind of evaluation infrastructure national AI safety institutes need.
 
 ---
 
-## Methods (What Actually Happens When I "Redteam")
+## In Development
 
-- **Pre-mortems**: enumerate plausible failure routes before the first demo.
-- **Adversarial prompts + tool misuse**: test boundary break attempts, escalation paths, and "helpful" overreach.
-- **Memory forensics**: probe contamination, leakage, and persistence of incorrect beliefs.
-- **Authority tests**: verify that the system can say "no", ask for confirmation, and stop when uncertainty is high.
-- **Deterministic backstops**: where an algorithmic fallback (e.g., `grid2_repo` beam search) is safer than a generative guess, I use it.
-- **Regression pressure**: turn interesting failures into repeatable harnesses and keep them failing until they stop.
-- **Governance translation**: convert technical findings into policy-ready language for non-technical stakeholders without losing fidelity.
-- **Post-incident writing**: document what happened in plain language, what the system inferred, and where the operator lost visibility.
+*Methods exploration, not production claims*
 
----
+### Dx0 (Sequential Clinical Reasoning)
+**[Dx0](https://github.com/adrianwedd/Dx0)** — Multi-agent clinical reasoning for NEJM pathological cases. Exploring differential narrowing, evidence tracking, and failure modes like anchoring. Methods transfer to any high-stakes risk assessment domain.
 
-## Creative Instruments (The Same Work, Different Sensors)
-
-- **[Footnotes at the Edge of Reality](https://github.com/adrianwedd/Footnotes-at-the-Edge-of-Reality)**: physics‑poetry about measurement as participation; an interpretability notebook in verse form.
-- **[Before the Words Existed](https://github.com/adrianwedd/before-the-words-existed)**: a forensic reading of *Neuromancer*—cognitive mismatch before we had clinical language for it.
-- **[afterglow-engine](https://github.com/adrianwedd/afterglow-engine)**: sonic archaeology—mining audio archives for texture, stable pads, and granular clouds.
+### PAOS (Personal Agentic Operating System)
+**[personal-agentic-operating-system](https://github.com/adrianwedd/personal-agentic-operating-system)** — Local-first agentic OS with runtime guideline refinement. Focus: traceable adaptation—logging what changed, why, and what it broke.
 
 ---
 
-## Selected Builds (Index)
+## Safety-Adjacent Builds
 
-### Agents & Cognition
-- **[agentic-research-engine](https://github.com/adrianwedd/agentic-research-engine)**: Multi-agent system with long-term memory (LTM) and a critique-and-refinement loop.
-- **[TEL3SIS](https://github.com/adrianwedd/TEL3SIS)**: Real-time, voice-first agentic telephony (`vocode-python`), tri-layer memory, tool orchestration.
-- **[AI-SWA](https://github.com/adrianwedd/AI-SWA)**: A software architect agent that reasons about its own design and spawns modular components.
-- **[ModelAtlas](https://github.com/adrianwedd/ModelAtlas)**: Foundational model metadata enrichment: lineage and trust scoring.
-- **[Agentic-Index](https://github.com/adrianwedd/Agentic-Index)**: Curated, scored catalog of agent frameworks.
+### Evaluation & Infrastructure
+- **[agentic-research-engine](https://github.com/adrianwedd/agentic-research-engine)**: Multi-agent research with long-term memory and critique loops
+- **[grid2_repo](https://github.com/adrianwedd/grid2_repo)**: Deterministic site builder using beam search (avoids hallucinated assembly)
+- **[ticketsmith](https://github.com/adrianwedd/ticketsmith)**: Jira/Confluence automation on self-hosted inference (data residency compliant)
+- **[ModelAtlas](https://github.com/adrianwedd/ModelAtlas)**: Model metadata enrichment—lineage and trust scoring
 
-### Infrastructure & Sovereign Automation
-- **[ticketsmith](https://github.com/adrianwedd/ticketsmith)**: Jira/Confluence automation on sovereign compute (self-hosted `vLLM` inference).
-- **[project-terrawatt](https://github.com/adrianwedd/project-terrawatt)**: Sustainability/infrastructure optimization experiments using `LangGraph`.
-- **[grid2_repo](https://github.com/adrianwedd/grid2_repo)**: Deterministic site builder using **beam search** to avoid hallucinated assembly.
+### Neurodiversity & Cognitive Support
+- **[ADHDo](https://github.com/adrianwedd/ADHDo)**: Overwhelm detection and de-escalation for ADHD users
+- **[thiswasntinthebrochure.wtf](https://thiswasntinthebrochure.wtf)**: Field guide for co-parenting neurodivergent children
 
-### Health & Accessibility
-- **[ADHDo](https://github.com/adrianwedd/ADHDo)**: Neurodiversity-affirming coach; detects overwhelm and offers de-escalation.
-- **[emdr-agent](https://github.com/adrianwedd/emdr-agent)**: EMDR protocol implementation with distress monitoring and grounding triggers.
-- **[thiswasntinthebrochure.wtf](https://thiswasntinthebrochure.wtf)**: Practical field guide for co-parenting neurodivergent children (ADHD, Autism, PDA, ODD).
+*Applied cognitive forensics: keep humans in control when the nervous system is at capacity.*
 
-### Identity, Signal, and Installation
-- **[latent-self](https://github.com/adrianwedd/latent-self)**: Face-morphing mirror installation probing identity boundaries with generative GANs.
-- **[lunar_tools_prototypes](https://github.com/adrianwedd/lunar_tools_prototypes)**: Audiovisual installations (Dream Interpreters, Bio-Acoustic Fingerprint Painters).
-- **[orbitr](https://github.com/adrianwedd/orbitr)**: Circular step sequencer with **MusicGen** for real-time sample generation.
+---
 
-### Tooling & Automation
-- **[homelab-scripts](https://github.com/adrianwedd/homelab-scripts)**: Bash automation for disk cleanup, network discovery, and secure backups.
-- **[lemonsqueezy-claude-skills](https://github.com/adrianwedd/lemonsqueezy-claude-skills)**: Claude Code skills for payment platform operations and analytics.
-- **[cv](https://github.com/adrianwedd/cv)**: Browser-automated resume pipeline with AI-assisted maintenance.
-- **[squishmallowdex](https://github.com/adrianwedd/squishmallowdex)**: Offline-first static collection tracker (architecture with a sense of play).
+## Creative Work
 
-### Cosmic
-- **[space-weather](https://github.com/adrianwedd/space-weather)**: Monitoring and visualizing geomagnetic conditions via NASA/BOM APIs.
+Separate lens, same underlying questions about measurement, identity, and interpretation.
+
+- **[Footnotes at the Edge of Reality](https://github.com/adrianwedd/Footnotes-at-the-Edge-of-Reality)**: Physics-poetry on measurement as participation
+- **[afterglow-engine](https://github.com/adrianwedd/afterglow-engine)**: Sonic archaeology—mining audio archives
 
 ---
 
 ## Stack
-`Python` `TypeScript` `LangGraph` `FastAPI` `Astro` `Vector DBs` `Docker` `Home Assistant` `vLLM`
+
+`Python` `TypeScript` `LangGraph` `FastAPI` `vLLM` `Docker`
 
 ---
 
-I build systems that remember. Then I verify what they remember, how they learned it, and what they'll do with it when the inputs get strange.
+I build systems that remember. Then I verify what they remember, how they learned it, and what they'll do when the inputs get strange.

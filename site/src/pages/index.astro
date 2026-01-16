@@ -8,32 +8,68 @@ import { marked } from 'marked';
 const readmePath = path.join(process.cwd(), '..', 'README.md');
 const readmeContent = fs.readFileSync(readmePath, 'utf-8');
 
-// Configure marked for GitHub-flavored markdown
+// Configure marked to add IDs to headings
+const renderer = new marked.Renderer();
+renderer.heading = function(text, level) {
+  // Handle the text object from marked v17+
+  const headingText = typeof text === 'object' ? text.text : text;
+  const slug = headingText
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .trim();
+  return `<h${level} id="${slug}">${headingText}</h${level}>`;
+};
+
 marked.setOptions({
   gfm: true,
-  breaks: false
+  breaks: false,
+  renderer: renderer
 });
 
 // Render markdown to HTML
 const htmlContent = marked.parse(readmeContent);
-
-// Extract title from first h1
-const titleMatch = readmeContent.match(/^#\s+(.+)/m);
-const title = titleMatch ? titleMatch[1].replace(/[^\w\s—]/g, '').trim() : 'Adrian Wedd';
 ---
 
 <BaseLayout
-  title="Adrian Wedd — Forensic Sentinel"
-  description="Forensic systems architecture: instrumenting autonomy, stress-testing trust, keeping humans sovereign when inputs get strange."
+  title="Adrian Wedd — Systems Architect"
+  description="Institutional AI safety: evaluation infrastructure that catches the failures that pass benchmarks."
 >
+  <nav class="section-nav" aria-label="Page sections">
+    <a href="#background">Background</a>
+    <a href="#current-focus">Focus</a>
+    <a href="#methods">Methods</a>
+    <a href="#primary-build">Builds</a>
+  </nav>
+
   <article class="portfolio-container content-surface">
     <div class="readme-body" set:html={htmlContent} />
   </article>
 </BaseLayout>
 
 <style>
+  .section-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section-nav a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .section-nav a:hover {
+    color: var(--link);
+  }
+
   article {
-    padding: 3rem 1.5rem;
+    padding: 2rem 1.5rem;
     padding-bottom: 8rem;
   }
 
@@ -43,44 +79,51 @@ const title = titleMatch ? titleMatch[1].replace(/[^\w\s—]/g, '').trim() : 'Ad
 
   /* Title styling */
   .readme-body :global(h1) {
-    font-size: 1.75rem;
+    font-size: 1.6rem;
     font-weight: 500;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
     letter-spacing: -0.01em;
   }
 
   /* Section headers */
   .readme-body :global(h2) {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     font-weight: 500;
     margin-top: 2.5rem;
     margin-bottom: 0.75rem;
     padding-bottom: 0.35rem;
     border-bottom: 1px solid var(--rule);
+    scroll-margin-top: 4rem;
   }
 
   /* Subsection headers */
   .readme-body :global(h3) {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: 500;
-    margin-top: 1.75rem;
+    margin-top: 1.5rem;
     margin-bottom: 0.5rem;
     color: var(--fg);
   }
 
   /* Index headers */
   .readme-body :global(h4) {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    margin-top: 1.5rem;
+    margin-top: 1.25rem;
     margin-bottom: 0.5rem;
     color: var(--muted);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
   }
 
   .readme-body :global(p) {
     margin-bottom: 1rem;
+  }
+
+  /* Italicized sublines */
+  .readme-body :global(em) {
+    color: var(--muted);
+    font-style: italic;
   }
 
   .readme-body :global(ul) {
@@ -142,20 +185,30 @@ const title = titleMatch ? titleMatch[1].replace(/[^\w\s—]/g, '').trim() : 'Ad
   }
 
   @media (max-width: 600px) {
+    .section-nav {
+      gap: 1rem;
+      font-size: 0.85rem;
+      flex-wrap: wrap;
+    }
+
     article {
-      padding: 2rem 1rem;
+      padding: 1.5rem 1rem;
     }
 
     .readme-body :global(h1) {
-      font-size: 1.4rem;
+      font-size: 1.35rem;
     }
 
     .readme-body :global(h2) {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
     }
   }
 
   @media print {
+    .section-nav {
+      display: none;
+    }
+
     article {
       padding: 0;
     }
