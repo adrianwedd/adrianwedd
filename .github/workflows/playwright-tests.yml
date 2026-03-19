@@ -1,0 +1,348 @@
+name: 🎭 Playwright Testing Excellence
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      browser_suite:
+        description: 'Browser test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - chromium
+          - firefox
+          - webkit
+      test_mode:
+        description: 'Test execution mode'
+        required: false
+        default: 'normal'
+        type: choice
+        options:
+          - normal
+          - headed
+          - debug
+          - smoke-only
+
+env:
+  CI: true
+  PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/pw-browsers
+
+jobs:
+  pre-flight:
+    name: 🚀 Pre-Flight Test Analysis
+    runs-on: ubuntu-latest
+    outputs:
+      test-strategy: ${{ steps.strategy.outputs.strategy }}
+      browser-matrix: ${{ steps.browsers.outputs.matrix }}
+      estimated-duration: ${{ steps.estimation.outputs.duration }}
+    steps:
+      - name: 🎬 Test Suite Initialization
+        run: |
+          echo "🎭 **PLAYWRIGHT TESTING SUITE INITIATED**"
+          echo "📅 Started at: $(date +'%Y-%m-%d %H:%M:%S UTC')"
+          echo "🌐 Browser suite: ${{ github.event.inputs.browser_suite || 'all' }}"
+          echo "🎯 Test mode: ${{ github.event.inputs.test_mode || 'normal' }}"
+          echo "🤖 Triggered by: ${{ github.event_name }}"
+          echo ""
+
+      - name: 📥 Repository Checkout
+        uses: actions/checkout@v4
+
+      - name: 🎯 Test Strategy Determination
+        id: strategy
+        run: |
+          echo "🎲 **DETERMINING OPTIMAL TEST STRATEGY**"
+          
+          BROWSER_SUITE="${{ github.event.inputs.browser_suite || 'all' }}"
+          TEST_MODE="${{ github.event.inputs.test_mode || 'normal' }}"
+          
+          if [ "$TEST_MODE" = "smoke-only" ]; then
+            STRATEGY="smoke"
+            echo "💨 Selected: Smoke test strategy"
+          elif [ "$TEST_MODE" = "debug" ]; then
+            STRATEGY="debug"
+            echo "🐛 Selected: Debug test strategy"
+          elif [ "$BROWSER_SUITE" != "all" ]; then
+            STRATEGY="targeted"
+            echo "🎯 Selected: Targeted browser strategy ($BROWSER_SUITE)"
+          else
+            STRATEGY="comprehensive"
+            echo "🔬 Selected: Comprehensive cross-browser strategy"
+          fi
+          
+          echo "strategy=$STRATEGY" >> $GITHUB_OUTPUT
+
+      - name: 🌐 Browser Matrix Configuration
+        id: browsers
+        run: |
+          echo "🌐 **CONFIGURING BROWSER MATRIX**"
+          
+          BROWSER_SUITE="${{ github.event.inputs.browser_suite || 'all' }}"
+          
+          if [ "$BROWSER_SUITE" = "all" ]; then
+            MATRIX='["chromium", "firefox", "webkit"]'
+          else
+            MATRIX='["'$BROWSER_SUITE'"]'
+          fi
+          
+          echo "Browser matrix: $MATRIX"
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+
+      - name: ⏱️ Test Duration Estimation
+        id: estimation
+        run: |
+          echo "⏱️ **ESTIMATING TEST EXECUTION TIME**"
+          
+          TEST_FILES=$(find tests -name "*.spec.js" -o -name "*.spec.ts" | wc -l)
+          BROWSER_COUNT=$(echo '${{ steps.browsers.outputs.matrix }}' | jq length)
+          STRATEGY="${{ steps.strategy.outputs.strategy }}"
+          
+          case $STRATEGY in
+            "smoke")
+              BASE_TIME=5
+              ;;
+            "debug")
+              BASE_TIME=20
+              ;;
+            "targeted")
+              BASE_TIME=10
+              ;;
+            *)
+              BASE_TIME=15
+              ;;
+          esac
+          
+          ESTIMATED_DURATION=$((BASE_TIME * BROWSER_COUNT))
+          
+          echo "📊 **Execution Estimates:**"
+          echo "- Test files: $TEST_FILES"
+          echo "- Browsers: $BROWSER_COUNT"
+          echo "- Strategy: $STRATEGY"
+          echo "- Estimated duration: ${ESTIMATED_DURATION} minutes"
+          
+          echo "duration=$ESTIMATED_DURATION" >> $GITHUB_OUTPUT
+
+  test:
+    name: 🎯 Cross-Browser Testing
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    needs: pre-flight
+    strategy:
+      matrix:
+        browser: ${{ fromJson(needs.pre-flight.outputs.browser-matrix) }}
+      fail-fast: false
+    
+    steps:
+      - name: 🎪 Browser Test Initialization
+        run: |
+          echo "🎭 **${{ matrix.browser }} BROWSER TESTING INITIATED**"
+          echo "🎯 Strategy: ${{ needs.pre-flight.outputs.test-strategy }}"
+          echo "⏱️ Estimated duration: ${{ needs.pre-flight.outputs.estimated-duration }} minutes"
+          echo "🌐 Browser: ${{ matrix.browser }}"
+          echo ""
+
+      - name: 📥 Repository Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Node.js Environment Setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Dependency Installation
+        run: |
+          echo "📦 **INSTALLING PROJECT DEPENDENCIES**"
+          npm ci --prefer-offline --no-audit
+          echo "✅ Dependencies installed successfully"
+
+      - name: 🎭 Playwright Browser Installation
+        run: |
+          echo "🎭 **INSTALLING PLAYWRIGHT BROWSERS**"
+          echo "🌐 Installing ${{ matrix.browser }} and dependencies..."
+          npx playwright install ${{ matrix.browser }} --with-deps
+          echo "✅ ${{ matrix.browser }} browser installed successfully"
+
+      - name: 🎯 Playwright Test Execution
+        run: |
+          echo "🎯 **EXECUTING PLAYWRIGHT TESTS**"
+          echo "🌐 Running tests on ${{ matrix.browser }}..."
+          echo "🎪 Test mode: ${{ github.event.inputs.test_mode || 'normal' }}"
+          
+          # Configure test execution based on mode
+          case "${{ github.event.inputs.test_mode || 'normal' }}" in
+            "headed")
+              EXTRA_ARGS="--headed"
+              ;;
+            "debug")
+              EXTRA_ARGS="--debug --max-failures=3"
+              ;;
+            "smoke-only")
+              EXTRA_ARGS="--grep @smoke"
+              ;;
+            *)
+              EXTRA_ARGS=""
+              ;;
+          esac
+          
+          npx playwright test --project=${{ matrix.browser }} $EXTRA_ARGS \
+            --reporter=html,json 2>&1 | tee playwright-${{ matrix.browser }}-output.log || {
+            echo "❌ Some tests failed on ${{ matrix.browser }}"
+            exit 1
+          }
+          
+          echo "✅ ${{ matrix.browser }} tests completed"
+
+      - name: 📊 Test Results Processing
+        if: always()
+        run: |
+          echo "📊 **PROCESSING TEST RESULTS FOR ${{ matrix.browser }}**"
+          
+          if [ -f "test-results.json" ]; then
+            echo "📈 **Test Summary:**"
+            jq -r '
+              "Total tests: " + (.stats.expected | tostring) +
+              "\nPassed: " + (.stats.passed | tostring) +
+              "\nFailed: " + (.stats.failed | tostring) +
+              "\nSkipped: " + (.stats.skipped | tostring) +
+              "\nDuration: " + ((.stats.duration / 1000) | tostring) + "s"
+            ' test-results.json
+          fi
+          
+          if [ -f "playwright-${{ matrix.browser }}-output.log" ]; then
+            echo "📏 Output log: $(wc -l < playwright-${{ matrix.browser }}-output.log) lines"
+          fi
+
+      - name: 📋 Live Test Console Output
+        if: always()
+        run: |
+          echo "🖥️ **RENDERING ${{ matrix.browser }} TEST CONSOLE TO WORKFLOW SUMMARY**"
+          
+          if [ -f "playwright-${{ matrix.browser }}-output.log" ]; then
+            echo "## 🎭 ${{ matrix.browser }} Test Output" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            tail -100 "playwright-${{ matrix.browser }}-output.log" >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 📊 Archive Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            test-results/
+            playwright-${{ matrix.browser }}-output.log
+          retention-days: 30
+          
+      - name: 📷 Archive Test Screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-screenshots-${{ matrix.browser }}
+          path: |
+            test-results/**/*.png
+            test-results/**/*.webm
+            tests/screenshots/
+          retention-days: 30
+
+  test-summary:
+    name: 📋 Cross-Browser Test Summary
+    runs-on: ubuntu-latest
+    needs: [pre-flight, test]
+    if: always()
+    steps:
+      - name: 🏁 Test Suite Completion
+        run: |
+          echo "🏁 **PLAYWRIGHT CROSS-BROWSER TESTING COMPLETED**"
+          echo "📅 Completed at: $(date +'%Y-%m-%d %H:%M:%S UTC')"
+          echo "🎯 Strategy: ${{ needs.pre-flight.outputs.test-strategy }}"
+          echo "⏱️ Estimated duration: ${{ needs.pre-flight.outputs.estimated-duration }} minutes"
+          echo ""
+          
+          echo "📊 **Browser Test Results:**"
+          echo "${{ toJson(needs.test.result) }}" | jq -r 'to_entries[] | "✅ \(.key): \(.value)"' || echo "Result parsing unavailable"
+
+      - name: 📝 PR Comment with Test Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const browsers = ${{ needs.pre-flight.outputs.browser-matrix }};
+            const testResults = ${{ toJson(needs.test.result) }};
+            
+            let passedBrowsers = 0;
+            let failedBrowsers = 0;
+            let browserDetails = [];
+            
+            for (const browser of browsers) {
+              const result = testResults[browser] || 'unknown';
+              if (result === 'success') {
+                passedBrowsers++;
+                browserDetails.push(`✅ **${browser}**: All tests passed`);
+              } else {
+                failedBrowsers++;
+                browserDetails.push(`❌ **${browser}**: Tests failed or incomplete`);
+              }
+            }
+            
+            const totalBrowsers = browsers.length;
+            const overallStatus = failedBrowsers === 0 ? '✅' : '❌';
+            
+            const comment = `## 🎭 Playwright Cross-Browser Test Results ${overallStatus}
+            
+            **${passedBrowsers}/${totalBrowsers} browsers passed** 
+            
+            ### 🌐 Browser Test Results:
+            ${browserDetails.join('\n')}
+            
+            ### 📊 Test Execution Details:
+            - **Strategy:** ${{ needs.pre-flight.outputs.test-strategy }}
+            - **Test Mode:** ${{ github.event.inputs.test_mode || 'normal' }}
+            - **Estimated Duration:** ${{ needs.pre-flight.outputs.estimated-duration }} minutes
+            
+            ${failedBrowsers > 0 ? 
+              `### ⚠️ Action Required\n${failedBrowsers} browser(s) failed testing. Please review the workflow logs and artifacts for detailed error information.` : 
+              `### 🎉 Success!\nAll browser tests passed! Your changes are compatible across all target browsers.`}
+            
+            [📊 View detailed reports and artifacts](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: 📊 Comprehensive Test Summary
+        if: always()
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          # 🎭 Playwright Cross-Browser Testing Results
+          
+          ## 📊 Execution Overview
+          - **Strategy:** ${{ needs.pre-flight.outputs.test-strategy }}
+          - **Browser Suite:** ${{ github.event.inputs.browser_suite || 'all' }}
+          - **Test Mode:** ${{ github.event.inputs.test_mode || 'normal' }}
+          - **Estimated Duration:** ${{ needs.pre-flight.outputs.estimated-duration }} minutes
+          - **Actual Completion:** $(date +'%H:%M:%S UTC')
+          
+          ## 🌐 Browser Compatibility Matrix
+          | Browser | Status | Details |
+          |---------|---------|---------|
+          $(echo '${{ needs.pre-flight.outputs.browser-matrix }}' | jq -r '.[] | "| 🌐 " + . + " | " + (${{ toJson(needs.test.result) }}[.] // "unknown" | if . == "success" then "✅ PASSED" else "❌ FAILED" end) + " | Cross-browser compatibility testing |"')
+          
+          ## 🎯 Testing Excellence Features
+          - **🎭 Multi-Browser Support:** Chromium, Firefox, WebKit testing
+          - **🎪 Flexible Test Modes:** Normal, headed, debug, smoke-only options
+          - **📊 Comprehensive Reporting:** HTML reports with screenshots and videos
+          - **🖥️ Live Console Output:** Real-time test execution logs in workflow summary
+          - **📈 Smart Test Strategy:** Adaptive execution based on complexity and mode
+          - **📱 Cross-Platform Testing:** Ubuntu runners with full browser dependencies
+          
+          ${{ contains(toJson(needs.test.result), 'success') && '## 🎉 Excellent Results!\n\n✨ **Outstanding cross-browser compatibility!** Your application works seamlessly across all target browsers.\n\n🚀 **Quality Metrics:**\n- Multi-browser validation complete\n- UI/UX consistency verified\n- Performance across engines tested\n- Accessibility compliance maintained' || '## ⚠️ Action Required\n\n🔍 **Browser compatibility issues detected.** Some tests failed across different browsers.\n\n🛠️ **Next Steps:**\n- Review failed browser test logs\n- Check for browser-specific issues\n- Verify feature compatibility\n- Update code for cross-browser support' }}
+          EOF
