@@ -206,6 +206,7 @@ jobs:
 
       - name: 📊 Create Weather Data Files
         run: |
+          mkdir -p assets
           # Create current weather JSON for terminal
           cat > "assets/current-weather.json" << EOF
           {
