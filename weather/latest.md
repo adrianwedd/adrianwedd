@@ -1,9 +1,9 @@
 # 🌤️ Current Weather - Grove (Cygnet Area)
 
 ☀️ **-**  
-🌡️ 9.3°C (feels like 7.1°C)  
-💧 80% humidity  
-💨 SSW 7 km/h  
+🌡️ 12.7°C (feels like 10.1°C)  
+💧 72% humidity  
+💨 WSW 11 km/h  
 
-**Comfort:** Cold ❄️  
-**Updated:** 20260604070000
+**Comfort:** Perfect 😌  
+**Updated:** 20260605070000
