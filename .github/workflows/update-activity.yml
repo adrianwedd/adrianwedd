@@ -132,11 +132,12 @@ jobs:
           
           # Get current user stats
           USER_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/user")
+            "https://api.github.com/user" --fail --show-error)
           
-          PUBLIC_REPOS=$(echo "$USER_DATA" | jq -r '.public_repos // 0')
-          FOLLOWERS=$(echo "$USER_DATA" | jq -r '.followers // 0')
-          FOLLOWING=$(echo "$USER_DATA" | jq -r '.following // 0')
+          PROFILE_METRICS=$(printf '%s' "$USER_DATA" | node scripts/activity-precheck.mjs profile -)
+          PUBLIC_REPOS=$(echo "$PROFILE_METRICS" | jq -r '.public_repos')
+          FOLLOWERS=$(echo "$PROFILE_METRICS" | jq -r '.followers')
+          FOLLOWING=$(echo "$PROFILE_METRICS" | jq -r '.following')
           
           echo "👤 **Current GitHub Profile:**"
           echo "  - Public repositories: $PUBLIC_REPOS"
@@ -172,8 +173,12 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: 🔎 Validate Optional README Activity Section
+        id: activity-section
+        run: node scripts/activity-precheck.mjs markers README.md
+
       - name: 📊 Enhanced GitHub Activity Processing
-        if: needs.pre-activity-analysis.outputs.update-strategy != 'stats-only'
+        if: needs.pre-activity-analysis.outputs.update-strategy != 'stats-only' && steps.activity-section.outputs.render == 'true'
         uses: jamesgeorge007/github-activity-readme@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -189,17 +194,21 @@ jobs:
           echo "📡 Fetching comprehensive GitHub data..."
           
           USER_STATS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/user" || echo '{}')
+            "https://api.github.com/user" --fail --show-error)
+
+          # Reject malformed or upstream-error responses before any statistics write.
+          printf '%s' "$USER_STATS" | node scripts/activity-precheck.mjs profile - > /dev/null
           
           REPOS_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/users/adrianwedd/repos?per_page=100" || echo '[]')
+            "https://api.github.com/users/adrianwedd/repos?per_page=100" --fail --show-error)
           
           # Calculate comprehensive metrics
-          TOTAL_SIZE=$(echo "$REPOS_DATA" | jq '[.[] | .size] | add // 0')
-          REPO_COUNT=$(echo "$REPOS_DATA" | jq 'length')
-          STARGAZERS=$(echo "$REPOS_DATA" | jq '[.[] | .stargazers_count] | add // 0')
-          FORKS=$(echo "$REPOS_DATA" | jq '[.[] | .forks_count] | add // 0')
-          LANGUAGES=$(echo "$REPOS_DATA" | jq '[.[] | .language] | unique | length')
+          REPO_METRICS=$(printf '%s' "$REPOS_DATA" | node scripts/activity-precheck.mjs repos -)
+          TOTAL_SIZE=$(echo "$REPO_METRICS" | jq '.totalSize')
+          REPO_COUNT=$(echo "$REPO_METRICS" | jq '.count')
+          STARGAZERS=$(echo "$REPO_METRICS" | jq '.totalStars')
+          FORKS=$(echo "$REPO_METRICS" | jq '.totalForks')
+          LANGUAGES=$(echo "$REPO_METRICS" | jq '.languages')
           
           # Get recent activity metrics
           RECENT_COMMITS=$(git log --since="30 days ago" --oneline | wc -l)
