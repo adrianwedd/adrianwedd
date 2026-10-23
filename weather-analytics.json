@@ -1,14 +1,14 @@
 {
-"generatedAt": "2026-10-22T06:02:54Z",
+"generatedAt": "2026-10-23T06:02:45Z",
 "location": "Grove (Cygnet Area)",
 "coordinates": "-43.1647,147.0584",
 "currentConditions": {
-  "temperature": "29.3",
-  "apparentTemperature": "26.1",
-  "humidity": "30",
-  "windDirection": "NNW",
-  "windSpeed": "17",
-  "windGust": "33",
+  "temperature": "26.1",
+  "apparentTemperature": "24.0",
+  "humidity": "39",
+  "windDirection": "W",
+  "windSpeed": "13",
+  "windGust": "20",
   "pressure": "N/A",
   "rainfall": "0.0",
   "conditions": "-",
@@ -18,15 +18,15 @@
 "analytics": {
   "weatherQuality": "excellent",
   "dataSource": "Australian Bureau of Meteorology",
-  "observationTime": "20261022053000",
+  "observationTime": "20261023053000",
   "systemVersion": "v2.0",
   "updateFrequency": "Every 3 hours",
   "automationLevel": "Fully Automated"
 },
 "visualizations": {
-  "temperatureBar": "███████░░░",
+  "temperatureBar": "██████░░░░",
   "humidityBar": "███░░░░░░░",
-  "windBar": "███░░░░░░░"
+  "windBar": "██░░░░░░░░"
 },
 "insights": [
   "🌡️ Temperature monitoring active",
