@@ -1,0 +1,44 @@
+{
+  "markers": [
+    {"name": "curated profile", "text": "# Curated profile\nNo automated activity section.\n", "render": false},
+    {"name": "valid pair", "text": "# Profile\n<!--START_SECTION:activity-->\nold activity\n<!--END_SECTION:activity-->\n", "render": true},
+    {"name": "start only", "text": "<!--START_SECTION:activity-->", "error": true},
+    {"name": "end only", "text": "<!--END_SECTION:activity-->", "error": true},
+    {"name": "reversed pair", "text": "<!--END_SECTION:activity-->\n<!--START_SECTION:activity-->", "error": true},
+    {"name": "duplicate start", "text": "<!--START_SECTION:activity--><!--START_SECTION:activity--><!--END_SECTION:activity-->", "error": true},
+    {"name": "duplicate end", "text": "<!--START_SECTION:activity--><!--END_SECTION:activity--><!--END_SECTION:activity-->", "error": true},
+    {"name": "duplicate pair", "text": "<!--START_SECTION:activity--><!--END_SECTION:activity--><!--START_SECTION:activity--><!--END_SECTION:activity-->", "error": true}
+  ],
+  "profile": {"public_repos": 3, "followers": 7, "following": 2},
+  "repos": [
+    {"size": 12, "stargazers_count": 5, "forks_count": 1, "language": "JavaScript"},
+    {"size": 8, "stargazers_count": 2, "forks_count": 3, "language": "JavaScript"},
+    {"size": 0, "stargazers_count": 0, "forks_count": 0, "language": null}
+  ],
+  "invalidProfile": [
+    {"name": "malformed JSON", "text": "{broken"},
+    {"name": "empty response", "text": ""},
+    {"name": "HTTP error body", "text": "<html>Bad Gateway</html>"},
+    {"name": "upstream error", "text": "{\"message\":\"Bad credentials\"}"},
+    {"name": "missing fields", "text": "{}"},
+    {"name": "wrong shape", "text": "[]"},
+    {"name": "null", "text": "null"},
+    {"name": "string metric", "text": "{\"public_repos\":\"3\",\"followers\":7,\"following\":2}"},
+    {"name": "negative metric", "text": "{\"public_repos\":-1,\"followers\":7,\"following\":2}"},
+    {"name": "fractional metric", "text": "{\"public_repos\":1.5,\"followers\":7,\"following\":2}"},
+    {"name": "error with metrics", "text": "{\"errors\":[],\"public_repos\":3,\"followers\":7,\"following\":2}"}
+  ],
+  "invalidRepos": [
+    {"name": "malformed JSON", "text": "[broken"},
+    {"name": "empty response", "text": ""},
+    {"name": "upstream error", "text": "{\"message\":\"API rate limit exceeded\"}"},
+    {"name": "wrong shape", "text": "{}"},
+    {"name": "null item", "text": "[null]"},
+    {"name": "missing metrics", "text": "[{}]"},
+    {"name": "string metric", "text": "[{\"size\":\"12\",\"stargazers_count\":5,\"forks_count\":1,\"language\":null}]"},
+    {"name": "missing language", "text": "[{\"size\":12,\"stargazers_count\":5,\"forks_count\":1}]"},
+    {"name": "wrong language type", "text": "[{\"size\":12,\"stargazers_count\":5,\"forks_count\":1,\"language\":false}]"},
+    {"name": "error item", "text": "[{\"error\":\"Unavailable\",\"size\":12,\"stargazers_count\":5,\"forks_count\":1,\"language\":null}]"},
+    {"name": "overflow sum", "text": "[{\"size\":9007199254740991,\"stargazers_count\":0,\"forks_count\":0,\"language\":null},{\"size\":1,\"stargazers_count\":0,\"forks_count\":0,\"language\":null}]"}
+  ]
+}
