@@ -1,22 +1,22 @@
 {
 "station": "Grove (Cygnet Area)",
 "coordinates": "-43.1647,147.0584",
-"temperature": "18.7",
-"apparent_temperature": "16.1",
-"humidity": "65",
-"wind_direction": "SW",
-"wind_speed_kmh": "17",
-"wind_gust_kmh": "28",
+"temperature": "16.0",
+"apparent_temperature": "12.6",
+"humidity": "74",
+"wind_direction": "E",
+"wind_speed_kmh": "20",
+"wind_gust_kmh": "30",
 "pressure_hpa": "N/A",
-"rainfall_mm": "-",
+"rainfall_mm": "0.0",
 "conditions": "-",
 "weather_emoji": "☀️",
 "comfort_level": "Perfect 😌",
-"observation_time": "20261112053000",
-"updated_at": "2026-11-12T06:01:41Z",
+"observation_time": "20261113053000",
+"updated_at": "2026-11-13T06:01:30Z",
 "visualizations": {
   "temperature_bar": "████░░░░░░",
-  "humidity_bar": "██████░░░░",
-  "wind_bar": "███░░░░░░░"
+  "humidity_bar": "███████░░░",
+  "wind_bar": "████░░░░░░"
 }
 }
